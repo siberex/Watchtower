@@ -1,0 +1,68 @@
+# YAML configuration, appengine-web.xml and web.xml will be automatically derived from app.yaml.
+# http://code.google.com/intl/en/appengine/docs/java/configyaml/appconfig_yaml.html
+
+application: crying-banksy
+version: 1
+runtime: java
+public_root: /pub
+
+static_files:
+  - include: /pub/**
+  - exclude: README.txt
+  - exclude: launch-local.cmd
+  - exclude: /.stuff/**
+
+resource_files:
+  - exclude: README.txt
+  - exclude: launch-local.cmd
+  - exclude: /.stuff/**
+
+welcome_files:
+  - index.html
+
+sessions_enabled: true
+
+# Configure java.util.logging.
+system_properties:
+  java.util.logging.config.file: WEB-INF/logging.properties
+
+# Handlers section.
+# Application configuration: /app/config.js
+# optlevel: -1 for run Rhino in interpreted mode.
+# (faster spin-up, reduced memory usage, bit slower at runtime).
+# Modules and packages should be placed in ringo-home.
+handlers:
+  - url: /*
+    servlet: org.ringojs.jsgi.JsgiServlet
+    name: showroom
+    init_params:
+      ringo-home: /
+      module-path: app
+      config: config
+      app: app
+#      optlevel: -1
+
+
+# Static pages for critical error handling
+error_handlers:
+  - file: /pub/err/default.html
+
+  - error_code: over_quota
+    file: /pub/err/overquota.html
+
+  - error_code: dos_api_denial
+    file: /pub/err/dosdenied.html
+
+  - error_code: timeout
+    file: /pub/err/timeout.html
+
+web_xml: |
+  <display-name>Showroom</display-name>
+  <!--error-page>
+    <error-code>500</error-code>
+    <location>/errors/servererror.jsp</location>
+  </error-page-->
+  <!--mime-mapping>
+    <extension>ico</extension>
+    <mime-type>image/vnd.microsoft.icon</mime-type>
+  </mime-mapping-->
