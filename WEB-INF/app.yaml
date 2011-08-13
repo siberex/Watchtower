@@ -8,33 +8,37 @@ public_root: /pub
 
 static_files:
   - include: /pub/**
-  - exclude: README.txt
+  - exclude: README.md
   - exclude: launch-local.cmd
   - exclude: /.stuff/**
 
 resource_files:
-  - exclude: README.txt
+  - exclude: README.md
   - exclude: launch-local.cmd
   - exclude: /.stuff/**
 
 welcome_files:
   - index.html
 
+
+# Sessions.
 sessions_enabled: true
+
 
 # Configure java.util.logging.
 system_properties:
   java.util.logging.config.file: WEB-INF/logging.properties
 
+
 # Handlers section.
 # Application configuration: /app/config.js
-# optlevel: -1 for run Rhino in interpreted mode.
-# (faster spin-up, reduced memory usage, bit slower at runtime).
+# optlevel: -1 for run Rhino in interpreted mode
+# (faster spin-up, reduced memory usage, slower at runtime).
 # Modules and packages should be placed in ringo-home.
 handlers:
   - url: /*
     servlet: org.ringojs.jsgi.JsgiServlet
-    name: showroom
+    name: cryingBanksy
     init_params:
       ringo-home: /
       module-path: app
@@ -43,7 +47,7 @@ handlers:
 #      optlevel: -1
 
 
-# Static pages for critical error handling
+# Static pages for critical error handling.
 error_handlers:
   - file: /pub/err/default.html
 
@@ -56,8 +60,10 @@ error_handlers:
   - error_code: timeout
     file: /pub/err/timeout.html
 
+
+# Additional web.xml configuration lines.
 web_xml: |
-  <display-name>Showroom</display-name>
+  <display-name>Crying Banksy</display-name>
   <!--error-page>
     <error-code>500</error-code>
     <location>/errors/servererror.jsp</location>

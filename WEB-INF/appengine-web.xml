@@ -1,13 +1,31 @@
-<appengine-web-app xmlns="http://appengine.google.com/ns/1.0">
-	<!-- Replace this with your application id from http://appengine.google.com -->
-	<application>app-id</application>
-	<version>1</version>
-
-	<!-- Configure java.util.logging -->
-	<system-properties>
-		<property name="java.util.logging.config.file" value="WEB-INF/logging.properties"/>
-	</system-properties>
-	<precompilation-enabled>true</precompilation-enabled>
-	<sessions-enabled>true</sessions-enabled>
-	<threadsafe>true</threadsafe>
+<!-- Generated from app.yaml. Do not edit. -->
+<appengine-web-app xmlns='http://appengine.google.com/ns/1.0'>
+  <application>crying-banksy</application>
+  <version>1</version>
+  <public-root>/pub</public-root>
+  <static-files>
+    <include path='/pub/**'/>
+    <exclude path='README.md'/>
+    <exclude path='launch-local.cmd'/>
+    <exclude path='/.stuff/**'/>
+  </static-files>
+  <resource-files>
+    <exclude path='README.md'/>
+    <exclude path='launch-local.cmd'/>
+    <exclude path='/.stuff/**'/>
+  </resource-files>
+  <ssl-enabled>true</ssl-enabled>
+  <precompilation-enabled>true</precompilation-enabled>
+  <threadsafe>false</threadsafe>
+  <sessions-enabled>true</sessions-enabled>
+  <system-properties>
+    <property name='java.util.logging.config.file' value='WEB-INF/logging.properties'/>
+  </system-properties>
+  <warmup-requests-enabled>false</warmup-requests-enabled>
+  <static-error-handlers>
+    <handler file='/pub/err/default.html'/>
+    <handler file='/pub/err/overquota.html' error-code='over_quota'/>
+    <handler file='/pub/err/dosdenied.html' error-code='dos_api_denial'/>
+    <handler file='/pub/err/timeout.html' error-code='timeout'/>
+  </static-error-handlers>
 </appengine-web-app>
