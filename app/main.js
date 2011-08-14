@@ -1,25 +1,25 @@
 #!/usr/bin/env ringo
 
-var actions = require("./actions");
-var response = require("ringo/jsgi/response");
+var {Application} = require("stick"),
+    {Server} = require("ringo/httpserver"),
+    {Buffer} = require("ringo/buffer"),
+    log = require("ringo/logging").getLogger("CryingBanksy");
 
-// Minimalistic request dispatcher in lieu of a proper framework
-exports.app = function(request) {
-    var path = request.pathInfo.slice(1) || "index";
-    // 1. resolve against actions
-    if (typeof actions[path] === "function") {
-        return actions[path](request);
-    }
-    // 2. resolve against public folder
-    var resource = getResource("./public/" + path);
-    if (resource.exists()) {
-        return response.static(resource);
-    }
-    // 3. return 404 response
-    return response.notFound(request.pathInfo);
-}
 
-// main script to start application
-if (require.main == module) {
-    require("ringo/httpserver").main(module.id);
+// Application init.
+var app = exports.app = Application();
+
+// Configure notfound, mount, and static middleware.
+app.configure("notfound", "error", "static", "params", "mount", "route");
+
+//app.static( module.resolve("../pub") );
+app.mount( "/", require("./actions") );
+
+
+
+
+// Start server if run as main script from ringo.
+// I hope no one will deploy it this way. Please use AppEngine instead.
+if (require.main === module) {
+  require("ringo/httpserver").main(module.id);
 }

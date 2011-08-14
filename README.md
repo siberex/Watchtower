@@ -3,7 +3,7 @@ Crying Banksy
 
 Crying Banksy is an image gallery engine written completely
 on Javascript with RingoJS (JS runtime based on Mozilla Rhino),
-Stick (JSGI middleware for RingoJS) and Mustache.js (logic-less
-template engine).
+Stick (JSGI middleware for RingoJS) and mustache.js (logic-less
+template engine included in RingoJS).
 
 It is ready for Google AppEngine deployment.

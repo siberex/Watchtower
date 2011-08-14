@@ -1,11 +1,14 @@
-var response = require('ringo/jsgi/response');
-var mustache = require('ringo/mustache');
+var {Application} = require("stick");
 
-exports.index = function (req) {
-    var template = getResource("./templates/index.html").content;
-    return response.html(
-        mustache.to_html(template, {
-            title: "It's working!"
-        })
-    );
-};
+export("app");
+
+var app = Application();
+app.configure("params", "route", "render");
+app.render.base = module.resolve("views");
+//app.render.master = "base.html";
+
+
+app.get("/", function(request) {
+    var context = {title: "It's working!"};
+    return app.render("index.html", context);
+});

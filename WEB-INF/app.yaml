@@ -38,7 +38,7 @@ system_properties:
 handlers:
   - url: /*
     servlet: org.ringojs.jsgi.JsgiServlet
-    name: cryingBanksy
+    name: CryingBanksy
     init_params:
       ringo-home: /
       module-path: app
