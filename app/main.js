@@ -10,9 +10,12 @@ var {Application} = require("stick"),
 var app = exports.app = Application();
 
 // Configure notfound, mount, and static middleware.
-app.configure("notfound", "error", "static", "params", "mount", "route");
+app.configure("notfound", "error", "params", "basicauth", "mount", "route");
 
+// We are aiming on AppEngine, where we have no access to FS
+// and static files are maintained by AppEngine itself.
 //app.static( module.resolve("../pub") );
+
 app.mount( "/", require("./actions") );
 
 

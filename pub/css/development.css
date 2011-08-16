@@ -1,0 +1,6 @@
+/**
+ * http://37signals.com/svn/posts/2979-css-tip-spot-unsized-images-during-development
+ */
+img:not([width]):not([height]) {
+  border: 2px solid red !important;
+}

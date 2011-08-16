@@ -1,0 +1,97 @@
+html, body {
+	font-family: 'PT Sans', Geneva, Arial, Helvetica, sans-serif;
+	font-size: 10pt;
+	line-height: normal;
+    background-color: #1C1C1C;
+	color: #FFF;
+}
+
+li {
+    margin: 0.8em;
+}
+
+#header {
+    background-color: #272727;
+}
+
+#header h1 {
+    font-weight: normal;
+    font-size: 28px;
+    margin: 0;
+}
+
+#body {
+}
+
+#header, #body {
+    padding: 30px;
+    border-bottom: 1px solid #aaaaaa;
+}
+
+
+form {
+	/*border: 1px solid #AAB09E;*/
+	border: medium none;
+
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+
+	-moz-box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.35), inset -1px -1px 3px rgba(0, 0, 0, 0.2);
+	-webkit-box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.35), inset -1px -1px 3px rgba(0, 0, 0, 0.2);
+	box-shadow: inset 1px 1px 5px rgba(0, 0, 0, 0.35), inset -1px -1px 3px rgba(0, 0, 0, 0.2);
+
+	background-color: #F2F2F2;
+	color: #4A4C45;
+	padding: 15px 20px 20px 20px;
+}
+
+form fieldset {
+	border: 0;
+	text-shadow: 0 1px 0 white;
+}
+
+form fieldset label {
+	display: block;
+}
+
+form input[type='text'],
+form textarea {
+	border: 1px solid #C9C9C9; /* #A8A8A8 */
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	background-color: #FFF;
+}
+
+form input[type='text'] {
+	height: 24px;
+}
+
+form button,
+form input[type='button'],
+form input[type='submit'] {
+	height: 24px;
+	border: medium none;
+	border: 1px solid #B2B2B2; /* #A8A8A8 */
+
+	text-shadow: 0 1px 0 white;
+
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+
+	/*-moz-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.4);
+	-webkit-box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.4);
+	box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.4);*/
+
+	/*box-shadow: inset 3px 3px 3px rgba(255, 255, 255, 0.2), inset -3px -3px 3px rgba(0, 0, 0, 0.2);*/
+
+	background-color: #DADADA;
+}
+
+form button:hover,
+form input[type='button']:hover,
+form input[type='submit']:hover {
+	background-color: #E9E9E9;
+}

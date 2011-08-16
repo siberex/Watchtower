@@ -1,2 +1,1 @@
-dev_appserver.cmd %~dp0
-pause
+@dev_appserver.cmd %~dp0
