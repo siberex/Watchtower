@@ -1,14 +1,32 @@
+/**
+ * @fileoverview Action (controller-action) list,
+ * e.g. main routing configuration.
+ *
+ */
+
 var {Application} = require("stick");
-
-export("app");
-
-var app = Application();
-app.configure("params", "route", "render");
-app.render.base = module.resolve("views");
-app.render.master = "base.html";
+//var app = exports.app = require("./main").app;
+var {app} = require("./main");
 
 
-app.get("/", function(request) {
-  var context = {title: "It's working!"};
-  return app.render("index.html", context);
-});
+// Password protected admin zone.
+var admin = new Application( require("./act.administrivia").index );
+admin.configure("basicauth");
+// TODO: Move auth. logins to config.
+// Password is “godsexlove”
+admin.basicauth("/", "admin", "48B60EB568BC74D1063F1F7FDFB56010E0E206AD");
+
+app.mount("/administrivia", admin);
+
+
+
+/*app.get(
+  "/administrivia",
+  require("./act.administrivia").index
+);*/
+
+app.get("/sitemap", require("./act.sitemap").index);
+
+app.get("/rss", require("./act.rss").index);
+
+app.get("/", require("./act.index").index);
