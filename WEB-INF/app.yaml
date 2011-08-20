@@ -42,7 +42,7 @@ handlers:
     init_params:
       ringo-home: /
       module-path: app
-      config: config
+#      config: config
       app: app
 #      optlevel: -1
 
