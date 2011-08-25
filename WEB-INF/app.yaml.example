@@ -44,6 +44,7 @@ handlers:
       module-path: app
 #      config: config
       app: app
+#      RINGO_ENV: production
 #      optlevel: -1
 
 

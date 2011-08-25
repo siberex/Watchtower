@@ -4,9 +4,10 @@
  */
 
 var {app} = require("./main");
+
 export("index");
 
 function index(request) {
-  var context = {title: "It's working!"};
-  return app.render("index.html", context);
+  var context = {title: "Administrivia"};
+  return app.render("administrivia.html", context);
 } // index

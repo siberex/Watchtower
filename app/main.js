@@ -8,10 +8,11 @@ var {Application} = require("stick"),
 
 // Application init.
 var app = exports.app = Application();
+var config = exports.config = require('./config');
 //export("app");
 
-// Configure notfound, mount, and static middleware.
-app.configure("notfound", "error", "params", "mount", "render", "route");
+// Configure middleware.
+app.configure("basicauth", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
 
 app.error.template = module.resolve("views/500.html");
 app.notfound.template = module.resolve("views/404.html");
