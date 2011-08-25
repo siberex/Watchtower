@@ -4,7 +4,7 @@
  *
  */
 
-var {app} = require("./main");
+var {app} = require("../main");
 export("index");
 
 
