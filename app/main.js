@@ -13,6 +13,7 @@ var config = exports.config = require('./config');
 
 // Configure middleware.
 app.configure("basicauth", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
+//app.configure("notfound", "error", "params", "mount", "render", "route");
 
 app.error.template = module.resolve("views/500.html");
 app.notfound.template = module.resolve("views/404.html");
@@ -47,9 +48,10 @@ prof.requestlog.append = true;
 
 
 
-
+/*
 // Start server if run as main script from ringo.
 // I hope no one will deploy it this way. Please use AppEngine instead.
 if (require.main === module) {
   require("ringo/httpserver").main(module.id);
 }
+*/

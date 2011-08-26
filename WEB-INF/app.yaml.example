@@ -29,9 +29,15 @@ sessions_enabled: true
 system_properties:
   java.util.logging.config.file: WEB-INF/logging.properties
 
+#env_variables:
+#  RINGO_ENV: production
+#  DEFAULT_ENCODING: UTF-8
+
+#context_params:
+#  RINGO_ENV: development
+
 
 # Handlers section.
-# Application configuration: /app/config.js
 # optlevel: -1 for run Rhino in interpreted mode
 # (faster spin-up, reduced memory usage, slower at runtime).
 # Modules and packages should be placed in ringo-home.
@@ -42,34 +48,27 @@ handlers:
     init_params:
       ringo-home: /
       module-path: app
-#      config: config
       app: app
-#      RINGO_ENV: production
-#      optlevel: -1
+      optlevel: -1
 
 
 # Static pages for critical error handling.
 error_handlers:
-  - file: /pub/err/default.html
+  - file: /pub/errors/default.html
 
   - error_code: over_quota
-    file: /pub/err/overquota.html
+    file: /pub/errors/overquota.html
 
   - error_code: dos_api_denial
-    file: /pub/err/dosdenied.html
+    file: /pub/errors/dosdenial.html
 
   - error_code: timeout
-    file: /pub/err/timeout.html
+    file: /pub/errors/timeout.html
 
 
 # Additional web.xml configuration lines.
 web_xml: |
-  <display-name>Crying Banksy</display-name>
   <!--error-page>
     <error-code>500</error-code>
     <location>/errors/servererror.jsp</location>
   </error-page-->
-  <!--mime-mapping>
-    <extension>ico</extension>
-    <mime-type>image/vnd.microsoft.icon</mime-type>
-  </mime-mapping-->
