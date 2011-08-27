@@ -12,7 +12,7 @@ var config = exports.config = require('./config');
 //export("app");
 
 // Configure middleware.
-app.configure("basicauth", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
+app.configure("basicauth", "static", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
 //app.configure("notfound", "error", "params", "mount", "render", "route");
 
 app.error.template = module.resolve("views/500.html");
@@ -25,9 +25,9 @@ app.render.charset      = "UTF-8";
 app.render.master       = "base.html";
 app.render.helpers      = require("./helpers");
 
-// We are aiming on AppEngine, where we have no access to FS
-// and static files are maintained by AppEngine itself.
-//app.static( module.resolve("../pub") );
+// We are aiming on AppEngine, where static files
+// are maintained by GAE itself.
+app.static( module.resolve("../pub") );
 
 
 require("./actions");
@@ -48,10 +48,9 @@ prof.requestlog.append = true;
 
 
 
-/*
+
 // Start server if run as main script from ringo.
 // I hope no one will deploy it this way. Please use AppEngine instead.
 if (require.main === module) {
   require("ringo/httpserver").main(module.id);
 }
-*/
