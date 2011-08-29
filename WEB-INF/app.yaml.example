@@ -7,7 +7,9 @@ runtime: java
 public_root: /pub
 
 static_files:
+  - include: /*
   - include: /pub/**
+  - include: /errors/*
   - exclude: README.md
   - exclude: launch-local.cmd
   - exclude: /.stuff/**
@@ -53,22 +55,24 @@ handlers:
 
 
 # Static pages for critical error handling.
+# Warning!: Make sure that the path to the error response file
+#           does not overlap with static file handler paths.
 error_handlers:
-  - file: /pub/errors/default.html
+  - file: /errors/default.html
 
   - error_code: over_quota
-    file: /pub/errors/overquota.html
+    file: /errors/overquota.html
 
   - error_code: dos_api_denial
-    file: /pub/errors/dosdenial.html
+    file: /errors/dosdenial.html
 
   - error_code: timeout
-    file: /pub/errors/timeout.html
+    file: /errors/timeout.html
 
 
 # Additional web.xml configuration lines.
-web_xml: |
-  <!--error-page>
-    <error-code>500</error-code>
-    <location>/errors/servererror.jsp</location>
-  </error-page-->
+#web_xml: |
+#  <error-page>
+#    <error-code>500</error-code>
+#    <location>/errors/servererror.jsp</location>
+#  </error-page>
