@@ -35,9 +35,6 @@ system_properties:
 #  RINGO_ENV: production
 #  DEFAULT_ENCODING: UTF-8
 
-#context_params:
-#  RINGO_ENV: development
-
 
 # Handlers section.
 # optlevel: -1 for run Rhino in interpreted mode
