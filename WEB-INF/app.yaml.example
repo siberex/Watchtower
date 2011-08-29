@@ -1,7 +1,7 @@
 # YAML configuration, appengine-web.xml and web.xml will be automatically derived from app.yaml.
 # http://code.google.com/intl/en/appengine/docs/java/configyaml/appconfig_yaml.html
 
-application: crying-banksy
+application: sib-li
 version: 1
 runtime: java
 public_root: /pub
@@ -34,10 +34,7 @@ system_properties:
 #env_variables:
 #  RINGO_ENV: production
 #  DEFAULT_ENCODING: UTF-8
-
-#context_params:
-#  RINGO_ENV: development
-
+          
 
 # Handlers section.
 # optlevel: -1 for run Rhino in interpreted mode
@@ -46,7 +43,7 @@ system_properties:
 handlers:
   - url: /*
     servlet: org.ringojs.jsgi.JsgiServlet
-    name: CryingBanksy
+    name: Sibli
     init_params:
       ringo-home: /
       module-path: app
