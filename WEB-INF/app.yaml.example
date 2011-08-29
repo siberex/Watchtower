@@ -68,7 +68,11 @@ error_handlers:
 
 
 # Additional web.xml configuration lines.
-#web_xml: |
+web_xml: |
+  <mime-mapping>
+    <extension>ico</extension>
+    <mime-type>image/x-icon</mime-type>
+  </mime-mapping>
 #  <error-page>
 #    <error-code>500</error-code>
 #    <location>/errors/servererror.jsp</location>
