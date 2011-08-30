@@ -34,7 +34,7 @@ system_properties:
 #env_variables:
 #  RINGO_ENV: production
 #  DEFAULT_ENCODING: UTF-8
-          
+
 
 # Handlers section.
 # optlevel: -1 for run Rhino in interpreted mode
@@ -68,7 +68,11 @@ error_handlers:
 
 
 # Additional web.xml configuration lines.
-#web_xml: |
+web_xml: |
+  <mime-mapping>
+    <extension>ico</extension>
+    <mime-type>image/x-icon</mime-type>
+  </mime-mapping>
 #  <error-page>
 #    <error-code>500</error-code>
 #    <location>/errors/servererror.jsp</location>

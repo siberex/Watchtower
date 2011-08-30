@@ -9,28 +9,31 @@ var {Application} = require("stick"),
 // Application init.
 var app = exports.app = Application();
 var config = exports.config = require('./config');
-//export("app");
+
 
 // Configure middleware.
-app.configure("basicauth", "static", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
-//app.configure("notfound", "error", "params", "mount", "render", "route");
+app.configure("basicauth", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
+
 
 app.error.template = module.resolve("views/500.html");
 app.notfound.template = module.resolve("views/404.html");
 
-// Configure middleware render module.
+// Configure render module.
 app.render.base         = module.resolve("views");
 app.render.contentType  = "text/html";
 app.render.charset      = "UTF-8";
 app.render.master       = "base.html";
 app.render.helpers      = require("./helpers");
 
-// We are aiming on AppEngine, where static files
-// are maintained by GAE itself.
-app.static( module.resolve("../pub") );
+
+// We are aiming on AppEngine, where static files are maintained by GAE itself,
+// but let add evnvironement for other deployment configurations too.
+var jsgi = app.env("jsgi");
+jsgi.configure("static");
+jsgi.static( module.resolve("../pub") );
 
 
-require("./actions");
+var actions = require("./actions");
 
 
 // production environment, run with RINGO_ENV=production ringo demo.js
