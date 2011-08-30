@@ -12,3 +12,10 @@ body {
 li {
     margin: 0.8em;
 }
+
+h1 {
+	font-family: 'PT Sans Caption', Geneva, Arial, Helvetica, sans-serif;
+	font-size: 12pt;
+	font-weight: 700;
+	line-height: normal;
+}
