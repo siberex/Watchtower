@@ -9,7 +9,7 @@ export("index");
 
 
 function index(request) {
-  var context = {title: "Stephan Legachev wuz here!"};
+  var context = {title: "Stepan Legachev salutes you!"};
 
   return app.render("index.html", context);
 } // index

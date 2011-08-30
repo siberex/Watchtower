@@ -15,7 +15,7 @@ li {
 
 h1 {
 	font-family: 'PT Sans Caption', Geneva, Arial, Helvetica, sans-serif;
-	font-size: 12pt;
-	font-weight: 700;
-	line-height: normal;
+	font-size: 10pt;
+	font-weight: 400;
+	line-height: 2em;
 }
