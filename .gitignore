@@ -2,4 +2,5 @@
 /WEB-INF/appengine-web.xml
 /WEB-INF/web.xml
 
+/build.xml
 /.stuff/
