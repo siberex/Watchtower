@@ -10,6 +10,6 @@ export("index");
 
 function index(request) {
   var context = {title: "It's working!"};
-  throw('Error! Oh noes, its error!');
+  //throw('Error! Oh noes, its error!');
   return app.render("index.html", context);
 } // index

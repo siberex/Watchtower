@@ -8,5 +8,9 @@ export("index");
 
 
 function index(request) {
-  return "ok";
+  var context = {};
+
+  return app.render("sitemap.xml", context, {
+    contentType: "text/xml",
+  });
 } // index

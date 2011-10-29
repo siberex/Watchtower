@@ -16,9 +16,12 @@ app.basicauth(adminUrl, config.general.login, config.general.password);
 app.get(adminUrl, require("./actions/administrivia").index);
 
 
+app.get("/monochrome", require("./actions/monochrome").index);
+
 
 app.get("/sitemap", require("./actions/sitemap").index);
 
 app.get("/rss", require("./actions/rss").index);
 
-app.get("/", require("./actions/index").index);
+//app.get("/", require("./actions/index").index);
+app.get("/", require("./actions/monochrome").index);

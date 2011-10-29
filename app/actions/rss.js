@@ -8,6 +8,9 @@ var {app} = require("../main");
 export("index");
 
 function index(request) {
-  var context = {title: "It's working!"};
-  return app.render("index.html", context);
+  var context = {};
+
+  return app.render("rss.xml", context, {
+    contentType: "text/xml",
+  });
 } // index
