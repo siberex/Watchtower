@@ -8,71 +8,24 @@ $(function() {
 
   var deferredUpdate = false;
 
-  /**
-   * Copies image data to canvas for manipulation.
-   *
-  function prepareCanvas() {
-    var img = preview[0];
-    ctx.drawImage(
-      img,
-      canvas.offsetLeft, canvas.offsetTop, canvas.width, canvas.height,
-      0, 0, canvas.width, canvas.height
-    );
-
-    // Saving original pixel data.
-    var pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    canvas.pixelData = pixels.data;
-
-    if (deferredUpdate) {
-      deferredUpdate();
-      deferredUpdate = false;
-    }
-  } // prepareCanvas
-
-  if (preview[0].complete) {
-    prepareCanvas();
-  } else {
-    preview.load(prepareCanvas);
-  }*/
-
 
   $("#debug").click(function() {
-    preview.toggle();
+    //preview.toggle();
+    $('#preview-canvas').toggle();
     console.debug( currMode );
-    console.debug(
-      $( "#slider-ared" ).slider("value") +
-      $( "#slider-agreen" ).slider("value") +
-      $( "#slider-ablue" ).slider("value")
-    );
+    if (currMode == "Grayscale") {
+      console.debug(
+        $( "#slider-ared" ).slider("value") +
+        $( "#slider-agreen" ).slider("value") +
+        $( "#slider-ablue" ).slider("value")
+      );
+    }
   });
-
 
 
 
   function drawPreviewOnCanvas(params) {
     var method = params.shift();
-    console.debug(method);
-    //console.debug(C.transform[method]);
-
-    $("#loading-spinner").show();
-    $("#loading-stopicon").show();
-
-    //canvas.pixels.data
-
-    /*var input = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var inputData = input.data;
-
-    console.debug(inputData[1]);
-
-    // get an empty slate to put the data into
-    var output = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    var outputData = output.data;
-    outputData = C.transform[method](inputData, params);
-
-    console.debug(outputData[1]);
-
-    // put the image data back after manipulation
-    ctx.putImageData(output, 0, 0, 0, 0, canvas.width, canvas.height);*/
 
     var img = preview[0];
     ctx.drawImage(
@@ -91,8 +44,8 @@ $(function() {
     $("#loading-stopicon").hide();
   }
 
-
   function applyTransformations() {
+
     var href = $("#bookmarklet").prop("href");
     var sliders = $("#"+currMode).find(".ui-slider");
 
@@ -104,6 +57,12 @@ $(function() {
     // Set new href for bookmarklet.
     href = href.replace( /\'(hsb|grayscale|rgb)\|?.*?\'/g, "'"+params.join("|")+"'" );
     $("#bookmarklet").prop("href", href);
+
+    var title = currMode + ": " + [X, Y, Z].join(" / ");
+    if ( currMode != "Grayscale" && (X == 0 && Y == 0 && Z == 0) )
+      title = "Monochrome bookmarklet";
+    $("#bookmarklet").prop("title", title);
+    $("#bookmarklet")[0].innerHTML = title;
 
     // Animation highlight.
     $("#bookmarklet").stop(true, true).effect("highlight", {color: "#FFFFAA"}, 1200);
@@ -117,7 +76,7 @@ $(function() {
     }
   }
 
-  /* Event: Changing tabs with modes and mode controls. */
+  /* Event: Changing method tab with method controls. */
   function tabMethodChange(event, ui) {
     var modeMap = [
       "HSB",
@@ -135,6 +94,9 @@ $(function() {
     });
 
     $("#" + mode).show().find(".ui-slider").slider("option", "disabled", false);
+
+    $("#loading-spinner").show();
+    $("#loading-stopicon").show();
 
     applyTransformations();
 
@@ -221,6 +183,10 @@ $(function() {
 
   // Set values.
   $( ".ui-slider" ).slider( "value", 0 );
+  $( ".ui-slider" ).bind("slidestart", function(event, ui) {
+    $("#loading-spinner").show();
+    $("#loading-stopicon").show();
+  });
 
   // Animate for Grayscale section.
   $( "#slider-ared, #slider-agreen, #slider-ablue" ).slider("option", "animate", true);

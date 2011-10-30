@@ -81,7 +81,8 @@ body {
   line-height: normal;
   background: #e7e7e7 url(../img/loader.gif) no-repeat;
   z-index: 10;
-  display: none;
+  _display: none;
+  _visibility: hidden;
 }
 
 #loading-stopicon {
@@ -92,7 +93,8 @@ body {
   line-height: normal;
   background: #d0d0d0 url(../img/browser-icon-stop.png) no-repeat;
   z-index: 10;
-  display: none;
+  _display: none;
+  _visibility: hidden;
 }
 
 

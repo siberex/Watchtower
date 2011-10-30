@@ -242,12 +242,12 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
       // Warning: We need to remove listener after the first fire,
       // or we can get image updated again and again;
       if (!img.complete) {
-        if (el.addEventListener) {
+        if (img.addEventListener) {
           img.addEventListener("load", function() {
             this.removeEventListener("load", arguments.callee, false);
             convertImage(this, document);
           }, false);
-        } else if (el.attachEvent) {
+        } else if (img.attachEvent) {
           img.attachEvent("onload", function() {
             img.detachEvent('onload', arguments.callee);
             convertImage(img, document);
@@ -255,8 +255,8 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
         } else {
           // This way from DOM level 1 should not be used due to
           // risk of breaking some original behavior.
-          //el.onload = function() {
-          //  el.onload = undefined;
+          //img.onload = function() {
+          //  img.onload = undefined;
           //  convertImage(img, document);
           //}
         }
