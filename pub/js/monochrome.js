@@ -174,12 +174,15 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
    *
    *
    */
-  function convertImage(img, document, params) {
+  function convertImage(img, params, document) {
     var document = document || window.document;
     var iW = img.width,
         iH = img.height;
-    var params = params || passedParams;
-    var method = params.shift();
+    //var params = params || passedParams;
+    var method = params[0];
+
+    //console.debug(method);
+    //console.debug(params);
 
     // grayscale → Grayscale
     // method = method.charAt(0).toUpperCase() + method.slice(1);
@@ -201,7 +204,7 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
       // NS_ERROR_DOM_SECURITY_ERR: Security error
       pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
       // Выполняем трансформацию.
-      transform[method](pixels.data, params);
+      transform[method]( pixels.data, params.slice(1) );
 
       ctx.putImageData(pixels, 0, 0, 0, 0, iW, iH);
 
@@ -228,7 +231,7 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
    * Goes over document images passing it one by one
    * to converting function.
    */
-  function documentImagesConvertion(document) {
+  function documentImagesConvertion(document, params) {
     var document = document || window.document;
 
     var ilist = document.getElementsByTagName('img');
@@ -245,24 +248,24 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
         if (img.addEventListener) {
           img.addEventListener("load", function() {
             this.removeEventListener("load", arguments.callee, false);
-            convertImage(this, document);
+            convertImage(this, params, document);
           }, false);
         } else if (img.attachEvent) {
           img.attachEvent("onload", function() {
             img.detachEvent('onload', arguments.callee);
-            convertImage(img, document);
+            convertImage(img, params, document);
           });
         } else {
           // This way from DOM level 1 should not be used due to
           // risk of breaking some original behavior.
           //img.onload = function() {
           //  img.onload = undefined;
-          //  convertImage(img, document);
+          //  convertImage(img, params, document);
           //}
         }
 
       } else {
-        convertImage(img, document);
+        convertImage(img, params, document);
       }
     }
 
@@ -273,11 +276,11 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
    * Recursive function to traverse all frames.
    * Call: traverseFrames(window);
    */
-  function traverseFrames(win) {
+  function traverseFrames(win, params) {
     try {
       // Working with win.document.
       var doc = win.document;
-      documentImagesConvertion(doc);
+      documentImagesConvertion(doc, params);
 
     } catch(e) {
       // Error while accessing frame.
@@ -285,7 +288,7 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
     }
     // Recursively traverse frames.
     for (var i = 0; i < win.frames.length; i++) {
-      traverseFrames(win.frames[i]);
+      traverseFrames(win.frames[i], params);
     }
   } // traverseFrames
 
@@ -296,9 +299,9 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
       for (var i = 1; i < params.length; i++) {
         params[i] = parseFloat(params[i]);
       }
-      passedParams = params;
+      //passedParams = params;
 
-      traverseFrames(window);
+      traverseFrames(window, params);
     } catch (e) {
       console.log(e.name + ": " + e.message);
     }
