@@ -6,6 +6,15 @@
  * http://www.sib.li
  */
 
+/**
+ * TODO:
+ * — Add HSL convertion method.
+ * — Include styles in convertion.
+ * — Include images set as background for divs, etc.
+ * — Bypass Same Origin Policy with GAE server
+ *   (http://www.maxnov.com/getimagedata/).
+ */
+
 // We need to set this global to access functions from outside.
 if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
 
@@ -202,6 +211,7 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
       // Если изображение загружается со стороннего домена, здесь будет
       // нарушение Same Origin Policy, в catch попадёт ошибка
       // NS_ERROR_DOM_SECURITY_ERR: Security error
+      // Способ обхода: http://www.maxnov.com/getimagedata/
       pixels = ctx.getImageData(0, 0, canvas.width, canvas.height);
       // Выполняем трансформацию.
       transform[method]( pixels.data, params.slice(1) );
@@ -278,7 +288,7 @@ if (typeof Z5qPdjllq81 == "undefined") Z5qPdjllq81 = null;
    */
   function traverseFrames(win, params) {
     try {
-      // Working with win.document.
+      // Working with current frame’s win.document.
       var doc = win.document;
       documentImagesConvertion(doc, params);
 
