@@ -1,4 +1,6 @@
 /WEB-INF/app.yaml
+/WEB-INF/app.yaml.jingel
+/WEB-INF/app.yaml.sibli
 /WEB-INF/appengine-web.xml
 /WEB-INF/web.xml
 
