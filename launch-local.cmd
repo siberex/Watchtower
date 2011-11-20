@@ -4,3 +4,5 @@
 @dev_appserver.cmd %~dp0
 @REM Deploy with:
 @REM appcfg.cmd update %~dp0
+
+@REM java -jar WEB-INF\lib\js.jar

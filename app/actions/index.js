@@ -1,12 +1,12 @@
 /**
  * @fileoverview This is Index controller.
- * Here will be album list with covers.
+ * Main pages just as is.
  *
  */
 
 var {app} = require("../main");
 var {getLang} = require("../helpers");
-export("index", "mobile");
+export("index", "mobile", "test");
 
 
 function index(request) {
@@ -34,8 +34,22 @@ function mobile(request) {
 
   var context = {
     title : title,
-    lang  : lang
+    lang  : lang,
+    head  : '<link rel="stylesheet" href="/css/mobile.css" type="text/css" />'
   };
 
   return app.render("mobile.html", context);
 } // mobile
+
+
+
+
+function test(request) {
+  var test = "———";
+
+  var context = {
+    test : test
+  }
+
+  return app.render("test.html", context);
+} // test

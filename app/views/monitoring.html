@@ -1,0 +1,16 @@
+<h3>Monitoring</h3>
+
+<table border="0" cellspacing="15" cellpadding="0">
+  <tr>
+    <th>URL</th>
+    <th>Status</th>
+    <th>Uptime</th>
+  </tr>
+{{#sources}}
+  <tr>
+    <td><a href="{{href}}">{{host}}</a></td>
+    <td>{{status}}</td>
+    <td>{{{html}}}</td>
+  </tr>
+{{/sources}}
+</table>
