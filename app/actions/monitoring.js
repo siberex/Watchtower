@@ -10,6 +10,11 @@ export("index");
 
 
 function index(request) {
+  var lang = getLang(request);
+  var title = (lang == "ru")
+            ? "Мониторинг"
+            : "Monitoring";
+
   var sources = [];
 
   var Pinger = new Packages.sibli.Pinger();
@@ -60,7 +65,8 @@ function index(request) {
 
 
   var context = {
-    sources: sources
+    title   : title,
+    sources : sources
   }
 
   return app.render("monitoring.html", context);
