@@ -11,5 +11,6 @@ app.get("/", require("./actions/index").index);
 app.get("/mobile", require("./actions/index").mobile);
 
 app.get("/mon", require("./actions/monitoring").index);
+app.get("/pacman", require("./actions/pacman").index);
 
 app.get("/test", require("./actions/index").test);
