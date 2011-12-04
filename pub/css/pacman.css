@@ -58,6 +58,33 @@ body {
 	line-height: 1.4;
 }
 
+
+#steps-count {
+  border: 1px solid #B9B9B9;
+  border-radius: 3px;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+  
+  -moz-box-shadow: inset 0px 1px 4px -2px rgba(0, 0, 0, 0.55);
+  -webkit-box-shadow: inset 0px 1px 4px -2px rgba(0, 0, 0, 0.55);
+  box-shadow: inset 0px 1px 4px -2px rgba(0, 0, 0, 0.55);
+
+  text-shadow: 0 1px 0 black;
+  color: white;
+
+  width: 40px;
+  height: 18px;
+  line-height: 18px;
+  font-weight: bold;
+  text-align: right;
+
+  padding-top: 1px;
+  padding-right: 6px;
+
+  overflow: hidden;
+}
+
+
 .description {
     color: #CCC;
     font-weight: bold;

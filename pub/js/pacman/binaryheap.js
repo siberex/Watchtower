@@ -1,5 +1,5 @@
 /**
- * Binary Heap (with modifications) from Marijn Haverbeke 
+ * Binary Heap (with modifications) from Marijn Haverbeke
  * URL: http://eloquentjavascript.net/appendix2.html
  * License: http://creativecommons.org/licenses/by/3.0/
  */
@@ -9,12 +9,13 @@ function BinaryHeap(scoreFunction){
 }
 
 BinaryHeap.prototype = {
+
   push: function(element) {
     // Add the new element to the end of the array.
     this.content.push(element);
     // Allow it to sink down.
     this.sinkDown(this.content.length - 1);
-  },
+  }, // push
 
   pop: function() {
     // Store the first element so we can return it later.
@@ -28,7 +29,8 @@ BinaryHeap.prototype = {
       this.bubbleUp(0);
     }
     return result;
-  },
+  }, // pop
+
   remove: function(node) {
 
     var i = this.content.indexOf(node);
@@ -38,12 +40,12 @@ BinaryHeap.prototype = {
     var end = this.content.pop();
     if (i != this.content.length - 1) {
       this.content[i] = end;
-      if (this.scoreFunction(end) < this.scoreFunction(node))
+      if ( this.scoreFunction(end) < this.scoreFunction(node) )
         this.sinkDown(i);
       else
         this.bubbleUp(i);
     }
-  },
+  }, // remove
 
   size: function() {
     return this.content.length;
@@ -51,7 +53,8 @@ BinaryHeap.prototype = {
 
   rescoreElement: function(node) {
   	this.sinkDown(this.content.indexOf(node));
-  },
+  }, // rescoreElement
+
   sinkDown: function(n) {
     // Fetch the element that has to be sunk.
     var element = this.content[n];
@@ -72,7 +75,7 @@ BinaryHeap.prototype = {
         break;
       }
     }
-  },
+  }, // sinkDown
 
   bubbleUp: function(n) {
     // Look up the target element and its score.
@@ -114,5 +117,6 @@ BinaryHeap.prototype = {
         break;
       }
     }
-  }
+  } // bubbleUp
+
 };

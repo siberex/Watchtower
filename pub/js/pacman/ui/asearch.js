@@ -19,7 +19,7 @@ var Maze = {
 		var end = graph.nodes[ Maze.pacman[0] ][ Maze.pacman[1] ];
 
 		var result = astar.search(graph.nodes, start, end);
-		//console.debug(result);
+		//console.debug(result, result.length);
 		return result;
 	},
 

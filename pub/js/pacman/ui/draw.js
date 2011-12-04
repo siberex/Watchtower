@@ -1,3 +1,9 @@
+/**
+ * UI for A* search algorithm.
+ * © Stepan Legachev, www.sib.li
+ *
+ */
+
 $(document).ready(function() {
 
 	var canvas = $("#maze"),
@@ -14,14 +20,14 @@ $(document).ready(function() {
 
 		ctx = canvas[0].getContext("2d");
 	} catch (e) {
-		throw(e); // Да, это бессмысленная конструкция, но обработку писать лень.
+		throw(e); // No sence in this :-)
 	}
 
 	Painter.width = w;
 	Painter.height = h;
 	Painter.ctx = ctx;
 
-	// Отнимаем толщину рамочки с каждой стороны.
+	// Maze size without frame thickness.
 	Maze.width = parseInt( (w - Painter.frameGap * 2) / Painter.blockSize );
 	Maze.height = parseInt( (h - Painter.frameGap * 2) / Painter.blockSize );
 
@@ -31,14 +37,14 @@ $(document).ready(function() {
 		for (var j = 0; j < Maze.height; j++) Maze.walls[i][j] = 0;
 	}
 
-	// Заливаем поле и рисуем рамку.
+	// Fill canvas and draw frame.
 	ctx.fillStyle = "rgb(0, 0, 0)";
 	ctx.fillRect(0, 0, w, h);
 
 	//Painter.drawFrame(Maze.width, Maze.height);
 	Painter.clearField(Maze.width, Maze.height);
 
-	// Вешаем события
+	// Attaching events.
 	$(window).bind("keydown", function(event) {
 		Painter.keyDown(event);
 
@@ -67,7 +73,7 @@ $(document).ready(function() {
 var Painter = {
 	// Block size in pixels.
 	blockSize: 16,
-	
+
 	// Frame thickness in pixels.
 	frameGap: 8,
 
@@ -79,7 +85,7 @@ var Painter = {
 	height: false,
 	ctx: false,
 
-	// Последний подсчитанный путь.
+	// Last finded path.
 	lastPath: false,
 
 	// Paths to heroes images. “?” will be replaced later to “left”, “right”, “up” or “down”.
@@ -105,7 +111,7 @@ var Painter = {
 	mouseDown: function(event) {
 		var x = event.pageX - this.offsetLeft;
 		var y = event.pageY - this.offsetTop;
-		
+
 		if ( Painter.isOutOfMaze(x, y) ) return false;
 		var mazeXY = Painter.getMazeCoords(x, y);
 
@@ -153,7 +159,7 @@ var Painter = {
 
 			var mazeX = Maze[Painter.mode][0];
 			var mazeY = Maze[Painter.mode][1];
-			
+
 			var k = event.which;
 			if (k == 38) mazeY--;
 			if (k == 39) mazeX++;
@@ -172,6 +178,7 @@ var Painter = {
 			if ( !Maze.isWallHere(path[i].x, path[i].y) )
 				Painter.clearZone([path[i].x, path[i].y]);
 		}
+    // TODO: clear steps count
 	},
 
 	drawPath: function(path) {
@@ -184,22 +191,22 @@ var Painter = {
 
 		Painter.lastPath = path;
 
-		var directions = {
-			"0,-1": "up",
-			"1,0":  "right",
-			"0,1":  "down",
-			"-1,0": "left"
+		var directions = {  //  A-B
+			"0,-1": "up",     //  1
+			"1,0":  "right",  //  1
+			"0,1":  "down",   //  -1
+			"-1,0": "left"    //  -1
 		};
 		for (var i = 0; i < path.length - 1; i++) {
 
 			if ( i == 0 ) {
-				// Blinky должен смотреть на дорожку к Pacman’у.
+				// Blinky should look in direction to path to Pacman.
 				Painter.blinkyDir =
 					directions[ [path[i].x - Maze.blinky[0],
 								 path[i].y - Maze.blinky[1]].toString() ];
 			}
-			if ( i == path.length - 2 ) {
-				// Pacman должен смотреть на путь к Blinky.
+			if ( i == path.length - 2 ) { // -2 because last step will be Pacman itself.
+				// Pacman should be directed to path to Blinky.
 				Painter.pacmanDir =
 					directions[ [path[i].x - Maze.pacman[0],
 								 path[i].y - Maze.pacman[1]].toString() ];
@@ -220,11 +227,12 @@ var Painter = {
 		var path = Maze.findPath();
 		if (!path) return false;
 		Painter.drawPath(path);
+    // TODO: update steps count
 	},
 
 
 	drawMaze: function(mazeXY) {
-		// Не рисуем стену поверх персонажей.
+		// Wall should not be drawn upon characters.
 		if ( Maze.blinky.toString() == mazeXY.toString() ) return false;
 		if ( Maze.pacman.toString() == mazeXY.toString() ) return false;
 
@@ -246,8 +254,8 @@ var Painter = {
 				//ctx.fillRect(x, y, Painter.blockSize - 1, Painter.blockSize - 1);
 			}
 
-            // Достаточно узкое место, медленные бразуеры из-за ожилания отрисовки
-            // могут замедлять обработку движения мыши, отрисовку есть смысл 
+            // Достаточно узкое место, медленные бразуеры из-за ожидания отрисовки
+            // могут замедлять обработку движения мыши, отрисовку есть смысл
             // выносить в отдельный поток.
             for (var i = mazeXY[0] - 1; i <= mazeXY[0] + 1; i++) {
                 for (var j = mazeXY[1] - 1; j <= mazeXY[1] + 1; j++) {
@@ -378,7 +386,7 @@ var Painter = {
 
 	/**
 	 * Проверяет, находятся ли координаты за пределами поля.
-	 */ 
+	 */
 	isOutOfMaze: function(x, y) {
 		var result = 0;
 		// Мышь на левой рамке.
@@ -455,15 +463,15 @@ var Painter = {
 		// Левый верхний угол.
 		ctx.moveTo(x, y + radius);
 		ctx.quadraticCurveTo(x, y, x + radius, y);
-		
+
 		// Правый верхний угол.
 		ctx.lineTo(x + width - radius, y);
 		ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
-		
+
 		// Правый нижний угол.
 		ctx.lineTo(x + width, y + height - radius);
 		ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
-		
+
 		// Левый нижний угол.
 		ctx.lineTo(x + radius, y + height);
 		ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
@@ -480,7 +488,7 @@ Painter.blinkyImg = {
 		   "ENgEAMhtEvYSWpFQQ0qQUWllOBAMQgABG4OBss3Xr5Gdh4w+NjDyDBJN1YHzu25Yq1PImWF9HHQUj1zyucxX0G4AXI4h/NIWSKqgAAAABJRU5ErkJggg==",
 	down:  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAADFBMVEX////e3t4hIf//AACc7mbrAAAAAXRSTlMAQObYZgAAAE9JREFUeF5NxL" +
 		   "ENhDAQRcEnXQraVihgrS3DIS1QgPu5kBZowglVbEKCLH0CEiYYXpaABD/pwKTE1iuZa98otTfK/2zEfg9C+uYjnMV9AuAB264fzaaekHgAAAAASUVORK5CYII=",
-	left:  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAADFBMVEX////e3t4hIf//AACc7mbrAAAAAXRSTlMAQObYZgAAAEdJREFUeF5lxL" + 
+	left:  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAgMAAABinRfyAAAADFBMVEX////e3t4hIf//AACc7mbrAAAAAXRSTlMAQObYZgAAAEdJREFUeF5lxL" +
 		   "EJgEAMhtEPxEYUV7GWyE1hnVFumtvDLbJGBgj8Fpa+4vHZE5Bgkh62Hsnsd7L4SE4fxdWjaNIvq2YcZisAL8XWH82QyxvdAAAAAElFTkSuQmCC"
 };
 Painter.pacmanImg = {

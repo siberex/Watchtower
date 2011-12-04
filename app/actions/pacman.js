@@ -26,7 +26,8 @@ function index(request) {
               + '<script type="text/javascript" charset="UTF-8" src="/js/pacman/graph.js"></script>'
               + '<script type="text/javascript" charset="UTF-8" src="/js/pacman/astar.js"></script>'
 
-              + '<script type="text/javascript" charset="UTF-8" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>'
+              //+ '<script type="text/javascript" charset="UTF-8" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>'
+              + '<script type="text/javascript" charset="UTF-8" src="/js/jquery-1.6.2.js"></script>'
               + '<script type="text/javascript" charset="UTF-8" src="/js/pacman/jquery-ui-1.8.11.custom.min.js"></script>' // Core, Widget, Button
 
               + '<script type="text/javascript" charset="UTF-8" src="/js/pacman/ui/asearch.js"></script>'

@@ -1,8 +1,8 @@
-/* 	graph.js http://github.com/bgrins/javascript-astar
-	MIT License
-	
-	Creates a Graph class used in the astar search algorithm.
-*/
+/**
+ * graph.js http://github.com/bgrins/javascript-astar
+ *
+ * Creates a Graph class used in the astar search algorithm.
+ */
 
 var GraphNodeType = { OPEN: 0, WALL: 1 };
 function Graph(grid) {
@@ -13,7 +13,7 @@ function Graph(grid) {
 		var row = grid[x];
 		this.nodes[x] = [];
 		for (var y = 0, l = row.length; y < l; ++y) {
-			this.nodes[x].push(new GraphNode(x, y, row[y]));
+			this.nodes[x].push( new GraphNode(x, y, row[y]) );
 		}
 	}
 }
