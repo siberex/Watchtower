@@ -225,9 +225,10 @@ var Painter = {
 	redrawPath: function() {
 		Painter.clearPath();
 		var path = Maze.findPath();
+    // Updating steps counts
+    document.getElementById("steps-count").innerHTML = path ? path.length : 0;
 		if (!path) return false;
 		Painter.drawPath(path);
-    // TODO: update steps count
 	},
 
 
