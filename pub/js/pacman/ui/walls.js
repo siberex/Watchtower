@@ -157,8 +157,8 @@ w.set(sprite0, getVariations(
 
 
 var sprite1str =  '?X?' +
-				  '_+_' +
-				  '?_?';
+                  '_+_' +
+                  '?_?';
 var sprite1 = newSprite();
 roundRect(1.5, 1.5 - block, 13, 13 + block, 3, sprite1.ctx);
 w.set(sprite1, getVariations(sprite1str));
@@ -169,8 +169,8 @@ w.set( sprite1 = rotate(sprite1), getVariations(sprite1str, 3) );
 
 
 var sprite2str =  '?XX' +
-				  '_+X' +
-				  '?_?';
+                  '_+X' +
+                  '?_?';
 var sprite2 = newSprite();
 roundRect(1.5, 1.5 - block, 13 + block, 13 + block, 3, sprite2.ctx);
 w.set(sprite2, getVariations(sprite2str));
@@ -181,8 +181,8 @@ w.set( sprite2 = rotate(sprite2), getVariations(sprite2str, 3) );
 
 
 var sprite3str =  '?X_' +
-				  '_+X' +
-				  '?_?';
+                  '_+X' +
+                  '?_?';
 var sprite3 = newSprite();
 roundRect(1.5, 1.5 - block, 13 + block, 13 + block, 3, sprite3.ctx);
 roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite3.ctx, "black"); 
@@ -194,8 +194,8 @@ w.set( sprite3 = rotate(sprite3), getVariations(sprite3str, 3) );
 
 
 var sprite4str =  '?X?' +
-				  '_+_' +
-				  '?X?';
+                  '_+_' +
+                  '?X?';
 var sprite4 = newSprite();
 rect(1.5, -1.5, 13, 13 + block, sprite4.ctx);
 w.set(sprite4, getVariations(sprite4str));
@@ -204,8 +204,8 @@ w.set( rotate(sprite4), getVariations(sprite4str, 1) );
 
 
 var sprite5str =  'XXX' +
-				  'X+X' +
-				  '?_?';
+                  'X+X' +
+                  '?_?';
 var sprite5 = newSprite();
 rect(-1.5, -1.5 , block + 1.5 + 1.5, block, sprite5.ctx);
 w.set(sprite5, getVariations(sprite5str));
@@ -216,8 +216,8 @@ w.set( sprite5 = rotate(sprite5), getVariations(sprite5str, 3) );
 
 
 var sprite6str =  'XX_' +
-				  'X+X' +
-				  '?_?';
+                  'X+X' +
+                  '?_?';
 var sprite6 = newSprite();
 rect(-1.5, -1.5 , block + 1.5 + 1.5, block, sprite6.ctx);
 roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite6.ctx, "black");
@@ -229,8 +229,8 @@ w.set( sprite6 = rotate(sprite6), getVariations(sprite6str, 3) );
 
 
 var sprite7str =  '_XX' +
-				  'X+X' +
-				  '?_?';
+                  'X+X' +
+                  '?_?';
 var sprite7 = newSprite();
 rect(-1.5, -1.5 , block + 1.5 + 1.5, block, sprite7.ctx);
 roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite7.ctx, "black");
@@ -242,8 +242,8 @@ w.set( sprite7 = rotate(sprite7), getVariations(sprite7str, 3) );
 
 
 var sprite8str =  '_X_' +
-				  'X+X' +
-				  '?_?';
+                  'X+X' +
+                  '?_?';
 var sprite8 = newSprite();
 rect(-1.5, -1.5 , block + 1.5 + 1.5, block, sprite8.ctx);
 roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite8.ctx, "black");
@@ -285,8 +285,8 @@ w.set( sprite11 = rotate(sprite11), getVariations(sprite11str, 3) );
 
 
 var sprite12str = '_XX' +
-				  'X+X' +
-            	  'XXX';
+                  'X+X' +
+                  'XXX';
 var sprite12 = newSprite();
 rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite12.ctx);
 roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite12.ctx, "black");
