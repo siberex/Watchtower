@@ -103,8 +103,10 @@ var astar = {
   manhattan: function(pos0, pos1) {
     // See list of heuristics: http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
 
-    var d1 = Math.abs (pos1.x - pos0.x);
-    var d2 = Math.abs (pos1.y - pos0.y);
+    var d1 = pos1.x - pos0.x;
+    if (d1 < 0) d1 = -d1; // eq. Math.abs();
+    var d2 = pos1.y - pos0.y;
+    if (d2 < 0) d2 = -d2;
     return d1 + d2;
   }, // manhattan
 

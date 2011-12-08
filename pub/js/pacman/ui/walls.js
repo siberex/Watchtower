@@ -56,8 +56,8 @@ var roundRect = function(x, y, width, height, radius, ctx, fill) {
 
 /**
  * Прямой перебор двоичных значений.
- * Во входном массиве вместо перебираемых значений -1, например:
- * enumerator([0, -1, 1]) → [[0, 0, 1], [0, 1, 1]]
+ * Во входном массиве -1 для перебираемого значения, например:
+ * enumerator([0, -1, 1, 0]) → [[0, 0, 1, 0], [0, 1, 1, 0]]
  */
 var enumerator = function(arr) {
 	var results = [];
@@ -146,14 +146,12 @@ var getWallByVariation = function(variation) {
 
 var w = Walls;
 
-
+var sprite0str =    '?_?' +
+                    '_+_' +
+                    '?_?';
 var sprite0 = newSprite();
 roundRect(1.5, 1.5, 13, 13, 3, sprite0.ctx);
-w.set(sprite0, getVariations(
-  '?_?' +
-  '_+_' +
-  '?_?'
-));
+w.set(sprite0, getVariations(sprite0str));
 
 
 var sprite1str =  '?X?' +
@@ -270,12 +268,25 @@ w.set( sprite9 = rotate(sprite9), getVariations(sprite9str, 2) );
 w.set( sprite9 = rotate(sprite9), getVariations(sprite9str, 3) );
 
 
-var sprite11str = '_X_' +
+var sprite10str = '_X_' +
+                  'X+X' +
+                  'XXX';
+var sprite10 = newSprite();
+rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite10.ctx);
+roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite10.ctx, "black");
+roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite10.ctx, "black");
+w.set(sprite10, getVariations(sprite10str));
+// + 3 rotations:
+w.set( sprite10 = rotate(sprite10), getVariations(sprite10str, 1) );
+w.set( sprite10 = rotate(sprite10), getVariations(sprite10str, 2) );
+w.set( sprite10 = rotate(sprite10), getVariations(sprite10str, 3) );
+
+
+var sprite11str = '_XX' +
                   'X+X' +
                   'XXX';
 var sprite11 = newSprite();
 rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite11.ctx);
-roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite11.ctx, "black");
 roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite11.ctx, "black");
 w.set(sprite11, getVariations(sprite11str));
 // + 3 rotations:
@@ -284,49 +295,36 @@ w.set( sprite11 = rotate(sprite11), getVariations(sprite11str, 2) );
 w.set( sprite11 = rotate(sprite11), getVariations(sprite11str, 3) );
 
 
-var sprite12str = '_XX' +
-                  'X+X' +
-                  'XXX';
-var sprite12 = newSprite();
-rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite12.ctx);
-roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite12.ctx, "black");
-w.set(sprite12, getVariations(sprite12str));
-// + 3 rotations:
-w.set( sprite12 = rotate(sprite12), getVariations(sprite12str, 1) );
-w.set( sprite12 = rotate(sprite12), getVariations(sprite12str, 2) );
-w.set( sprite12 = rotate(sprite12), getVariations(sprite12str, 3) );
-
-
-var sprite13str = 'XX_' +
+var sprite12str = 'XX_' +
                   'X+X' +
                   '_XX';
-var sprite13 = newSprite();
-rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite13.ctx);
-roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite13.ctx, "black");
-roundRect(1.5 - block, -1.5 + block, block, block, 3, sprite13.ctx, "black");
-w.set(sprite13, getVariations(sprite13str));
+var sprite12 = newSprite();
+rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite12.ctx);
+roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite12.ctx, "black");
+roundRect(1.5 - block, -1.5 + block, block, block, 3, sprite12.ctx, "black");
+w.set(sprite12, getVariations(sprite12str));
 // + rotation
-w.set( rotate(sprite13), getVariations(sprite13str, 1) );
+w.set( rotate(sprite12), getVariations(sprite12str, 1) );
 
 
-var sprite14str = '_X_' +
+var sprite13str = '_X_' +
                   'X+X' +
                   '_X_';
-var sprite14 = newSprite();
-rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite14.ctx);
-roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite14.ctx, "black");
-roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite14.ctx, "black");
-roundRect(-1.5 + block, -1.5 + block, block, block, 3, sprite14.ctx, "black");
-roundRect(1.5 - block, -1.5 + block, block, block, 3, sprite14.ctx, "black");
-w.set(sprite14, getVariations(sprite14str));
+var sprite13 = newSprite();
+rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite13.ctx);
+roundRect(1.5 - block, 1.5 - block, block, block, 3, sprite13.ctx, "black");
+roundRect(-1.5 + block, 1.5 - block, block, block, 3, sprite13.ctx, "black");
+roundRect(-1.5 + block, -1.5 + block, block, block, 3, sprite13.ctx, "black");
+roundRect(1.5 - block, -1.5 + block, block, block, 3, sprite13.ctx, "black");
+w.set(sprite13, getVariations(sprite13str));
 
 
-var sprite15str = 'XXX' +
+var sprite14str = 'XXX' +
                   'X+X' +
                   'XXX';
-var sprite15 = newSprite();
-rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite15.ctx);
-w.set(sprite15, getVariations(sprite15str));
+var sprite14 = newSprite();
+rect(-1.5, -1.5 , block + 1.5 + 1.5, block + 1.5 + 1.5, sprite14.ctx);
+w.set(sprite14, getVariations(sprite14str));
 
 
 
@@ -334,11 +332,12 @@ w.set(sprite15, getVariations(sprite15str));
 /*
 var block = 16;
 ...
+// Рисование спрайта в ячейке 1, 1
 var x = 1 * Painter.blockSize + Painter.frameGap;
 var y = 1 * Painter.blockSize + Painter.frameGap;
 Painter.ctx.drawImage(sprite2, x, y);
 
-
+// Проверка все ли варианты отрисовки стен заданы.
 for (var i = 0, count = 0; i < Walls.length; i++) {
   if (typeof Walls[i] != 'undefined') count++;
   else console.debug( getWallByVariation(i) );
@@ -347,6 +346,75 @@ console.debug(count/256*100);
 
 
 */
+
+// Построение всех отличающихся конфигураций стен наглядно.
+if (0) {
+
+  var newBrick = function() {
+    var canvas = document.createElement('canvas');
+    var block = (Painter && Painter.blockSize) ? Painter.blockSize : 16;
+    canvas.width = canvas.height = block * 3;
+    var ctx = canvas.getContext('2d');
+    canvas.ctx = ctx;
+
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = "rgb(50, 50, 50)";
+
+    ctx.rect(0.5 , 0.5, block * 3-1, block * 3-1);
+    
+    ctx.stroke();
+    return canvas;
+  }
+
+  for (var j = 0; j < 15; j++) {
+    var M = ~~(j/4);
+    var N = j % 4;
+    var deltaX = M * Painter.blockSize * 4 + Painter.frameGap + Painter.blockSize;
+    var deltaY = N * Painter.blockSize * 4 + Painter.frameGap + Painter.blockSize;
+
+    var sp = window["sprite"+j.toString()+"str"].split("");
+
+    var brick = newBrick();
+    var ctx = brick.ctx;
+    
+    /*
+    for (var i = 0; i < sp.length; i++) {
+      ctx.lineWidth = 1;
+      //ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+      ctx.fillStyle = "rgb(80, 80, 80)";
+
+      var pX = ~~(i/3);
+      var pY = i % 3;
+      var posX = pX * block + 0.5;
+      var posY = pY * block + 0.5;
+
+      if (sp[i] == "?") {
+
+        ctx.beginPath();
+        ctx.moveTo(posX+1, posY+1);
+        ctx.lineTo(posX + block - 1, posY +1);
+        ctx.lineTo(posX+1, posY + block - 1);
+        ctx.closePath();
+        ctx.fill();
+
+      } else if (sp[i] == "X") {
+        ctx.rect(posX+1 , posY+1, block - 2, block - 2);
+        ctx.fill();
+        //ctx.stroke();
+      }
+    } // for sp
+    */
+
+    ctx.drawImage(window[ "sprite"+j.toString() ], block, block);
+    
+    Painter.ctx.drawImage(brick, deltaX, deltaY);
+  }
+
+
+} // comment
+
+
+
 
 
 //})();
