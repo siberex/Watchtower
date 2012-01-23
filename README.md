@@ -1,11 +1,6 @@
-Sib.li
+Crying Banksy
 =============
 
-<<<<<<< HEAD
-www.sib.li engine and contents for hosting on Google App Engine
-
-
-=======
 Crying Banksy is an image gallery engine written completely
 on Javascript with RingoJS (JS runtime based on Mozilla Rhino),
 and Stick (JSGI middleware for RingoJS).
@@ -31,7 +26,6 @@ example of web.xml deployment descriptor is provided.
 ...also some models’ modifications will be necessary I guess.
 
 
->>>>>>> 60e387e92e1af057c0f0147a3b5dcf43a3443490
 Google App Engine SDK
 =====================
 
@@ -41,8 +35,6 @@ Latest downloads here:
 http://code.google.com/p/googleappengine/downloads/list
 
 
-<<<<<<< HEAD
-=======
 
 Troubleshooting and FAQ
 =======================
@@ -55,4 +47,3 @@ Credits
 
 Developed by Stepan Legachev <siberex@gmail.com>
 http://www.sib.li
->>>>>>> 60e387e92e1af057c0f0147a3b5dcf43a3443490
