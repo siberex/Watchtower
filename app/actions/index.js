@@ -10,6 +10,7 @@ export("index", "mobile", "test");
 
 
 function index(request) {
+<<<<<<< HEAD
   var lang = getLang(request);
 
   var title = (lang == "ru")
@@ -21,6 +22,10 @@ function index(request) {
     lang  : lang
   };
 
+=======
+  var context = {title: "It's working!"};
+  //throw('Error! Oh noes, its error!');
+>>>>>>> 60e387e92e1af057c0f0147a3b5dcf43a3443490
   return app.render("index.html", context);
 } // index
 

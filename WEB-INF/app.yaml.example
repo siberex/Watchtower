@@ -38,9 +38,12 @@ system_properties:
 #  RINGO_ENV: production
 #  DEFAULT_ENCODING: UTF-8
 
+<<<<<<< HEAD
 # Warmup requests, xmpp, mail.
 inbound_services:
   - warmup
+=======
+>>>>>>> 60e387e92e1af057c0f0147a3b5dcf43a3443490
 
 # Handlers section.
 # optlevel: -1 for run Rhino in interpreted mode

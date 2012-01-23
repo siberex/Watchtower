@@ -1,0 +1,87 @@
+<div class="preview">
+  <img id="preview-img" src="/img/bottles-browser.png" alt="Preview" width="396" height="617" />
+  <canvas id="preview-canvas" width="350" height="500"></canvas>
+  <div id="loading-stopicon">&nbsp;</div>
+  <div id="loading-spinner">&nbsp;</div>
+</div>
+
+<div class="content">
+
+  <a id="bookmarklet" href="javascript:(function(){if(typeof Z5qPdjllq81!='undefined'&&Z5qPdjllq81.init)Z5qPdjllq81.init('hsb|0|0|0');else{window.Z5qPdjllq81='hsb|0|0|0';var a=document.createElement('script');a.type='text/javascript';a.src='{{baseUrl}}/js/monochrome.js?'+(new Date).getTime()/1E5;document.getElementsByTagName('head')[0].appendChild(a)}})();" onclick="alert('Drag this button to your browser’s bookmarks toolbar or right-click it and choose Bookmark This Link.');return false;" class="button white" title="Monochrome bookmarklet">Monochrome bookmarklet</a>
+
+  <div class="separator">&nbsp;</div>
+
+	<div id="method-selector">
+		<input type="radio" id="method-hsb" name="method-selector" value="HSB" checked="checked" /><label for="method-hsb">HSB</label>
+		<input type="radio" id="method-grayscale" name="method-selector" value="Grayscale" /><label for="method-grayscale">Grayscale</label>
+		<input type="radio" id="method-rgb" name="method-selector" value="RGB" /><label for="method-rgb">RGB</label>
+
+    <div id="HSB" class="method-controls">
+      <div class='slider-container'>
+        <div class='slider-title'>H</div>
+        <div id="slider-hue" class="ui-slider" name="H"></div>
+        <div id="hue-amount" class="slider-amount">0</div>
+      </div>
+      
+      <div class='slider-container'>
+        <div class='slider-title'>S</div>
+        <div id="slider-saturation" class="ui-slider" name="S"></div>
+        <div id="saturation-amount" class="slider-amount">0</div>
+      </div>
+
+      <div class='slider-container'>
+        <div class='slider-title'>B</div>
+        <div id="slider-brightness" class="ui-slider" name="B"></div>
+        <div id="brightness-amount" class="slider-amount">0</div>
+      </div>
+    </div> <!-- #HSB -->
+
+    <div id="Grayscale" class="method-controls">
+      <div class='slider-container'>
+        <div class='slider-title'><nobr>R ×</nobr></div>
+        <div id="slider-ared" class="ui-slider" name="aR"></div>
+        <div id="ared-amount" class="slider-amount">0</div>
+      </div>
+      
+      <div class='slider-container'>
+        <div class='slider-title'><nobr>G ×</nobr></div>
+        <div id="slider-agreen" class="ui-slider" name="aG"></div>
+        <div id="agreen-amount" class="slider-amount">0</div>
+      </div>
+
+      <div class='slider-container'>
+        <div class='slider-title'><nobr>B ×</nobr></div>
+        <div id="slider-ablue" class="ui-slider" name="aB"></div>
+        <div id="ablue-amount" class="slider-amount">0</div>
+      </div>
+    </div> <!-- #Grayscale -->
+
+    <div id="RGB" class="method-controls">
+      <div class='slider-container'>
+        <div class='slider-title'>R</div>
+        <div id="slider-red" class="ui-slider" name="R"></div>
+        <div id="red-amount" class="slider-amount">0</div>
+      </div>
+      
+      <div class='slider-container'>
+        <div class='slider-title'>G</div>
+        <div id="slider-green" class="ui-slider" name="G"></div>
+        <div id="green-amount" class="slider-amount">0</div>
+      </div>
+
+      <div class='slider-container'>
+        <div class='slider-title'>B</div>
+        <div id="slider-blue" class="ui-slider" name="B"></div>
+        <div id="blue-amount" class="slider-amount">0</div>
+      </div>
+    </div> <!-- #RGB -->
+	</div> <!-- #method-selector -->
+
+  <div class="footer">
+  
+    <button id="debug">DEBUG</button> <!-- !!!!!!!!!!!!! -->
+
+    © 2010 <a href="http://www.sib.li">Stepan Legachev →</a>
+  </div>
+</div>
+
