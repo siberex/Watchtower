@@ -5,8 +5,11 @@
 <meta http-equiv="content-type" content="text/html; charset=UTF-8"/> 
 <title>Geolocation test</title> 
 
-<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script>
+<!-- script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false&language=en"></script -->
 <script type="text/javascript"> 
+/**
+ * Google geolocation.
+
 var geocoder;
 if (navigator.geolocation) {
 	navigator.geolocation.getCurrentPosition(
@@ -47,27 +50,98 @@ if (navigator.geolocation) {
 						}
 
 						city = cities.pop();
-						alert(city + ' (' + country + ')');
+						document.getElementById("header").innerHTML = city + ' (' + country + ')';
 
 					} else {
 						alert('No results found');
 					}
 				} else {
-					alert("Geocoder failed due to: " + status);
+					document.getElementById("header").innerHTML = "Geocoder failed due to: " + status;
 				}
 			});
 
 		},
 		function() {
 			// geocoder failed.
+			document.getElementById("header").innerHTML = "Geolocation failed. Refresh page and allow geolocation in browser bar ↑";
 		}
 	);
 }
+
+ *
+ */
+</script>
+
+<script src="http://api-maps.yandex.ru/1.1/index.xml?key=AKt7IU8BAAAA3YdACAIAxlypaziXxT-pUbw-FtFTRcICvbcAAAAAAAAAAABFwduiH0Ja_rb5OUFD2ICVXyjm-Q==" type="text/javascript"></script>
+<script type="text/javascript"> 
+/** Yandex geolocation (reverse geocoding). */
+YMaps.jQuery(function () {
+	var map = new YMaps.Map(YMaps.jQuery("#YMapsID")[0]);
+	// Assign global for debug purposes.
+	window.map = map;
+	map.enableScrollZoom();
+	map.enableHotKeys();
+
+	var zoomControl = new YMaps.Zoom({noTips: true});
+	//var zoomControl = new YMaps.SmallZoom();
+	var typeControl = new YMaps.TypeControl([YMaps.MapType.MAP, YMaps.MapType.SATELLITE, YMaps.MapType.HYBRID]);
+	
+	map.addControl(zoomControl);
+	map.addControl(typeControl);
+
+	if (YMaps.location) {
+		document.getElementById("header").innerHTML =
+			"Located by IP coordinates: (" + YMaps.location.latitude + ", " + YMaps.location.longitude + ")";
+
+		var center = new YMaps.GeoPoint(YMaps.location.longitude, YMaps.location.latitude);
+		map.setCenter(center, 13);
+		if (console && console.log) 
+			console.log(YMaps.location.latitude, YMaps.location.longitude);
+
+		document.getElementById("location").innerHTML = 
+			YMaps.location.city + " (" + YMaps.location.region + ", " + YMaps.location.country + ")";
+	}
+
+	if (navigator.geolocation) {
+		navigator.geolocation.getCurrentPosition(
+			function(position) {
+				var lat = position.coords.latitude;
+				var lng = position.coords.longitude;
+
+				document.getElementById("header").innerHTML = "Browser-located coordinates: (" + lat + ", " + lng + ")";
+
+				var center = new YMaps.GeoPoint(lng, lat);
+				map.setCenter(center, 13);
+				if (console && console.log) 
+					console.log(lat, lng);
+
+				// Reverse geocoding.
+				var geocoder = new YMaps.Geocoder(center, {results: 1});
+
+				// Success geocoder event.
+				YMaps.Events.observe(geocoder, geocoder.Events.Load, function () {
+					if ( this.length() ) {
+						var res = this.get(0);
+						document.getElementById("location").innerHTML = res.text;
+						//console.debug(res.text);
+						//console.debug(res);
+					}
+				});
+			},
+			function() {
+				// Geocoder failed.
+				document.getElementById("header").innerHTML = "Browser geolocation failed. Refresh page and allow geolocation in browser bar ↑";
+			}
+		);
+	} // if navigator.geolocation
+}); // window.onload
 </script>
 </head> 
-<body> 
-This page will try to determine your city with HTML 5 Geolocation API.
-<br /><br />
+<body>
+<h3 id="header">This page will try to determine your city with HTML 5 Geolocation API.</h3>
+<h4 id="location"></h4>
+<div id="YMapsID" style="width:600px;height:400px"></div>
+<br />
 ← <a href="http://www.sib.li">Stephan Legachev</a>
 </body> 
 </html>
