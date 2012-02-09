@@ -34,6 +34,9 @@ public class Pinger {
       connection.setRequestMethod("HEAD");
       connection.setRequestProperty("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
 
+      //connection.setConnectTimeout(30);
+      //connection.setReadTimeout(30);
+
       int code = connection.getResponseCode();
       return Integer.toString(code);
 

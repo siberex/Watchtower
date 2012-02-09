@@ -28,7 +28,7 @@ function index(request) {
   var readLine, parsedLine, parsedUrl,
       href, status, host, html;
 
-  while ( (readLine = bufferReader.readLine()) != null )   {
+  while ( (readLine = bufferReader.readLine()) != null ) {
     if (readLine.trim().length == 0)
       continue;
 
