@@ -23,23 +23,46 @@ import java.io.FileNotFoundException;
 public class PingerAsync {
   
   public static void main(String[] args) {
+    List<String> hosts = null;
+    
+    hosts = getSources();
+        
+    Iterator it = hosts.iterator();
+
+    while( it.hasNext() ) {
+      System.out.println( "-> " + (String)it.next() );
+    }
+
+  } // main
+
+
+  /**
+   * Reads hosts from config file app/config/monitoring.cfg
+   * and returns the as list.
+   *
+   * @return List
+   */
+  public static List<String> getSources()
+  {
+    String config = "app/config/monitoring.cfg";
+
     FileInputStream fstream = null;
     DataInputStream input   = null;
     BufferedReader bufferReader = null;
 
+    List<String> hosts = new ArrayList<String>();
+
+    String readLine = null;
+    String[] parsedLine = null;
+    String href = null;
+
+    Pattern urlRe = Pattern.compile("^(?:(https?|ftp)://)?([a-z0-9-]+(?:\\.[a-z0-9-]+)+)?(.*?)?(?:(\\w+\\.\\w+)([^.]*))?$");
+    Matcher urlMatcher = null;
+
     try {
-      fstream = new FileInputStream("app/config/monitoring.cfg");
+      fstream = new FileInputStream(config);
       input   = new DataInputStream(fstream);
       bufferReader = new BufferedReader( new InputStreamReader(input) );
-
-      List<String> hosts = new ArrayList<String>();
-
-      String readLine = null;
-      String[] parsedLine = null;
-      String href = null;
-
-      Pattern urlRe = Pattern.compile("^(?:(https?|ftp)://)?([a-z0-9-]+(?:\\.[a-z0-9-]+)+)?(.*?)?(?:(\\w+\\.\\w+)([^.]*))?$");
-      Matcher urlMatcher = null;
 
       while ( ( readLine = bufferReader.readLine() ) != null ) {
         if (readLine.trim().length() == 0)
@@ -56,41 +79,31 @@ public class PingerAsync {
           continue;
 
         hosts.add( urlMatcher.group(2).intern() );
-
       } // while
-
-        
-      Iterator it = hosts.iterator();
-
-      while( it.hasNext() ) {
-        System.out.println( "Value :" + (String)it.next() );
-      }
-
-
+  
+      return hosts;
     } catch (FileNotFoundException e) {
       
-      System.out.println( "File not found: " + e.getMessage() );
+      //System.out.println( "File not found: " + e.getMessage() );      
+      return hosts;
     } catch (IOException e) {
       
-      System.out.println( "Error: " + e.getMessage() );
+      //System.out.println( "Error: " + e.getMessage() );
+      return hosts;
     } finally {
-
       try {
-        if (fstream != null) {
-            fstream.close();
-        }
-        if (input != null) {
-            input.close();
-        }
-        if (bufferReader != null) {
+        if (fstream != null)
+          fstream.close();
+        if (input != null)
+          input.close();
+        if (bufferReader != null)
             bufferReader.close();
-        }
       } catch (IOException e) {
-
-        // Do something :-)
-      }      
+        // do nothing
+      }
     } // finally
-  } // main
+  } //getSources
+
 
   /**
    * Pings provided url list and returns status code from response.
@@ -98,7 +111,7 @@ public class PingerAsync {
    */
   public static String ping(List<String> hosts)
   {
-    HttpURLConnection connection = null;
+    //HttpURLConnection connection = null;
 
     /**
      * /About async connections/
@@ -115,30 +128,25 @@ public class PingerAsync {
      * The fetchAsync() method returns a java.util.concurrent.Future<HTTPResponse>.
      */
 
-    try {
-      URL u = new URL("www.sib.li");
-      connection = (HttpURLConnection) u.openConnection();
-      connection.setRequestMethod("HEAD");
-      connection.setRequestProperty("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
+
+    return "";
+
+    /*try {
+
+
+
+
+      //URL u = new URL("www.sib.li");
+      //connection = (HttpURLConnection) u.openConnection();
+      //connection.setRequestMethod("HEAD");
+      //connection.setRequestProperty("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
       
       //connection.setConnectTimeout(30);
       //connection.setReadTimeout(30);
 
-      int code = connection.getResponseCode();
-      return Integer.toString(code);
+      //int code = connection.getResponseCode();
+      //return Integer.toString(code);
 
-
-
-        /*
-        Iterator it=ls.iterator();
-
-        while(it.hasNext())
-        {
-          String value=(String)it.next();
-
-          System.out.println("Value :"+value);
-        }
-        */
 
 
     } catch (MalformedURLException e) {
@@ -147,7 +155,7 @@ public class PingerAsync {
       return "URL is null";
     } catch (IOException e) {
       return "Host unreachable";
-    }
+    }*/
 
   } // ping
 
