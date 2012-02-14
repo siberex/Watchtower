@@ -1,6 +1,7 @@
 package sibli;
 
 import java.util.*;
+import java.util.concurrent.*;
 import java.util.regex.*;
 
 import java.net.HttpURLConnection;
@@ -15,6 +16,17 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
+// Google App Engine specific
+import com.google.appengine.api.urlfetch.URLFetchService;
+import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
+
+import static com.google.appengine.api.urlfetch.FetchOptions.Builder.*;
+import com.google.appengine.api.urlfetch.FetchOptions;
+
+import com.google.appengine.api.urlfetch.HTTPMethod;
+import com.google.appengine.api.urlfetch.HTTPRequest;
+import com.google.appengine.api.urlfetch.HTTPResponse;
+
 
 /**
  * PingerAsync class.
@@ -22,18 +34,84 @@ import java.io.FileNotFoundException;
  */
 public class PingerAsync {
   
-  public static void main(String[] args) {
+  public static void main(String[] args)  throws InterruptedException, ExecutionException {
     List<String> hosts = null;
     
     hosts = getSources();
         
-    Iterator it = hosts.iterator();
-
+    /*Iterator<String> it = hosts.iterator();
     while( it.hasNext() ) {
-      System.out.println( "-> " + (String)it.next() );
-    }
+      System.out.println( "-> " + it.next() );
+    }*/
+
+    System.out.println( "-> " + ping(hosts) );
 
   } // main
+
+
+
+
+  /**
+   * Pings provided url list and returns status code from response.
+   *
+   */
+  public static String ping(List<String> hosts) throws InterruptedException, ExecutionException
+  {
+
+    HTTPRequest request = null;
+    FetchOptions options = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(5.0);
+    URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+
+    Future<HTTPResponse> responseFuture;
+    HTTPResponse response;    
+
+    int code;
+
+    try {
+
+      URL url = new URL("http://www.sib.li");
+
+      request = new HTTPRequest(
+          url,
+          HTTPMethod.HEAD,
+          options
+      );
+      
+      long startTime = System.currentTimeMillis();
+
+      responseFuture = fetcher.fetchAsync(request);
+      response = responseFuture.get();
+      code = response.getResponseCode();
+
+
+
+
+
+
+      //connection.setRequestProperty("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
+
+
+      
+      return Integer.toString(code);
+
+
+
+
+    } catch (MalformedURLException e) {
+      return "Malformed URL";
+    }/* catch (IllegalArgumentException e) {
+      return "URL is null";
+    }*/ catch (IOException e) {
+      return "Host unreachable";
+    }// finally {
+      //return "";
+    //}
+
+  } // ping
+
+
+
+
 
 
   /**
@@ -78,18 +156,14 @@ public class PingerAsync {
         if ( !urlMatcher.matches() || urlMatcher.group(2) == null )
           continue;
 
-        hosts.add( urlMatcher.group(2).intern() );
+        //hosts.add( urlMatcher.group(2).intern() ); // host
+        hosts.add( href );
       } // while
   
-      return hosts;
     } catch (FileNotFoundException e) {
-      
-      //System.out.println( "File not found: " + e.getMessage() );      
-      return hosts;
+      //System.out.println( "File not found: " + e.getMessage() );
     } catch (IOException e) {
-      
       //System.out.println( "Error: " + e.getMessage() );
-      return hosts;
     } finally {
       try {
         if (fstream != null)
@@ -102,61 +176,19 @@ public class PingerAsync {
         // do nothing
       }
     } // finally
+    
+    return hosts;
   } //getSources
 
-
-  /**
-   * Pings provided url list and returns status code from response.
-   *
-   */
-  public static String ping(List<String> hosts)
-  {
-    //HttpURLConnection connection = null;
-
-    /**
-     * /About async connections/
-     * http://code.google.com/intl/en/appengine/docs/java/urlfetch/overview.html
-     * 
-     * An asynchronous request to the URL Fetch service starts the request, then returns immediately with an object.
-     * The application can perform other tasks while the URL is being fetched. When the application needs the results,
-     * it calls a method on the object, which waits for the request to finish if necessary, then returns the result.
-     * The app can have up to 10 simultaneous asynchronous URL Fetch calls. If any URL Fetch requests are pending
-     * when the request handler exits, the application server waits for all remaining requests to either return
-     * or reach their deadline before returning a response to the user.
-     *
-     * In Java, the asynchronous interface is only available when using the low-level API directly.
-     * The fetchAsync() method returns a java.util.concurrent.Future<HTTPResponse>.
-     */
-
-
-    return "";
-
-    /*try {
-
-
-
-
-      //URL u = new URL("www.sib.li");
-      //connection = (HttpURLConnection) u.openConnection();
-      //connection.setRequestMethod("HEAD");
-      //connection.setRequestProperty("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
-      
-      //connection.setConnectTimeout(30);
-      //connection.setReadTimeout(30);
-
-      //int code = connection.getResponseCode();
-      //return Integer.toString(code);
-
-
-
-    } catch (MalformedURLException e) {
-      return "Malformed URL";
-    } catch (IllegalArgumentException e) {
-      return "URL is null";
-    } catch (IOException e) {
-      return "Host unreachable";
-    }*/
-
-  } // ping
-
 } // PingerAsync class
+
+
+/**
+ Useful links:
+
+ http://code.google.com/intl/en/appengine/docs/java/urlfetch/overview.html
+ http://code.google.com/appengine/docs/java/javadoc/com/google/appengine/api/urlfetch/package-summary.html
+
+ http://ikaisays.com/2010/06/29/using-asynchronous-urlfetch-on-java-app-engine/
+
+ */

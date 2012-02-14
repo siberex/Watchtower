@@ -6,7 +6,7 @@
 
 var {app} = require("../main");
 var {getLang} = require("../helpers");
-export("index");
+export("index", "async");
 
 
 function index(request) {
@@ -15,18 +15,88 @@ function index(request) {
             ? "Мониторинг"
             : "Monitoring";
 
-  var sources = [];
-
   var Pinger = new Packages.sibli.Pinger();
   // Let’s use reflection, just to play with Java:
   // var clsPinger = java.lang.Class.forName("sibli.Pinger");
   // var Pinger = clsPinger.newInstance();
 
+  //var Logger = new Packages.org.apache.log4j.Logger.getLogger();
+  //var Logger = org.apache.log4j.Logger.getLogger();
+  var log = require("ringo/logging").getLogger(module.id);
+  log.info("Hello {}", "----------------------");
+
+  var sources = getSources();
+
+  //var tStart = +new Date();
+  var tStart = new Date().getTime();
+  var cStart, cEnd;
+  for each (var host in sources) {
+    try {
+      // Using reflection:
+      // status = clsPinger.getMethod("ping", java.lang.String).invoke( Pinger, href );
+      // Normal way:
+      cStart = new Date().getTime();
+      host.status = Pinger.ping(host.href);
+      //cEnd = new Date().getTime();
+      host.time = (new Date().getTime() - cStart) / 1000.0;
+    } catch (e) {
+      // This will never happen, 
+      // all exceptions caught in Pinger.
+      host.status = "err";
+    }
+  }
+  //var tEnd = +new Date();
+  var tEnd = new Date().getTime();
+
+  var context = {
+    title   : title,
+    lang    : lang,
+    time    : ((tEnd - tStart) / 1000.0).toString(),
+    sources : sources
+  }
+
+  return app.render("monitoring.html", context);
+} // index
+
+
+function async(request) {
+  var lang = getLang(request);
+  var title = (lang == "ru")
+            ? "Мониторинг"
+            : "Monitoring";
+
+  //var sources = getSources();
+  var PingerAsync = new Packages.sibli.PingerAsync();
+  var sources = PingerAsync.getSources();
+  var test = PingerAsync.ping(sources);
+
+  var context = {
+    title : title,
+    lang  : lang,
+    test  : uneval(test),
+    head  : app.renderPart("asyncmon-header.html", {
+                sources : uneval(test)
+            })
+  };
+
+  return app.render("asyncmon.html", context);
+} // async
+
+
+/**
+ * Returns hosts list from app/config/monitoring.cfg
+ * Uses Java to access config file.
+ *
+ * @return {Array} Hosts.
+ */
+function getSources() {
+  var sources = [];
+
   var fstream = new java.io.FileInputStream("app/config/monitoring.cfg");
   var input = new java.io.DataInputStream(fstream);
   var bufferReader = new java.io.BufferedReader( new java.io.InputStreamReader(input) );
   var readLine, parsedLine, parsedUrl,
-      href, status, host, html;
+      href, host, html;
 
   while ( (readLine = bufferReader.readLine()) != null ) {
     if (readLine.trim().length == 0)
@@ -45,29 +115,14 @@ function index(request) {
 
     host = parsedUrl[2];
 
-    try {
-      // Using reflection:
-      // status = clsPinger.getMethod("ping", java.lang.String).invoke( Pinger, href );
-      // Normal way:
-      status = Pinger.ping(href);
-    } catch (e) {
-      status = "err";
-    }
-
     sources.push({
       href   : href,
       host   : host,
-      html   : html,
-      status : status
+      html   : html
     });
   } // while
+
   input.close();
 
-
-  var context = {
-    title   : title,
-    sources : sources
-  }
-
-  return app.render("monitoring.html", context);
-} // index
+  return sources;
+} // getSources
