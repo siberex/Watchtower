@@ -34,17 +34,14 @@ import com.google.appengine.api.urlfetch.HTTPResponse;
  */
 public class PingerAsync {
   
-  public static void main(String[] args)  throws InterruptedException, ExecutionException {
-    List<String> hosts = null;
-    
-    hosts = getSources();
-        
-    /*Iterator<String> it = hosts.iterator();
-    while( it.hasNext() ) {
-      System.out.println( "-> " + it.next() );
-    }*/
+  public static void main(String[] args) {
 
-    System.out.println( "-> " + ping(hosts) );
+    List<HashMap<String,Object>> hosts = getSources();
+        
+    Iterator<HashMap<String,Object>> it = hosts.iterator();
+    while( it.hasNext() ) {
+      System.out.println( "Host: " + it.next().toString() );
+    }
 
   } // main
 
@@ -55,7 +52,7 @@ public class PingerAsync {
    * Pings provided url list and returns status code from response.
    *
    */
-  public static String ping(List<String> hosts) throws InterruptedException, ExecutionException
+  public static String ping(List<HashMap<String,Object>> hosts) throws InterruptedException, ExecutionException
   {
 
     HTTPRequest request = null;
@@ -67,7 +64,21 @@ public class PingerAsync {
 
     int code;
 
+    HashMap<String,Object> h;
+    Iterator<HashMap<String,Object>> it = hosts.iterator();
+
+
+    while ( hosts.size() > 0 ) {
+      while ( it.hasNext() ) {
+        h = it.next();
+        System.out.println( "Host: " + it.next().toString() );
+        h.get('href');
+
+      } // while
+    }
+
     try {
+      //hosts.removeRange(int fromIndex, int toIndex)
 
       URL url = new URL("http://www.sib.li");
 
@@ -120,7 +131,7 @@ public class PingerAsync {
    *
    * @return List
    */
-  public static List<String> getSources()
+  public static List<HashMap<String,Object>> getSources()
   {
     String config = "app/config/monitoring.cfg";
 
@@ -128,11 +139,16 @@ public class PingerAsync {
     DataInputStream input   = null;
     BufferedReader bufferReader = null;
 
-    List<String> hosts = new ArrayList<String>();
+    //List<String> hosts = new ArrayList<String>();
+
+    // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
+    List<HashMap<String,Object>> hosts = new ArrayList<HashMap<String,Object>>();
+    HashMap<String,Object> host = null;
 
     String readLine = null;
     String[] parsedLine = null;
     String href = null;
+    String html = null;
 
     Pattern urlRe = Pattern.compile("^(?:(https?|ftp)://)?([a-z0-9-]+(?:\\.[a-z0-9-]+)+)?(.*?)?(?:(\\w+\\.\\w+)([^.]*))?$");
     Matcher urlMatcher = null;
@@ -156,8 +172,14 @@ public class PingerAsync {
         if ( !urlMatcher.matches() || urlMatcher.group(2) == null )
           continue;
 
-        //hosts.add( urlMatcher.group(2).intern() ); // host
-        hosts.add( href );
+        html = (parsedLine.length < 2) ? "" : parsedLine[1].trim();
+
+        host = new HashMap<String,Object>();
+        host.put( "host", urlMatcher.group(2).intern() ); // host
+        host.put( "href", href );
+        host.put( "html", html );
+        
+        hosts.add( host );
       } // while
   
     } catch (FileNotFoundException e) {
