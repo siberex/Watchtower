@@ -22,6 +22,7 @@ function index(request) {
     title : title,
     lang  : lang,
     head  : '<link rel="profile" href="http://microformats.org/profile/hcard" />',
+    bodyclass: 'vcard',
     text  : app.renderPart("index-text." + lang + ".html")
   };
 
