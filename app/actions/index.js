@@ -21,8 +21,8 @@ function index(request) {
   var context = {
     title : title,
     lang  : lang,
-    head  : '<link rel="profile" href="http://microformats.org/profile/hcard" />'
-    text  : app.renderPart("index-text." + lang + ".html",)
+    head  : '<link rel="profile" href="http://microformats.org/profile/hcard" />',
+    text  : app.renderPart("index-text." + lang + ".html")
   };
 
   return app.render("index.html", context);
