@@ -1,6 +1,6 @@
 
 var general = {
-  baseUrl       : "http://www.jingel.ru",
+  baseUrl       : "http://www.sib.li",
 
   login         : "admin",
   // Example password is “godsexlove” — SHA1 hash should be stored below.

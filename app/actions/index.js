@@ -23,6 +23,7 @@ function index(request) {
     lang  : lang,
     head  : '<link rel="profile" href="http://microformats.org/profile/hcard" />',
     bodyclass: 'vcard',
+    baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl,
     text  : app.renderPart("index-text." + lang + ".html")
   };
 
