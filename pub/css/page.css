@@ -56,3 +56,34 @@ h1, h2, h3 {
 	font-size: 0;
 	overflow: hidden; /* тройной презерватив для IE */
 }
+
+/**
+ * ICONS
+ */
+.icon-lj {
+	vertical-align: -3px;
+}
+.icon-tumblr {
+	vertical-align: -4px;
+}
+.icon-gmail {
+	vertical-align: -3px;
+}
+.icon-gtalk {
+	vertical-align: -5px;
+}
+.icon-skype {
+	vertical-align: -4px;
+}
+.icon-icq {
+	vertical-align: -4px;
+}
+.icon-twitter {
+	vertical-align: -3px;
+}
+.icon-facebook {
+	vertical-align: -3px;
+}
+.icon-gae {
+	vertical-align: -3px;
+}
