@@ -21,7 +21,7 @@ function index(request) {
   var context = {
     title : title,
     lang  : lang,
-    head  : '<link rel="profile" href="http://microformats.org/profile/hcard" />',
+    head  : app.renderPart("index-header.html"),
     bodyclass: 'vcard',
     baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl,
     text  : app.renderPart("index-text." + lang + ".html")
@@ -41,6 +41,7 @@ function mobile(request) {
   var context = {
     title : title,
     lang  : lang,
+    bodyclass: 'mobile vcard',
     head  : '<link rel="stylesheet" href="/css/mobile.css" type="text/css" />'
   };
 

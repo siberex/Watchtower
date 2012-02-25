@@ -28,6 +28,9 @@ h1, h2, h3 {
 #body {
 	float: left;
 	margin-top: 80px;
+	z-index: 1;
+	background-color: #FFF;
+	padding-left: 10px;
 }
 #body p {
 	padding-top: 0.8em;
@@ -37,6 +40,12 @@ h1, h2, h3 {
 #body code {
 	font-size: 100%;
 }
+.clear {
+	clear: both;
+	font-size: 0;
+	overflow: hidden; /* тройной презерватив для IE */
+}
+
 #dopefish {
 	width: 120px;
 	height: 100px;
@@ -50,40 +59,75 @@ h1, h2, h3 {
 	height: 70px;
 	background: transparent url("/img/to-web20.png") no-repeat;
 	margin-bottom: -15px;
+	margin-top: 60px;
 }
-.clear {
-	clear: both;
-	font-size: 0;
-	overflow: hidden; /* тройной презерватив для IE */
+#photo {
+	position: absolute;
+	top: 120px;
+	z-index: -1;
 }
+
+.nod-updates {
+	position: absolute;
+	top: 750px;
+	z-index: 0;
+	font-size: 85%;
+}
+
+.copyright {
+	text-align: right;
+	font-size: 85% !important;
+}
+
 
 /**
  * ICONS
  */
-.icon-lj {
-	vertical-align: -3px;
+.iconlink img {
+    padding-right: 0.5ex;
 }
-.icon-tumblr {
-	vertical-align: -4px;
+
+.icon-ru,
+.icon-us {
+	padding-left: 0.3ex;
 }
+
+.icon-lj,
+.icon-twitter,
+.icon-facebook,
+.icon-gae,
 .icon-gmail {
 	vertical-align: -3px;
 }
-.icon-gtalk {
-	vertical-align: -5px;
+.icon-lj {
+	padding-right: 0.3ex !important;
 }
-.icon-skype {
+
+.icon-tumblr,
+.icon-gplus,
+.icon-skype,
+.icon-icq,
+.icon-vk {
 	vertical-align: -4px;
 }
 .icon-icq {
-	vertical-align: -4px;
+	padding-right: 0.5ex;
 }
-.icon-twitter {
+
+.icon-gtalk {
+	vertical-align: -5px;
+	padding-right: 0.4ex !important;
+}
+
+img.uptime {
 	vertical-align: -3px;
 }
-.icon-facebook {
-	vertical-align: -3px;
+
+a.link-skype, a.link-gtalk {
+	text-decoration: none;
 }
-.icon-gae {
-	vertical-align: -3px;
+
+code.tel {
+	word-spacing: -0.25em;
 }
+
