@@ -11,8 +11,11 @@ export("index", "mobile", "test");
 
 function index(request) {
   var lang = getLang(request);
+  if (lang !== "ru")
+    lang = "en";
+  
   lang = "en"; ////////// HARDCODE //////////
-
+  
   var title = (lang == "ru")
             ? "Степан Легачёв. Говорит и показывает"
             : "Stephan Legachev online";
@@ -23,6 +26,7 @@ function index(request) {
     lang  : lang,
     head  : app.renderPart("index-header.html"),
     bodyclass: 'vcard',
+    bodyprops: ' itemscope itemtype="http://microformats.org/profile/hcard"',
     baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl,
     text  : app.renderPart("index-text." + lang + ".html")
   };
