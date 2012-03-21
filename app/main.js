@@ -12,7 +12,7 @@ var config = exports.config = require('./config');
 
 
 // Configure middleware.
-app.configure("basicauth", "cookies", "params", "notfound", "error",  "mount", "render",  "route");
+app.configure("session", "basicauth", "cookies", "params", "route", "notfound", "error",  "mount", "render");
 
 
 app.error.template = module.resolve("views/500.html");

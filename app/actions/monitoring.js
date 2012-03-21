@@ -6,7 +6,7 @@
 
 var {app} = require("../main");
 var {getLang} = require("../helpers");
-export("index", "async");
+export("index", "async", "addhost");
 
 
 function index(request) {
@@ -81,6 +81,36 @@ function async(request) {
 
   return app.render("asyncmon.html", context);
 } // async
+
+
+function addhost(request) {
+  var lang = getLang(request);
+  var title = (lang == "ru")
+            ? "Мониторинг сайта — Добавление адреса"
+            : "Site monitoring — Host add";
+
+  var context = {
+    title : title,
+    lang  : lang,
+    header: (lang == "ru") ? "Добавление сайта в систему мониторинга" : "Add host for monitoring",
+    submit: (lang == "ru") ? "Добавить" : "Add",
+    placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru" : "Enter URL, for example http://google.com"
+    
+  };
+
+  if (request.method == "POST" && request.params.url) {
+    var host = request.params.url;
+
+    // if error
+    context.value = host;
+
+  } else {
+    request.session.data.init = new Date();
+
+  }
+  context.debug = uneval(request.method);
+  return app.render("addhost.html", context);
+} // addhost
 
 
 /**

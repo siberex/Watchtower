@@ -34,6 +34,22 @@ import com.google.appengine.api.urlfetch.HTTPResponse;
  */
 public class PingerAsync {
   
+  final int maxConcurrentRequests = 10;
+  protected List<HashMap<String,Object>> hosts = null;
+  protected List<HashMap<String,Object>> hostsQueue = null;
+  protected List<HashMap<String,Object>> hostsPolled = null;
+
+
+  public PingerAsync() {
+    this( getSources() );
+  } // constructor
+  public PingerAsync(List<HashMap<String,Object>> hosts) {
+
+    this.hosts = hosts;
+    this.hostsQueue = new ArrayList<HashMap<String,Object>>(this.maxConcurrentRequests);
+  } // constructor
+
+
   public static void main(String[] args) {
 
     List<HashMap<String,Object>> hosts = getSources();
@@ -47,12 +63,11 @@ public class PingerAsync {
 
 
 
-
   /**
    * Pings provided url list and returns status code from response.
    *
    */
-  public static String ping(List<HashMap<String,Object>> hosts) throws InterruptedException, ExecutionException
+  public String ping() throws InterruptedException, ExecutionException
   {
 
     HTTPRequest request = null;
@@ -67,15 +82,17 @@ public class PingerAsync {
     HashMap<String,Object> h;
     Iterator<HashMap<String,Object>> it = hosts.iterator();
 
+    // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
+    // add first maxConcurrentRequests from hosts to queue
 
     while ( hosts.size() > 0 ) {
       while ( it.hasNext() ) {
         h = it.next();
-        System.out.println( "Host: " + it.next().toString() );
+        System.out.println( "Host: " + h.toString() );
         h.get('href');
 
       } // while
-    }
+    } // while
 
     try {
       //hosts.removeRange(int fromIndex, int toIndex)
@@ -131,7 +148,7 @@ public class PingerAsync {
    *
    * @return List
    */
-  public static List<HashMap<String,Object>> getSources()
+  public static final List<HashMap<String,Object>> getSources()
   {
     String config = "app/config/monitoring.cfg";
 

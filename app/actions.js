@@ -12,6 +12,8 @@ app.get("/mobile", require("./actions/index").mobile);
 
 app.get("/mon", require("./actions/monitoring").index);
 app.get("/asyncmon", require("./actions/monitoring").async);
+app.get("/addhost", require("./actions/monitoring").addhost);
+app.post("/addhost", require("./actions/monitoring").addhost);
 
 app.get("/pacman", require("./actions/pacman").index);
 
