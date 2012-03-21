@@ -90,12 +90,12 @@ function addhost(request) {
             : "Site monitoring — Host add";
 
   var context = {
-    title : title,
-    lang  : lang,
-    header: (lang == "ru") ? "Добавление сайта в систему мониторинга" : "Add host for monitoring",
-    submit: (lang == "ru") ? "Добавить" : "Add",
-    placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru" : "Enter URL, for example http://google.com"
-    
+    head      : '<link rel="stylesheet" href="/css/addhost.css" />',
+    title     : title,
+    lang      : lang,
+    header    : (lang == "ru") ? "Добавление сайта в систему мониторинга" : "Add host for monitoring",
+    submit    : (lang == "ru") ? "Добавить" : "Add",
+    placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru" : "Enter URL, for example http://google.com"    
   };
 
   if (request.method == "POST" && request.params.url) {
@@ -105,10 +105,16 @@ function addhost(request) {
     context.value = host;
 
   } else {
-    request.session.data.init = new Date();
+    //request.session.data.init = new Date();
+
+    // http://www.oracle.com/technetwork/java/javaee/servlet/index.html
+    // session.setAttribute()
+
+    // Примечание. Поскольку App Engine сохраняет данные сеансов в хранилище данных и кэше памяти,
+    // для всех значений, сохраненных во время сеанса, должен быть реализован интерфейс java.io.Serializable.
 
   }
-  context.debug = uneval(request.method);
+
   return app.render("addhost.html", context);
 } // addhost
 
