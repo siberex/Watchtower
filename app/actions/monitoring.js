@@ -4,6 +4,8 @@
  *
  */
 
+var system = require('system');
+
 var {app} = require("../main");
 var {getLang} = require("../helpers");
 export("index", "async", "addhost");
@@ -105,29 +107,24 @@ function addhost(request) {
     // if error
     context.value = host;
     //context.debug = request.session.data.init;
-    if (!request.session.data.initA) {
+    if (!request.session.data.init) {
       // No session (e.g. direct POST from bot or browser not supporting session headers)
       // or more than 30 minutes left since page load (session was destroyed).
-      throw new Error("Session expired");
+
+      //throw new Error("Session expired");
     }
-
-    context.test = java.lang.System.getProperty("app.debug");
-    context.test = java.lang.System.getProperty("environment");
-
 
 
     request.session.data.init = (new Date()).toString();
 
   } else {
-    //request.session.data.init = new Date();
+    /**
+     * http://code.google.com/intl/en/appengine/docs/java/config/appconfig.html
+     * > Because App Engine stores session data in the datastore and memcache, all values
+     * > stored in the session must implement the java.io.Serializable interface.
+     * So we can not use Date directly and must convert such values to strings.
+     */
     request.session.data.init = (new Date()).toString();
-
-    // http://www.oracle.com/technetwork/java/javaee/servlet/index.html
-    // session.setAttribute()
-    // http://stackoverflow.com/questions/1134800/google-appengine-session-example
-
-    // Примечание. Поскольку App Engine сохраняет данные сеансов в хранилище данных и кэше памяти,
-    // для всех значений, сохраненных во время сеанса, должен быть реализован интерфейс java.io.Serializable.
 
   }
 

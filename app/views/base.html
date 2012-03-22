@@ -19,6 +19,21 @@
 
   {{#canonical}}<link rel="canonical" href="{{canonical}}" />{{/canonical}}
 
+	<script type="text/javascript">
+	  WebFontConfig = {
+		google: { families: [ 'PT Sans:400,700,400italic', 'PT Sans Caption:400,700:cyrillic,latin' ] }
+	  };
+	  (function() {
+		var wf = document.createElement('script');
+		wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+			'://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+		wf.type = 'text/javascript';
+		wf.async = 'true';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(wf, s);
+	  })();
+	</script>
+
   <!--[if lt IE 9]>
     <script src="http://p.ya.ru/media/html5.js"></script>
   <![endif]-->
@@ -27,7 +42,9 @@
   <link rel="icon" href="/favicon.png" type="image/png" />
 
   <link rel="stylesheet" href="/css/base.css" type="text/css" />
+  <!--
   <link href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic|PT+Sans+Caption:400,700&amp;subset=cyrillic,latin" rel="stylesheet" type="text/css" />
+  -->
   <link rel="stylesheet" href="/css/page.css" type="text/css" />
 
   {{{head}}}

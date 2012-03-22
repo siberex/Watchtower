@@ -5,7 +5,7 @@
     <servlet-class>org.ringojs.jsgi.JsgiServlet</servlet-class>
     <init-param>
       <param-name>app</param-name>
-      <param-value>production</param-value>
+      <param-value>app</param-value>
     </init-param>
     <init-param>
       <param-name>ringo-home</param-name>
@@ -21,11 +21,7 @@
     </init-param>
     <init-param>
       <param-name>optlevel</param-name>
-      <param-value>9</param-value>
-    </init-param>
-    <init-param>
-      <param-name>production</param-name>
-      <param-value>true</param-value>
+      <param-value>-1</param-value>
     </init-param>
   </servlet>
   <servlet-mapping>
@@ -39,6 +35,10 @@
   <context-param>
     <param-name>RINGO_ENV</param-name>
     <param-value>production</param-value>
+  </context-param>
+  <context-param>
+    <param-name>test</param-name>
+    <param-value>test</param-value>
   </context-param>
   <context-param>
     <param-name>ringo.env</param-name>
