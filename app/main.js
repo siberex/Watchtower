@@ -12,8 +12,8 @@ var config = exports.config = require('./config');
 
 
 // Configure middleware.
-app.configure("session", "basicauth", "cookies", "params", "route", "notfound", "error",  "mount", "render");
-
+//app.configure("session", "basicauth", "cookies", "params", "error", "notfound", "route", "mount", "render");
+app.configure("session", "basicauth", "cookies", "notfound", "error", "params", "route", "mount", "render");
 
 app.error.template = module.resolve("views/500.html");
 app.notfound.template = module.resolve("views/404.html");
@@ -50,7 +50,7 @@ var prof = app.env("profiler").configure("requestlog", "profiler", "error");
 prof.requestlog.append = true;
 
 
-
+//app.error.location = false;
 
 // Start server if run as main script from ringo.
 // I hope no one will deploy it this way. Please use AppEngine instead.

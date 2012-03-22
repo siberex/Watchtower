@@ -93,7 +93,6 @@ function addhost(request) {
     head      : '<link rel="stylesheet" href="/css/addhost.css" />',
     title     : title,
     lang      : lang,
-      test: 'ololo',
     header    : (lang == "ru") ? "Добавление сайта в систему мониторинга" : "Add host for monitoring",
     submit    : (lang == "ru") ? "Добавить" : "Add",
     placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru" : "Enter URL, for example http://google.com"    
@@ -105,11 +104,15 @@ function addhost(request) {
 
     // if error
     context.value = host;
-    context.debug = request.session.data.init;
-    if (!request.session.data.initoo)
-      throw("Error: Your browser does not support cookies");
+    //context.debug = request.session.data.init;
+    if (!request.session.data.initA) {
+      // No session (e.g. direct POST from bot or browser not supporting session headers)
+      // or more than 30 minutes left since page load (session was destroyed).
+      throw new Error("Session expired");
+    }
 
-
+    context.test = java.lang.System.getProperty("app.debug");
+    context.test = java.lang.System.getProperty("environment");
 
 
 

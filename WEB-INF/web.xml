@@ -17,7 +17,7 @@
     </init-param>
     <init-param>
       <param-name>module-path</param-name>
-      <param-value>production</param-value>
+      <param-value>app</param-value>
     </init-param>
     <init-param>
       <param-name>optlevel</param-name>
@@ -32,6 +32,18 @@
     <servlet-name>sibli</servlet-name>
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
+  <context-param>
+    <param-name>RINGO.ENV</param-name>
+    <param-value>production</param-value>
+  </context-param>
+  <context-param>
+    <param-name>RINGO_ENV</param-name>
+    <param-value>production</param-value>
+  </context-param>
+  <context-param>
+    <param-name>ringo.env</param-name>
+    <param-value>production</param-value>
+  </context-param>
   <welcome-file-list>
     <welcome-file>index.html</welcome-file>
   </welcome-file-list>
