@@ -12,8 +12,8 @@ var config = exports.config = require('./config');
 
 
 // Configure middleware.
-//app.configure("session", "basicauth", "cookies", "params", "error", "notfound", "route", "mount", "render");
-app.configure("session", "basicauth", "cookies", "notfound", "error", "params", "route", "mount", "render");
+app.configure("session", "basicauth", "cookies", "params", "error", "notfound", "route", "mount", "render");
+//app.configure("session", "basicauth", "cookies", "notfound", "error", "params", "route", "mount", "render");
 
 app.error.template = module.resolve("views/500.html");
 app.notfound.template = module.resolve("views/404.html");

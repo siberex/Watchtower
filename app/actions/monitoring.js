@@ -103,20 +103,58 @@ function addhost(request) {
   
   if (request.method == "POST" && request.params.url) {
     var host = request.params.url;
+    var error = false;
 
-    // if error
+    // In case of error let’s save input value to display it back in form input.
     context.value = host;
-    //context.debug = request.session.data.init;
+
+    // Check for "http(s)://" at the beginning:
+    var href = (/^https?:\/\//).test(host) ? host : "http://" + host;
+    
+    
     if (!request.session.data.init) {
       // No session (e.g. direct POST from bot or browser not supporting session headers)
       // or more than 30 minutes left since page load (session was destroyed).
 
+      error = (lang == "ru")
+            ? "Время сессии пользователя по какой-то причине истекло. Пожалуйста, попробуйте добавить сайт снова."
+            : "Session is expired for some obscure reason. Please try to add this site again.";
       //throw new Error("Session expired");
+    } else {
+      // Check time difference between now and time saved in session on form render,
+      // if it is too small, probably this is a crawler or bot.
+
+      // Ping host to check URL is correct and site available.
+      var Pinger = new Packages.sibli.Pinger();
+      var status = Pinger.ping(href);
+
+      if (status == "Malformed URL" || status == "URL is null") {
+        error = (lang == "ru")
+              ? "Указан некорректный адрес сайта. Проверьте адрес и попробуйте добавить сайт снова."
+              : "There is error in URL. Please check the link address and click on submit again.";
+      } else if (status == "Timeout" || status == "Host unreachable") {
+        error = (lang == "ru")
+              ? "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. Или, возможно, в адресе сайта ошибка."
+              : "Could not get answer from site. If your site is overloaded now, please try to add it again a bit later. Besides, may be there is error in URL.";
+      } else {
+        var {Host} = require('models/host');
+
+        /**
+         * We need to check host for existance in DB.
+         * We don’t want to create tons of hosts with identical URL.
+         * If host exists, let’s update time added. 
+         */
+        var hostObj = new Host({
+          url: href
+        }, href);
+        hostObj.put();
+        var success = true;
+      }
+
     }
 
-
+    context.test = error ? error : status;
     request.session.data.init = (new Date()).toString();
-
   } else {
     /**
      * http://code.google.com/intl/en/appengine/docs/java/config/appconfig.html
@@ -125,7 +163,6 @@ function addhost(request) {
      * So we can not use Date directly and must convert such values to strings.
      */
     request.session.data.init = (new Date()).toString();
-
   }
 
   return app.render("addhost.html", context);

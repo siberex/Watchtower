@@ -29,18 +29,6 @@
     <url-pattern>/*</url-pattern>
   </servlet-mapping>
   <context-param>
-    <param-name>RINGO.ENV</param-name>
-    <param-value>production</param-value>
-  </context-param>
-  <context-param>
-    <param-name>RINGO_ENV</param-name>
-    <param-value>production</param-value>
-  </context-param>
-  <context-param>
-    <param-name>test</param-name>
-    <param-value>test</param-value>
-  </context-param>
-  <context-param>
     <param-name>ringo.env</param-name>
     <param-value>production</param-value>
   </context-param>
