@@ -15,9 +15,9 @@
  * that forward and reverse request routing will usually work as expected.
  *
  * This middleware maintains an index mapping applications to mount points which
- * can be accessed using the [lookup](#lookup) function. The [stick/helpers] module
- * provides higher level functions for this which include support for the route
- * middleware.
+ * can be accessed using the [lookup](#lookup) function. The [stick/helpers][helpers]
+ * module provides higher level functions for this which include support for the
+ * route middleware.
  *
  * @example
  * app.configure("mount");
@@ -77,7 +77,23 @@ exports.middleware = function Mount(next, app) {
             canonicalPath: spec.canonicalPath,
             app: resolved
         });
+        mounts.sort(mostSpecificPathFirst);
     };
+
+    /**
+     * Sort the mounts array by the most specific mount path first. This means the mount path with
+     * the most slashes in it will be searched first.
+     *
+     * @param m1 mount 1
+     * @param m2 mount 2
+     */
+    function mostSpecificPathFirst(m1, m2) {
+        var slash1 = (m1.path || '').match(/\//g);
+        slash1 = slash1 == null ? 0 : slash1.length;
+        var slash2 = (m2.path || '').match(/\//g);
+        slash2 = slash2 == null ? 0 : slash2.length;
+        return slash2 - slash1;
+    }
 
     // return middleware function
     return function mount(req) {

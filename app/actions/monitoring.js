@@ -93,22 +93,35 @@ function addhost(request) {
     head      : '<link rel="stylesheet" href="/css/addhost.css" />',
     title     : title,
     lang      : lang,
+      test: 'ololo',
     header    : (lang == "ru") ? "Добавление сайта в систему мониторинга" : "Add host for monitoring",
     submit    : (lang == "ru") ? "Добавить" : "Add",
     placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru" : "Enter URL, for example http://google.com"    
   };
 
+  
   if (request.method == "POST" && request.params.url) {
     var host = request.params.url;
 
     // if error
     context.value = host;
+    context.debug = request.session.data.init;
+    if (!request.session.data.initoo)
+      throw("Error: Your browser does not support cookies");
+
+
+
+
+
+    request.session.data.init = (new Date()).toString();
 
   } else {
     //request.session.data.init = new Date();
+    request.session.data.init = (new Date()).toString();
 
     // http://www.oracle.com/technetwork/java/javaee/servlet/index.html
     // session.setAttribute()
+    // http://stackoverflow.com/questions/1134800/google-appengine-session-example
 
     // Примечание. Поскольку App Engine сохраняет данные сеансов в хранилище данных и кэше памяти,
     // для всех значений, сохраненных во время сеанса, должен быть реализован интерфейс java.io.Serializable.
