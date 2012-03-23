@@ -18,7 +18,7 @@
  * Map the following JSGI app at ah/xmpp/message/chat
  *
  *   var Request = require("nitro/request").Request,
- *       Message = require("google/appengine/api/xmpp").Message;
+ *       Message = require("appengine/google/appengine/api/xmpp").Message;
  *
  *   exports.GET = exports.POST = function(env) {
  *       var msg = new Message(env);

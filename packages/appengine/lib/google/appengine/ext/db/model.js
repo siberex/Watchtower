@@ -1,15 +1,15 @@
-var datastore = require("google/appengine/api/datastore"),
+var datastore = require("appengine/google/appengine/api/datastore"),
     JDatastore = datastore.Datastore,
     JEntity = datastore.Entity;
 
 var objects = require("ringo/utils/objects");
 
-var db = require("google/appengine/ext/db"),
+var db = require("appengine/google/appengine/ext/db"),
     Query = db.Query,
     ListProperty = db.ListProperty,
-    types = require("google/appengine/api/datastore/types"),
+    types = require("appengine/google/appengine/api/datastore/types"),
     Key = types.Key,
-    errors = require("google/appengine/ext/db/errors"),
+    errors = require("appengine/google/appengine/ext/db/errors"),
     KindError = errors.KindError,
     NotSavedError = errors.NotSavedError;
 

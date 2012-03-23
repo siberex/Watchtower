@@ -6,7 +6,7 @@
 var JOAUTH = Packages.com.google.appengine.api.oauth,
     JOAuthServiceFactory = JOAUTH.OAuthServiceFactory;  
 
-var User = require("google/appengine/api/users").User;
+var User = require("appengine/google/appengine/api/users").User;
 
 /** Base error type for invalid OAuth requests. */
 exports.OAuthRequestError = JOAUTH.OAuthRequestException;

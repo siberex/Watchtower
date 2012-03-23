@@ -146,7 +146,7 @@ function addhost(request) {
          */
         var hostObj = new Host({
           url: href
-        }, href);
+        }, href); // own key passing seems does not work
         hostObj.put();
         var success = true;
       }

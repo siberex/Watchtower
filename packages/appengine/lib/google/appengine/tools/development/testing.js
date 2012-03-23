@@ -8,7 +8,7 @@
  * http://code.google.com/p/appengine-jruby/source/browse/appengine-apis/lib/appengine-apis/testing.rb
  */
 
-var sdk = require("google/appengine/tools/development/sdk");
+var sdk = require("appengine/google/appengine/tools/development/sdk");
 
 // Include runtime and testing jars.
 addToClasspath(sdk.path("/lib/impl/appengine-api.jar"));

@@ -27,7 +27,7 @@ var HTTP_METHODS = {
 
 var jdefaultQueue = JQueueFactory.getDefaultQueue();
 
-var defineError = require("google/appengine/utils").defineError;
+var defineError = require("appengine/google/appengine/utils").defineError;
 
 /** The queue specified is unknown. */
 exports.UnknownQueueError = defineError("UnknownQueueError");

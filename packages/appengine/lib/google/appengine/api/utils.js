@@ -31,7 +31,7 @@ Object.defineProperty(SystemProperties, "applicationVersion", {
  * Has the values "Production" and "Development".
  *
  * Example:
- * var enviroment = require("google/appengine/api/utils").SystemProperties.environment;
+ * var enviroment = require("appengine/google/appengine/api/utils").SystemProperties.environment;
  * Alternatives:
  * var environment = require("ringo/engine").properties["com.google.appengine.runtime.environment"];
  * var environment = java.lang.System.getProperty("com.google.appengine.runtime.environment")) 

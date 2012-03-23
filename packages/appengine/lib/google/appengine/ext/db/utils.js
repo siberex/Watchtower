@@ -3,7 +3,7 @@
 var JKey = Packages.com.google.appengine.api.datastore.Key,
     JEntity = Packages.com.google.appengine.api.datastore.Entity;
 
-var Key = require("google/appengine/api/datastore/types").Key;
+var Key = require("appengine/google/appengine/api/datastore/types").Key;
 
 // A map from kind strings to kind constructors.
 var kindMap = exports.kindMap = {};

@@ -19,13 +19,12 @@
             "name": "Christoph Dorn",
             "email": "christoph@christophdorn.com",
             "web": "http://www.christophdorn.com"
+        },
+        {
+            "name": "Stepan Legachev",
+            "email": "me@sib.li",
+            "web": "http://www.sib.li"
         }
     ],
-    "lib": "lib",
-    "lean": {
-        "include": [
-            "lib/**/*",
-            "package.json"
-        ]
-    }    
+    "main": "lib/appengine.js"
 }

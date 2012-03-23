@@ -1,6 +1,6 @@
 // FIXME: these errors are defined but not used yet.
 
-var defineError = require("google/appengine/utils").defineError;
+var defineError = require("appengine/google/appengine/utils").defineError;
 
 /** 
  * Raised when a property value or filter value is invalid.

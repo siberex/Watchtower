@@ -4,5 +4,7 @@
 /WEB-INF/appengine-web.xml
 /WEB-INF/web.xml
 
+/WEB-INF/appengine-generated/
+
 /build.xml
 /.stuff/

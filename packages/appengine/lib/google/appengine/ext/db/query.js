@@ -1,4 +1,4 @@
-var datastore = require("google/appengine/api/datastore"),
+var datastore = require("appengine/google/appengine/api/datastore"),
     JDatastore = datastore.Datastore,
     JQuery = datastore.Query,
 	JFetchOptions = Packages.com.google.appengine.api.datastore.FetchOptions,
@@ -6,9 +6,9 @@ var datastore = require("google/appengine/api/datastore"),
 	JCursor = Packages.com.google.appengine.api.datastore.Cursor,
 	JString = java.lang.String;
 
-var entityToObject = require("google/appengine/ext/db/utils").entityToObject;
+var entityToObject = require("appengine/google/appengine/ext/db/utils").entityToObject;
 
-var Key = require("google/appengine/api/datastore/types").Key;
+var Key = require("appengine/google/appengine/api/datastore/types").Key;
 
 var DESCENDING = JQuery.SortDirection.DESCENDING;
 
