@@ -1,11 +1,13 @@
 # YAML configuration, appengine-web.xml and web.xml will be automatically derived from app.yaml.
 # http://code.google.com/intl/en/appengine/docs/java/configyaml/appconfig_yaml.html
 
-application: sib-li
+application: my-application-id
 version: 1
 runtime: java
+
 precompilation_enabled: true
 threadsafe: true
+
 
 public_root: /pub
 
@@ -39,6 +41,7 @@ system_properties:
 inbound_services:
   - warmup
 
+
 # Handlers section.
 # optlevel: -1 for run Rhino in interpreted mode
 # (faster spin-up, reduced memory usage, slower at runtime).
@@ -46,12 +49,14 @@ inbound_services:
 handlers:
   - url: /*
     servlet: org.ringojs.jsgi.JsgiServlet
-    name: sibli
+    name: MyApplicationName
     init_params:
       ringo-home: /
       module-path: app
+# devel:
       app: app
       optlevel: -1
+# production:
 #      app: production
 #      production: true
 #      optlevel: 9
