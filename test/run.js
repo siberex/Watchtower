@@ -1,4 +1,4 @@
-exports.testModel = require("./google/appengine/ext/db/model");
+exports.testModel = require("appengine/google/appengine/ext/db/model");
 
 if (module === require.main) {
     require("test").run(exports);

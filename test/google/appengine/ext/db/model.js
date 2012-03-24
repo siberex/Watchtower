@@ -1,8 +1,8 @@
 var assert = require("assert"),
-    Helper = require("google/appengine/tools/development/testing").Helper,
+    Helper = require("appengine/google/appengine/tools/development/testing").Helper,
     helper = new Helper("datastore");
 
-var db = require("google/appengine/ext/db");
+var db = require("appengine/google/appengine/ext/db");
 
 var Base = db.Model.extend("Base", {
     title: new db.StringProperty(),
