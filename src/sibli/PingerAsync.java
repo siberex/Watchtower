@@ -28,6 +28,9 @@ import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 
 
+import com.google.appengine.api.datastore.AsyncDatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+
 /**
  * PingerAsync class.
  *

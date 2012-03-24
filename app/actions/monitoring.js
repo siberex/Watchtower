@@ -145,10 +145,12 @@ function addhost(request) {
          * If host exists, let’s update time added. 
          */
         var hostObj = new Host({
-          url: href
+          url    : href,
+          status : status
         }, href); // own key passing seems does not work
         hostObj.put();
         var success = true;
+        // @todo: return link
       }
 
     }
