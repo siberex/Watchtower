@@ -9,7 +9,7 @@ import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
-import Host;
+import sibli.Host;
 
 /*
   JS notation:
@@ -41,7 +41,7 @@ public class HostQuery {
     /**
      * Constructor
      */
-    public Host(Host host,  Date executed, Integer status, Float time) {
+    public HostQuery(Host host,  Date executed, Integer status, Float time) {
         this.host = host;
         this.executed = executed;
         this.status = status;

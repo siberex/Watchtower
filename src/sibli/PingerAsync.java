@@ -92,7 +92,7 @@ public class PingerAsync {
       while ( it.hasNext() ) {
         h = it.next();
         System.out.println( "Host: " + h.toString() );
-        h.get('href');
+        h.get("href");
 
       } // while
     } // while
@@ -129,14 +129,14 @@ public class PingerAsync {
 
 
     } catch (MalformedURLException e) {
-      return "Malformed URL";
+      //return "Malformed URL";
     }/* catch (IllegalArgumentException e) {
       return "URL is null";
     }*/ catch (IOException e) {
       return "Host unreachable";
-    }// finally {
-      //return "";
-    //}
+    } finally {
+      return "";
+    }
 
   } // ping
 
