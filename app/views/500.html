@@ -1,4 +1,4 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -9,14 +9,28 @@
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
   <link rel="icon" href="/favicon.png" type="image/png" />
 
+	<script type="text/javascript">
+	  WebFontConfig = {
+		google: { families: [ 'PT Sans:400,700,400italic', 'PT Sans Caption:400,700:cyrillic,latin' ] }
+	  };
+	  (function() {
+		var wf = document.createElement('script');
+		wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+			'://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+		wf.type = 'text/javascript';
+		wf.async = 'true';
+		var s = document.getElementsByTagName('script')[0];
+		s.parentNode.insertBefore(wf, s);
+	  })();
+	</script>
+
   <link rel="stylesheet" href="/css/base.css" />
-  <link href="http://fonts.googleapis.com/css?family=PT+Sans:400,700,400italic|PT+Sans+Caption:400,700&subset=cyrillic,latin" rel="stylesheet" type="text/css" />
   <link rel="stylesheet" href="/css/error.css" />
 </head>
 <body>
   <h1>{{ title }}</h1>
   <p>{{ body }}</p>
   <br />
-  <p>You can <a href="mailto:me@sib.li">email author</a> about it.</p>
+  <p>You can <a href="mailto:{{email}}">email author</a> about it.</p>
 </body>
 </html>
