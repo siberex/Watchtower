@@ -62,5 +62,6 @@ function test(request) {
     test : test
   }
 
+  throw new Error("Absolutely unexpected error!");
   return app.render("test.html", context);
 } // test
