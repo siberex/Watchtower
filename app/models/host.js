@@ -5,4 +5,5 @@ var Host = exports.Host = db.Model('Host', {
   added   : new db.DateTimeProperty({autoNowAdd: true}),
   updated : new db.DateTimeProperty({autoNowAdd: true}),
   status  : new db.IntegerProperty()
+// email:
 });
