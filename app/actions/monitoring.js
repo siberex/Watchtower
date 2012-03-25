@@ -231,7 +231,7 @@ function viewhost(request, key) {
   }
 
   key = h.key();
-
+  context.url = h.url;
   return app.render("viewhost.html", context);
 } // viewhost
 
@@ -246,6 +246,8 @@ function async(request) {
   var PingerAsync = new Packages.sibli.PingerAsync();
   var sources = PingerAsync.getSources();
   var test = PingerAsync.ping(sources);
+  // @todo Catch exceptions like:
+  // JavaException: java.util.concurrent.ExecutionException: java.net.SocketTimeoutException: Timeout while fetching: http://www.sib.li
 
   var context = {
     title : title,

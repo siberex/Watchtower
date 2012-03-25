@@ -1,7 +1,7 @@
 <div id="wrapper">
 <h1>{{test}}</h1>
 	<div id="form" class="form">
-		<h1>{{header}}</h1>
+	  <h1>{{header}}</h1>
 	  {{^urlkey}}
 		{{#error}}<h3 class="error">{{error}}</h3>{{/error}}
 		<form method="POST" action"/addhost">
@@ -10,7 +10,9 @@
 		</form>
 	  {{/urlkey}}
 	  {{#urlkey}}
-		<h2>{{msg1}} <b>{{value}}</b>:</h2>
+		<code>{{value}}</code>
+		<br />
+		<h2>{{msg1}}:</h2>
 		<p class="link"><a href="{{baseUrl}}/viewhost/{{urlkey}}">{{baseUrl}}/viewhost/{{urlkey}}</a></p>
 		{{^existing}}<p class="link">{{msg2}}</p>{{/existing}}
 	  {{/urlkey}}
