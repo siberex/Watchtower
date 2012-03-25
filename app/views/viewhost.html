@@ -1,0 +1,17 @@
+{{#error}}
+<div id="wrapper">
+  <div id="form" class="form">
+    <h1>{{header}}</h1>
+	<h3 class="error">{{{error}}}</h3>
+  </div>
+</div>
+{{/error}}
+
+{{^error}}
+<div id="wrapper">
+  <div id="form" class="form">
+    <h1>{{header}}</h1>
+	<h2>Всё в порядке :-)</h2>
+  </div>
+</div>
+{{/error}}

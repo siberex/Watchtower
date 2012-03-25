@@ -8,7 +8,7 @@ var system = require('system');
 
 var {app, config} = require("../main");
 var {getLang} = require("../helpers");
-export("index", "async", "addhost");
+export("index", "async", "addhost", "viewhost");
 
 
 function index(request) {
@@ -61,31 +61,6 @@ function index(request) {
 } // index
 
 
-function async(request) {
-  var lang = getLang(request);
-  var title = (lang == "ru")
-            ? "Мониторинг"
-            : "Monitoring";
-
-  //var sources = getSources();
-  var PingerAsync = new Packages.sibli.PingerAsync();
-  var sources = PingerAsync.getSources();
-  var test = PingerAsync.ping(sources);
-
-  var context = {
-    title : title,
-    lang  : lang,
-    test  : uneval(test),
-    head  : app.renderPart("asyncmon-header.html", {
-                sources : uneval(test)
-            })
-  };
-
-  return app.render("asyncmon.html", context);
-} // async
-
-
-
 /**
  * @param Object Stativ hash for error messages.
  */
@@ -123,6 +98,14 @@ function addhostSuccess(urlKey, context, req) {
   context.header = (context.lang == "ru")
                  ? "Сайт успешно добавлен в мониторинг"
                  : "Host has been successfully added";
+
+  context.msg1 = (context.lang == "ru")
+               ? "Ссылка на страницу мониторинга для сайта"
+               : "Link to the monitoring page for site";
+
+  context.msg2 = (context.lang == "ru")
+               ? "Первые результаты мониторинга будут доступны примерно через час."
+               : "Note that first results will be available after about an hour.";
 
   return app.render("addhost.html", context);
 }
@@ -217,6 +200,64 @@ function addhost(request) {
 
   return app.render("addhost.html", context);
 } // addhost
+
+
+function viewhost(request, key) {
+  var lang = getLang(request);
+  var context = {
+    title   : (lang == "ru") ? "Результаты мониторинга" : "Monitoring statistics",
+    head    : app.renderPart("viewhost-header.html", context),
+    lang    : lang
+  }
+  context.header = context.title;
+
+  if (!key) {
+    context.error = (lang == "ru")
+                  ? "Ключ сайта не задан. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
+                  : "Monitored host key was not provided. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
+    context.head = app.renderPart("viewhost-header.html", context);
+    return app.render("viewhost.html", context);
+  }
+  
+  var {Host} = require('models/host');
+  var h = Host.get(key);
+
+  if (!h) {
+    context.error = (lang == "ru")
+                  ? "Ключ сайта не найден в базе. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
+                  : "Provided host key not found. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
+    context.head = app.renderPart("viewhost-header.html", context);
+    return app.render("viewhost.html", context);
+  }
+
+  key = h.key();
+
+  return app.render("viewhost.html", context);
+} // viewhost
+
+
+function async(request) {
+  var lang = getLang(request);
+  var title = (lang == "ru")
+            ? "Мониторинг"
+            : "Monitoring";
+
+  //var sources = getSources();
+  var PingerAsync = new Packages.sibli.PingerAsync();
+  var sources = PingerAsync.getSources();
+  var test = PingerAsync.ping(sources);
+
+  var context = {
+    title : title,
+    lang  : lang,
+    test  : uneval(test),
+    head  : app.renderPart("asyncmon-header.html", {
+                sources : uneval(test)
+            })
+  };
+
+  return app.render("asyncmon.html", context);
+} // async
 
 
 /**

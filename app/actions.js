@@ -10,6 +10,8 @@ var {app, config} = require("./main");
 app.get("/", require("./actions/monitoring").addhost);
 app.post("/", require("./actions/monitoring").addhost);
 
+app.get("/viewhost/:key?", require("./actions/monitoring").viewhost);
+
 app.get("/addhost", require("./actions/monitoring").addhost);
 app.post("/addhost", require("./actions/monitoring").addhost);
 
