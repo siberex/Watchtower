@@ -1,4 +1,4 @@
 cron:
-- description: Monitoring system: query hosts task
+- description: Monitoring system, query hosts task
   url: /pingtask
   schedule: every 10 minutes
