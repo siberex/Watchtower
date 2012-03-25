@@ -15,6 +15,8 @@ dev_appserver.cmd %~dp0
 
 	REM Deploy with:
 REM C:\USR\appengine-java-sdk\bin\appcfg.cmd update ./
+REM C:\USR\appengine-java-sdk\bin\appcfg.cmd backends ./ update
+
 
 	REM Javascript console:
 REM java -jar WEB-INF\lib\js.jar
