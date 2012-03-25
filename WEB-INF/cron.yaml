@@ -1,4 +1,6 @@
 cron:
 - description: Monitoring system, query hosts task
   url: /pingtask
+# Use as backend:
+  target: hostpinger
   schedule: every 10 minutes
