@@ -6,7 +6,7 @@
 
 var system = require('system');
 
-var {app} = require("../main");
+var {app, config} = require("../main");
 var {getLang} = require("../helpers");
 export("index", "async", "addhost");
 
@@ -90,14 +90,14 @@ function async(request) {
  * @param Object Stativ hash for error messages.
  */
 var addhostErrorCodes = {
-  "en": {
+  "ru": {
     0: "Неизвестная ошибка",
     100: "Время сессии пользователя по какой-то причине истекло. Пожалуйста, попробуйте добавить сайт снова.",
     200: "Указан некорректный адрес сайта. Пожалуйста, проверьте адрес и попробуйте добавить сайт снова.",
     300: "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. Или, возможно, в адресе сайта ошибка.",
     400: "Указан пустой адрес сайта. Пожалуйста, введите адрес сайта для добавления в систему мониторинга."/////,500: "",
   },
-  "ru": {
+  "en": {
     0: "Unknown error",
     100: "Session is expired for some obscure reason. Please try to add this site again.",
     200: "There is error in URL. Please check the link address and click on submit again.",
@@ -139,7 +139,8 @@ function addhost(request) {
     submit    : (lang == "ru") ? "Добавить"
                                : "Add",
     placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru"
-                                : "Enter URL, for example http://google.com"    
+                                : "Enter URL, for example http://google.com",
+    baseUrl   : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
   };
 
   
@@ -152,7 +153,7 @@ function addhost(request) {
     // In case of error let’s save input value to display it back in form input.
     context.value = host;
     
-    if (false && !request.session.data.init) {
+    if (!request.session.data.init) {
       // No session (e.g. direct POST from bot or browser not supporting session headers)
       // or more than 30 minutes left since page load (session was destroyed).
 
@@ -176,8 +177,11 @@ function addhost(request) {
      * If host exists, let’s update its time added. 
      */
     var existingHost = Host.all().filter("url =", href).fetch(1);
-    if (existingHost && existingHost.length) {
+    if (existingHost && existingHost[0]) {
       var key =  existingHost[0].key();
+      existingHost[0].added = new Date();
+      existingHost[0].put();
+      context.existing = true;
       return addhostSuccess(key, context, request);
     }
 

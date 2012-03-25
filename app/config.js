@@ -1,6 +1,6 @@
 
 var general = {
-  baseUrl       : "http://www.sib.li",
+  baseUrl       : "http://mon.sib.li",
 
   login         : "admin",
   // Example password is “godsexlove” — SHA1 hash should be stored below.

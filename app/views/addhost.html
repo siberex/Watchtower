@@ -3,14 +3,16 @@
 	<div id="form" class="form">
 		<h1>{{header}}</h1>
 	  {{^urlkey}}
-		<h2 class="error">{{error}}</h2>
+		{{#error}}<h3 class="error">{{error}}</h3>{{/error}}
 		<form method="POST" action"/addhost">
 			<input name="url" type="url" placeholder="{{placeholder}}" required="" value="{{value}}" />
 			<button type="submit" title="{{submit}}">↵</button>
 		</form>
 	  {{/urlkey}}
 	  {{#urlkey}}
-		<h2>Link to view: <a href="/viewhost/{{urlkey}}">{{urlkey}}</a>.</h2>
+		<h2>Link to the monitoring page for site <b>{{value}}</b>:</h2>
+		<p class="link"><a href="{{baseUrl}}/viewhost/{{urlkey}}">{{baseUrl}}/viewhost/{{urlkey}}</a></p>
+		{{^existing}}<p class="link">Note that first results will be available after about an hour.</p>{{/existing}}
 	  {{/urlkey}}
 	</div>
 </div>
