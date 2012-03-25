@@ -2,11 +2,16 @@
 <h1>{{test}}</h1>
 	<div id="form" class="form">
 		<h1>{{header}}</h1>
+	  {{^urlkey}}
 		<h2 class="error">{{error}}</h2>
 		<form method="POST" action"/addhost">
 			<input name="url" type="url" placeholder="{{placeholder}}" required="" value="{{value}}" />
 			<button type="submit" title="{{submit}}">↵</button>
 		</form>
+	  {{/urlkey}}
+	  {{#urlkey}}
+		<h2>Link to view: <a href="/viewhost/{{urlkey}}">{{urlkey}}</a>.</h2>
+	  {{/urlkey}}
 	</div>
 </div>
 <!--

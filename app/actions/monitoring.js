@@ -85,78 +85,122 @@ function async(request) {
 } // async
 
 
+
+/**
+ * @param Object Stativ hash for error messages.
+ */
+var addhostErrorCodes = {
+  "en": {
+    0: "Неизвестная ошибка",
+    100: "Время сессии пользователя по какой-то причине истекло. Пожалуйста, попробуйте добавить сайт снова.",
+    200: "Указан некорректный адрес сайта. Пожалуйста, проверьте адрес и попробуйте добавить сайт снова.",
+    300: "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. Или, возможно, в адресе сайта ошибка.",
+    400: "Указан пустой адрес сайта. Пожалуйста, введите адрес сайта для добавления в систему мониторинга."/////,500: "",
+  },
+  "ru": {
+    0: "Unknown error",
+    100: "Session is expired for some obscure reason. Please try to add this site again.",
+    200: "There is error in URL. Please check the link address and click on submit again.",
+    300: "Could not get answer from site. If your site is overloaded now, please try to add it again a bit later. Besides, it may be there is error in URL.",
+    400: "Empty URL address provided. Please type in URL of the site you want to add to monitoring."/////,500: "",
+  }
+} // addhostErrorCodes var
+
+function addhostError(errorCode, context, req) {
+  if (context.lang != "ru") context.lang = "en";
+  if (!addhostErrorCodes[context.lang][errorCode]) {
+    //throw new Error("Unknown error");
+    context.error = addhostErrorCodes[context.lang][0]; 
+  } else {
+    context.error = addhostErrorCodes[context.lang][errorCode];
+  }
+  return app.render("addhost.html", context);
+}
+
+function addhostSuccess(urlKey, context, req) {
+  if (context.lang != "ru") context.lang = "en";
+  context.urlkey = urlKey;
+  context.header = (context.lang == "ru")
+                 ? "Сайт успешно добавлен в мониторинг"
+                 : "Host has been successfully added";
+
+  return app.render("addhost.html", context);
+}
+
 function addhost(request) {
   var lang = getLang(request);
-  var title = (lang == "ru")
-            ? "Мониторинг сайта — Добавление адреса"
-            : "Site monitoring — Host add";
-
   var context = {
     head      : '<link rel="stylesheet" href="/css/addhost.css" />',
-    title     : title,
     lang      : lang,
-    header    : (lang == "ru") ? "Добавление сайта в систему мониторинга" : "Add host for monitoring",
-    submit    : (lang == "ru") ? "Добавить" : "Add",
-    placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru" : "Enter URL, for example http://google.com"    
+    title     : (lang == "ru") ? "Мониторинг сайта — Добавление адреса"
+                               : "Site monitoring — Host add",
+    header    : (lang == "ru") ? "Добавление сайта в систему мониторинга"
+                               : "Add host for monitoring",
+    submit    : (lang == "ru") ? "Добавить"
+                               : "Add",
+    placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru"
+                                : "Enter URL, for example http://google.com"    
   };
 
   
-  if (request.method == "POST" && request.params.url) {
+  if (request.method == "POST") {
+    if (!request.params.url || !request.params.url.length) {
+      return addhostError(400, context, request);
+    }
     var host = request.params.url;
-    var error = false;
 
     // In case of error let’s save input value to display it back in form input.
     context.value = host;
-
-    // Check for "http(s)://" at the beginning:
-    var href = (/^https?:\/\//).test(host) ? host : "http://" + host;
     
-    
-    if (!request.session.data.init) {
+    if (false && !request.session.data.init) {
       // No session (e.g. direct POST from bot or browser not supporting session headers)
       // or more than 30 minutes left since page load (session was destroyed).
 
-      error = (lang == "ru")
-            ? "Время сессии пользователя по какой-то причине истекло. Пожалуйста, попробуйте добавить сайт снова."
-            : "Session is expired for some obscure reason. Please try to add this site again.";
-      //throw new Error("Session expired");
-    } else {
-      // Check time difference between now and time saved in session on form render,
-      // if it is too small, probably this is a crawler or bot.
+      return addhostError(100, context, request);
+    }
+    /**
+     * @todo: Check time difference between now and time saved in session on form render.
+     *        If time is too small, probably this is a crawler or bot.
+     */
 
-      // Ping host to check URL is correct and site available.
-      var Pinger = new Packages.sibli.Pinger();
-      var status = Pinger.ping(href);
+    request.session.data.init = (new Date()).toString();
 
-      if (status == "Malformed URL" || status == "URL is null") {
-        error = (lang == "ru")
-              ? "Указан некорректный адрес сайта. Проверьте адрес и попробуйте добавить сайт снова."
-              : "There is error in URL. Please check the link address and click on submit again.";
-      } else if (status == "Timeout" || status == "Host unreachable") {
-        error = (lang == "ru")
-              ? "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. Или, возможно, в адресе сайта ошибка."
-              : "Could not get answer from site. If your site is overloaded now, please try to add it again a bit later. Besides, may be there is error in URL.";
-      } else {
-        var {Host} = require('models/host');
+    // Check for "http(s)://" at the beginning and add if there is no "http://" in URL:
+    var href = (/^https?:\/\//).test(host) ? host : "http://" + host;
 
-        /**
-         * We need to check host for existance in DB.
-         * We don’t want to create tons of hosts with identical URL.
-         * If host exists, let’s update time added. 
-         */
-        var hostObj = new Host({
-          url    : href,
-          status : status
-        }, href); // own key passing seems does not work
-        hostObj.put();
-        var success = true;
-        // @todo: return link
-      }
+    var {Host} = require('models/host');
 
+    /**
+     * We need to check host for existance in DB.
+     * We don’t want to create tons of hosts with identical URL.
+     * If host exists, let’s update its time added. 
+     */
+    var existingHost = Host.all().filter("url =", href).fetch(1);
+    if (existingHost && existingHost.length) {
+      var key =  existingHost[0].key();
+      return addhostSuccess(key, context, request);
     }
 
-    context.test = error ? error : status;
-    request.session.data.init = (new Date()).toString();
+    // Ping host to check URL is correct and site available.
+    var Pinger = new Packages.sibli.Pinger();
+    var status = Pinger.ping(href);
+    // @todo: Add timing.
+
+    if (status == "Malformed URL" || status == "URL is null") {
+      return addhostError(200, context, request);
+    } 
+    if (status == "Timeout" || status == "Host unreachable") {
+      return addhostError(300, context, request);
+    }
+
+    var newHost = new Host({
+      //keyName : href,
+      url     : href,
+      status  : status
+    });
+    newHost.put();
+    var key = newHost.key();
+    return addhostSuccess(key, context, request);
   } else {
     /**
      * http://code.google.com/intl/en/appengine/docs/java/config/appconfig.html

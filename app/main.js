@@ -43,7 +43,7 @@ prod.error.location = false; // disable error location and stack traces
 // development environment, run with RINGO_ENV=development ringo main.js
 var dev = app.env("development").configure("requestlog", "error");
 dev.error.template = module.resolve("views/500.html");
-dev.requestlog.append = true;
+dev.requestlog.append = false;
 
 // profiler environment, run with RINGO_ENV=profiler ringo -o-1 main.js
 var prof = app.env("profiler").configure("requestlog", "profiler", "error");
