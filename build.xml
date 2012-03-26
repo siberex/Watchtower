@@ -29,22 +29,27 @@
         debug="on" />
   </target>
 
-  <target name="runserver" depends="compile"
+  <target name="datanucleusenhance" depends="compile"
+      description="Performs JDO enhancement on compiled data classes.">
+    <enhance_war war="." />
+  </target>
+
+  <target name="runserver" depends="datanucleusenhance"
       description="Starts the development server.">
     <dev_appserver war="." />
   </target>
 
-  <target name="update" depends="compile"
+  <target name="update" depends="datanucleusenhance"
       description="Uploads the application to App Engine.">
     <appcfg action="update" war="." />
   </target>
 
-  <target name="update_indexes" depends="compile"
+  <target name="update_indexes" depends="datanucleusenhance"
       description="Uploads just the datastore index configuration to App Engine.">
     <appcfg action="update_indexes" war="." />
   </target>
 
-  <target name="rollback" depends="compile"
+  <target name="rollback" depends="datanucleusenhance"
       description="Rolls back an interrupted application update.">
     <appcfg action="rollback" war="." />
   </target>
