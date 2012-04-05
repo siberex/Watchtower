@@ -180,8 +180,12 @@ IntegerProperty.prototype.getValueForDatastore = function (obj) {
 
 /** @override */
 IntegerProperty.prototype.makeValueFromDatastore = function (value) {
-//	return Number(value);
-    return value;
+    //return value;
+    if ( typeof value == "undefined" )
+      return null;
+    if ( value === null )
+      return null;
+    return Number(value);
 }
 
 /**
@@ -215,8 +219,12 @@ FloatProperty.prototype.getValueForDatastore = function (obj) {
 // THINK: check for null/undefined? Number(null) = 0, Number(undefined) = NaN, hmm...
 // FloatProperty.prototype.makeValueFromDatastore = Number;
 FloatProperty.prototype.makeValueFromDatastore = function (value) {
-//	return Number(value);
-    return value;
+    //return value;
+    if ( typeof value == "undefined" )
+      return null;
+    if ( value === null )
+      return null;
+    return Number(value);
 }
 
 /**

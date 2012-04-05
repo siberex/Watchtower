@@ -223,8 +223,6 @@ public class PingerAsync {
     }
 
 
-
-
     return hosts;
   } // getSourcesDb
 

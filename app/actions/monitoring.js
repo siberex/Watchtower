@@ -202,6 +202,23 @@ function addhost(request) {
 } // addhost
 
 
+// for debug purposes
+function fixTypes() {
+  var {Host} = require('models/host');
+  var allhosts = Host.all().fetch(1000);
+  var log = require("ringo/logging").getLogger(module.id);
+
+  for (var h in allhosts) {
+    //h.status = parseInt(h.status);
+
+    log.info(h);
+
+    //h.put();
+  }
+  return h;
+} // fixTypes
+
+
 function viewhost(request, key) {
   var lang = getLang(request);
   var context = {
@@ -226,6 +243,8 @@ function viewhost(request, key) {
   } catch (e) {
     h = null;
   }
+
+  fixTypes();
 
   if (!h) {
     context.error = (lang == "ru")
