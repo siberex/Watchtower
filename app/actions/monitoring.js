@@ -183,7 +183,7 @@ function addhost(request) {
     var newHost = new Host({
       //keyName : href,
       url     : href,
-      status  : status
+      status  : parseInt(status)
     });
     newHost.put();
     var key = newHost.key();
@@ -245,7 +245,8 @@ function async(request) {
   //var sources = getSources();
   var PingerAsync = new Packages.sibli.PingerAsync();
   var sources = PingerAsync.getSources();
-  var test = PingerAsync.ping(sources);
+  //var test = PingerAsync.ping(sources);
+  var test = {};
   // @todo Catch exceptions like:
   // JavaException: java.util.concurrent.ExecutionException: java.net.SocketTimeoutException: Timeout while fetching: http://www.sib.li
 
@@ -305,3 +306,14 @@ function getSources() {
 
   return sources;
 } // getSources
+
+
+
+
+/**
+ * @todo: Add ability to ping IP in case of host inavailability.
+ * @todo: Add Google Prediction?
+ * @todo: Add notification server.
+ * @todo: Notification by SMS.
+ * @todo: Use Prospective search to detect failures and send notifications.
+ */

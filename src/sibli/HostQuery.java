@@ -32,7 +32,7 @@ public class HostQuery {
     private Date executed;
 
     @Persistent
-    private Integer status;
+    private String status;
 
     @Persistent
     private Float time;
@@ -41,7 +41,7 @@ public class HostQuery {
     /**
      * Constructor
      */
-    public HostQuery(Host host,  Date executed, Integer status, Float time) {
+    public HostQuery(Host host,  Date executed, String status, Float time) {
         this.host = host;
         this.executed = executed;
         this.status = status;
@@ -64,7 +64,7 @@ public class HostQuery {
         return executed;
     }
 
-    public Integer getStatus() {
+    public String getStatus() {
         return status;
     }
 
@@ -84,7 +84,7 @@ public class HostQuery {
         this.executed = executed;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

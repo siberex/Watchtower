@@ -33,13 +33,13 @@ public class Host {
     private Date updated;
 
     @Persistent
-    private Integer status;
+    private String status;
 
 
     /**
      * Constructor
      */
-    public Host(String url,  Date added, Date updated, Integer status) {
+    public Host(String url,  Date added, Date updated, String status) {
         this.url = url;
         this.added = added;
         this.updated = updated;
@@ -55,19 +55,19 @@ public class Host {
     }
 
     public String getUrl() {
-        return url;
+        return (String) url;
     }
 
     public Date getAdded() {
-        return added;
+        return (Date) added;
     }
 
     public Date getUpdated() {
-        return updated;
+        return (Date) updated;
     }
 
-    public Integer getStatus() {
-        return status;
+    public String getStatus() {
+        return (String) status;
     }
 
 
@@ -86,7 +86,7 @@ public class Host {
         this.updated = updated;
     }
 
-    public void setStatus(Integer status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 

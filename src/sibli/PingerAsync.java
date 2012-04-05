@@ -16,6 +16,12 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 
+//import org.apache.log4j.Logger;
+import java.util.logging.Logger;
+
+//////import javax.jdo.Query;
+//////import javax.jdo.PersistenceManager;
+
 // Google App Engine specific
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
@@ -27,15 +33,28 @@ import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 
-
-import com.google.appengine.api.datastore.AsyncDatastoreService;
+import com.google.appengine.api.datastore.DatastoreService;
+//import com.google.appengine.api.datastore.AsyncDatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
+
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.KeyFactory;
+
+//////import sibli.Host;
+//////import sibli.PMF;
+
 
 /**
  * PingerAsync class.
  *
  */
 public class PingerAsync {
+  //public static final Logger LOG = Logger.getLogger(PingerAsync.class);
+  private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
   
   final int maxConcurrentRequests = 10;
   protected List<HashMap<String,Object>> hosts = null;
@@ -86,7 +105,7 @@ public class PingerAsync {
     Iterator<HashMap<String,Object>> it = hosts.iterator();
 
     // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
-    // add first maxConcurrentRequests from hosts to queue
+    // Adding first maxConcurrentRequests from hosts to queue:
 
     while ( hosts.size() > 0 ) {
       while ( it.hasNext() ) {
@@ -134,15 +153,71 @@ public class PingerAsync {
       return "URL is null";
     }*/ catch (IOException e) {
       return "Host unreachable";
-    } finally {
+    } /*finally {
       return "";
-    }
+    }*/
+    return "";
 
   } // ping
 
 
 
+  /**
+   * Reads hosts from Database and returns the as list.
+   *
+   * @return List
+   */
+  public static final List<HashMap<String,Object>> getSourcesDb()
+  {
+    // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
+    List<HashMap<String,Object>> hosts = new ArrayList<HashMap<String,Object>>();
+    HashMap<String,Object> host = null;
 
+    /*
+    PersistenceManager pm = PMF.get().getPersistenceManager();
+
+    Query query = pm.newQuery(Host.class);
+    query.setOrdering("updated desc");
+
+    try {
+        List<Host> results = (List<Host>) query.execute();
+        if (!results.isEmpty()) {
+            for (Host h : results) {
+                // ...
+                
+                LOG.info( h.getUrl() + ", " + h.getAdded().toString() + ", " + h.getStatus().toString() );
+            }
+        } else {
+            // ... no results ...
+        }
+    } finally {
+        query.closeAll();
+    }
+    */
+
+
+    // Get the Datastore Service
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+    // The Query interface assembles a query
+    Query q = new Query("Host");
+
+    // PreparedQuery contains the methods for fetching query results from the datastore
+    PreparedQuery pq = datastore.prepare(q);
+
+    for ( Entity result : pq.asIterable() ) {
+      String url = (String) result.getProperty("url");
+      Date added = (Date) result.getProperty("added");
+      String status = (String) result.getProperty("status");
+      LOG.info( url + ", " + added.toString() + ", " + status.toString() );
+
+    }
+
+
+
+
+    return hosts;
+  } // getSourcesDb
 
 
   /**

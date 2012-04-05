@@ -145,7 +145,7 @@ BooleanProperty.prototype.makeValueFromDatastore = function (value) {
     return value;
 }
 
-//var JLong = java.lang.Long;
+var JLong = java.lang.Long;
 
 /**
  * @constructor
@@ -172,8 +172,8 @@ IntegerProperty.prototype.getValueForDatastore = function (obj) {
         }
     } else {
 //      return new JInteger(val);  !!! < 2^31
-//        return new JLong(val);
-        return val; // FIXME: generates floats?
+        return new JLong( parseInt(val) ); // FIXME: Data saved as String in fact.
+//        return val; // FIXME: generates floats?
     }
 }
 

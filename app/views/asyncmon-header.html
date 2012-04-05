@@ -3,11 +3,12 @@
 <script type="text/javascript" src="/extjs/ext-all-debug.js"></script>
 
 <script>
+Ext.require('Ext.chart.*');
+Ext.require('Ext.layout.container.Fit');
+//Ext.require('Ext.util.Date');
 
 var sources = {{{sources}}};
 
-
-return false;
 
     var chart;
     var generateData = (function() {
@@ -56,22 +57,24 @@ return false;
         data: generateData()
     });
 
-    /*var intr = setInterval(function() {
+    /*
+	var intr = setInterval(function() {
 		chart = Ext.getCmp('chartCmp');
 		var timeAxis = chart.axes.get(1);
 
         var gs = generateData();
-        var toDate = timeAxis.toDate,
-            lastDate = gs[gs.length - 1].date,
-            markerIndex = chart.markerIndex || 0;
-        if (+toDate < +lastDate) {
-            markerIndex = 1;
-            timeAxis.toDate = lastDate;
-            timeAxis.fromDate = Ext.Date.add(Ext.Date.clone(timeAxis.fromDate), Ext.Date.DAY, 1);
-            chart.markerIndex = markerIndex;
-        }
+        //var toDate = timeAxis.toDate,
+        //    lastDate = gs[gs.length - 1].date,
+        //    markerIndex = chart.markerIndex || 0;
+        //if (+toDate < +lastDate) {
+        //    markerIndex = 1;
+        //    timeAxis.toDate = lastDate;
+        //    timeAxis.fromDate = Ext.Date.add(Ext.Date.clone(timeAxis.fromDate), Ext.Date.DAY, 1);
+        //    chart.markerIndex = markerIndex;
+        //}
         store.loadData(gs);
-    }, 2000);*/
+    }, 2000);
+	*/
 
 
 Ext.application({
