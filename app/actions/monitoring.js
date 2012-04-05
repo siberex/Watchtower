@@ -220,7 +220,12 @@ function viewhost(request, key) {
   }
   
   var {Host} = require('models/host');
-  var h = Host.get(key);
+  var h = null;
+  try {
+    h = Host.get(key);
+  } catch (e) {
+    h = null;
+  }
 
   if (!h) {
     context.error = (lang == "ru")
@@ -316,4 +321,5 @@ function getSources() {
  * @todo: Add notification server.
  * @todo: Notification by SMS.
  * @todo: Use Prospective search to detect failures and send notifications.
+ * @todo: Test API degradation with Capabilities Status Configuration: http://localhost:8080/_ah/admin/capabilitiesstatus
  */

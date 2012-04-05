@@ -90,6 +90,8 @@ exports.get = function (keys) {
     	} catch (e) {
     		if (e.javaException instanceof JEntityNotFoundException)
     			return null;
+        else if (e.javaException instanceof java.lang.IllegalArgumentException) // Datanucleus v.2
+          return null;
     		else 
     			throw e;
     	}

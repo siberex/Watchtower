@@ -7,10 +7,12 @@ import javax.jdo.PersistenceManagerFactory;
 
 public final class PMF {
     private static final PersistenceManagerFactory pmfInstance =
-        JDOHelper.getPersistenceManagerFactory("transactions-optional");
+        JDOHelper.getPersistenceManagerFactory("transactional");
+        //JDOHelper.getPersistenceManagerFactory("transactions-optional");
 
     /*
     // Set options bypassing jdoconfig.xml
+    // WARN: This is for DataNucleus v.1!
     private static PersistenceManagerFactory pmfInstance;
     static {
         Map props = new HashMap();

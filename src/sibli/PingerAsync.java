@@ -206,11 +206,20 @@ public class PingerAsync {
     PreparedQuery pq = datastore.prepare(q);
 
     for ( Entity result : pq.asIterable() ) {
-      String url = (String) result.getProperty("url");
-      Date added = (Date) result.getProperty("added");
-      String status = (String) result.getProperty("status");
-      LOG.info( url + ", " + added.toString() + ", " + status.toString() );
+      host = new HashMap<String,Object>();
 
+      String url = (String) result.getProperty("url");
+      host.put( "host", url ); // host
+      host.put( "href", url );
+      host.put( "added", (Date) result.getProperty("added") );
+      host.put( "updated", (Date) result.getProperty("updated") );
+      host.put( "status", String.valueOf(result.getProperty("status")) );
+      
+      hosts.add( host );
+
+      Date added = (Date) result.getProperty("added");
+      String status = String.valueOf(result.getProperty("status"));
+      LOG.info( url + ", " + added.toString() + ", " + status.toString() );
     }
 
 

@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 
-import org.apache.log4j.Logger;
+//import org.apache.log4j.Logger;
+import java.util.logging.Logger;
+
 import java.text.DecimalFormat;
 
 
@@ -20,7 +22,8 @@ import java.text.DecimalFormat;
  *
  */
 public class Pinger {
-  public static final Logger LOG = Logger.getLogger(Pinger.class);
+  //public static final Logger LOG = Logger.getLogger(Pinger.class);
+  private static final Logger LOG = Logger.getLogger(Pinger.class.getName());
   
   public static void main(String[] args) {
     // Just in case.

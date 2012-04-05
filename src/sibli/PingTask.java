@@ -12,6 +12,9 @@ import javax.jdo.Query;
 import javax.jdo.PersistenceManager;
 
 import sibli.PingerAsync;
+
+import javax.jdo.Query;
+import javax.jdo.PersistenceManager;
 import sibli.Host;
 import sibli.PMF;
 
@@ -28,6 +31,35 @@ public class PingTask extends HttpServlet {
 
     LOG.info("Ololo!");
     List<HashMap<String,Object>> hosts = PingerAsync.getSourcesDb();
+
+
+
+/*
+    // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
+    // List<HashMap<String,Object>>
+    hosts = new ArrayList<HashMap<String,Object>>();
+    HashMap<String,Object> host = null;
+
+    PersistenceManager pm = PMF.get().getPersistenceManager();
+
+    Query query = pm.newQuery(Host.class);
+    query.setOrdering("updated desc");
+
+    try {
+        List<Host> results = (List<Host>) query.execute();
+        if (!results.isEmpty()) {
+            for (Host h : results) {
+                // ...
+                
+                LOG.info( h.getUrl() + ", " + h.getAdded().toString() + ", " + h.getStatus().toString() );
+            }
+        } else {
+            // ... no results ...
+        }
+    } finally {
+        query.closeAll();
+    }
+*/
 
 
 
