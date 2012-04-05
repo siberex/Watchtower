@@ -175,7 +175,7 @@ function addhost(request) {
 
     if (status == "Malformed URL" || status == "URL is null") {
       return addhostError(200, context, request);
-    } 
+    }
     if (status == "Timeout" || status == "Host unreachable") {
       return addhostError(300, context, request);
     }
@@ -204,16 +204,19 @@ function addhost(request) {
 
 // for debug purposes
 function fixTypes() {
-  var {Host} = require('models/host');
-  var allhosts = Host.all().fetch(1000);
   var log = require("ringo/logging").getLogger(module.id);
 
-  for (var h in allhosts) {
-    //h.status = parseInt(h.status);
+  var {Host} = require('models/host');
+  var h;
+  var allhosts = Host.all().fetch(1000);
 
-    log.info(h);
+  for (var i in allhosts) {
+    h = allhosts[i];
+    h.status = parseInt(h.status);
 
-    //h.put();
+    log.info( h.url, h.status );
+
+    h.put();
   }
   return h;
 } // fixTypes
@@ -243,8 +246,6 @@ function viewhost(request, key) {
   } catch (e) {
     h = null;
   }
-
-  fixTypes();
 
   if (!h) {
     context.error = (lang == "ru")

@@ -3,6 +3,8 @@ package sibli;
 import com.google.appengine.api.datastore.Key;
 import com.google.appengine.api.users.User;
 
+//import java.util.*;
+import java.lang.Long;
 import java.util.Date;
 import javax.jdo.annotations.IdGeneratorStrategy;
 import javax.jdo.annotations.PersistenceCapable;
@@ -33,7 +35,7 @@ public class Host {
     private Date updated;
 
     @Persistent
-    private String status;
+    private Long status;
 
 
     /**
@@ -43,7 +45,7 @@ public class Host {
         this.url = url;
         this.added = added;
         this.updated = updated;
-        this.status = status;
+        this.status = Long.parseLong(status);
     }
 
 
@@ -66,8 +68,8 @@ public class Host {
         return (Date) updated;
     }
 
-    public String getStatus() {
-        return (String) status;
+    public Long getStatus() {
+        return (Long) status;
     }
 
 
@@ -87,7 +89,7 @@ public class Host {
     }
 
     public void setStatus(String status) {
-        this.status = status;
+        this.status = Long.parseLong(status);
     }
 
 } // Host class

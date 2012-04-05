@@ -30,7 +30,7 @@
       </fileset>
     </copy>
     <javac
-		includeantruntime="false"
+        includeantruntime="false"
         srcdir="src"
         destdir="WEB-INF/classes"
         classpathref="project.classpath"

@@ -17,13 +17,15 @@ import sibli.Host;
 import sibli.PMF;
 */
 
+
+/*
 // For statistics.
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.DatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.Query;
-
+*/
 
 /**
  * PingTask class.
@@ -41,7 +43,7 @@ public class PingTask extends HttpServlet {
 
 
 
-/*
+    /*
     // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
     // List<HashMap<String,Object>>
     hosts = new ArrayList<HashMap<String,Object>>();
@@ -66,9 +68,7 @@ public class PingTask extends HttpServlet {
     } finally {
         query.closeAll();
     }
-*/
-
-
+    */
 
 
     /**
@@ -78,14 +78,15 @@ public class PingTask extends HttpServlet {
     resp.setContentType("text/plain");
     resp.getWriter().println("Task launched");
 
+    /*
     // Get statistics (https://developers.google.com/appengine/docs/java/datastore/stats):
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     PreparedQuery globalStat = datastore.prepare( new Query("__Stat_PropertyType_Kind__") );
     for ( Entity stat : globalStat.asIterable() ) {
-
       resp.getWriter().println( stat.getProperty("kind_name") + " --- " + stat.getProperty("property_type") + " --- " + stat.getProperty("entity_bytes") );
-
     }
+    */
+
   } // doGet
 
 
