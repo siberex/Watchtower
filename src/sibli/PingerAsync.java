@@ -4,7 +4,7 @@ import java.util.*;
 import java.util.concurrent.*;
 import java.util.regex.*;
 
-import java.net.HttpURLConnection;
+//import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -19,8 +19,6 @@ import java.io.FileNotFoundException;
 //import org.apache.log4j.Logger;
 import java.util.logging.Logger;
 
-//////import javax.jdo.Query;
-//////import javax.jdo.PersistenceManager;
 
 // Google App Engine specific
 import com.google.appengine.api.urlfetch.URLFetchService;
@@ -41,11 +39,9 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
-import com.google.appengine.api.datastore.KeyFactory;
+//import com.google.appengine.api.datastore.Key;
+//import com.google.appengine.api.datastore.KeyFactory;
 
-//////import sibli.Host;
-//////import sibli.PMF;
 
 
 /**
@@ -56,31 +52,79 @@ public class PingerAsync {
   //public static final Logger LOG = Logger.getLogger(PingerAsync.class);
   private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
   
-  final int maxConcurrentRequests = 10;
+  private static final double requestTimeout = 5.0; // Seconds
+  private static final int maxConcurrentRequests = 10;
+  /**
+   * @deprecated
+   */
   protected List<HashMap<String,Object>> hosts = null;
   protected List<HashMap<String,Object>> hostsQueue = null;
   protected List<HashMap<String,Object>> hostsPolled = null;
 
+  protected java.util.Iterator<Entity> hostsIterator = null;
 
   public PingerAsync() {
-    this( getSources() );
+
+    // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
+    //List<HashMap<String,Object>> hosts = new ArrayList<HashMap<String,Object>>();
+    HashMap<String,Object> host = null;
+    Entity result = null;
+
+    // Get the Datastore Service
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+    // The Query interface assembles a query.
+    Query q = new Query("Host");
+    q.addSort("updated", Query.SortDirection.DESCENDING);
+
+    // PreparedQuery contains the methods for fetching query results from the datastore.
+    PreparedQuery pq = datastore.prepare(q);
+
+    this.hostsIterator = pq.asIterator();
+
+    int i = 0;
+
+    while (this.hostsIterator.hasNext() && i < PingerAsync.maxConcurrentRequests) {
+      host = new HashMap<String,Object>();
+      result = this.hostsIterator.next();
+
+      String url = (String) result.getProperty("url");
+      //host.put( "host", url ); // host
+      host.put( "url", url );
+      host.put( "added", (Date) result.getProperty("added") );
+      host.put( "updated", (Date) result.getProperty("updated") ); // Last queried time
+      host.put( "status", String.valueOf(result.getProperty("status")) ); // Last status
+
+      this.hostsQueue.add(host);
+
+      i++;
+    }
+
+    //for ( Entity result : pq.asIterable() ) {
+    //}
+
+    //this( getSources() );
   } // constructor
+
+  /*
   public PingerAsync(List<HashMap<String,Object>> hosts) {
 
     this.hosts = hosts;
     this.hostsQueue = new ArrayList<HashMap<String,Object>>(this.maxConcurrentRequests);
   } // constructor
+  */
 
 
   public static void main(String[] args) {
-
+    /*
     List<HashMap<String,Object>> hosts = getSources();
         
     Iterator<HashMap<String,Object>> it = hosts.iterator();
     while( it.hasNext() ) {
       System.out.println( "Host: " + it.next().toString() );
     }
-
+    */
+    System.out.println( "Error: This class should not be run in CLI mode." );
   } // main
 
 
@@ -93,7 +137,7 @@ public class PingerAsync {
   {
 
     HTTPRequest request = null;
-    FetchOptions options = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(5.0);
+    FetchOptions options = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
     URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
     Future<HTTPResponse> responseFuture;
@@ -115,6 +159,40 @@ public class PingerAsync {
 
       } // while
     } // while
+
+
+
+
+
+    Iterator<HashMap<String,Object>> itq = hostsQueue.iterator();
+    while( itq.hasNext() ) {
+      //System.out.println( "Host: " + itq.next().toString() );
+    }
+
+/************
+hosts = queryDB
+queueSize = 0;
+queue = new List
+while ( hosts.iterator.hasNext() || queueSize < maxConcurrentRequests ) {
+  queue.add(host.data)
+  queueSize++;
+}
+
+finished = new List
+while ( queue.size > 0 ) {
+  startPing( queue.next )
+
+}
+
+
+1.10 infinite iterator
+queue
+queueRun[10]
+timers[10]?
+
+*************/
+
+
 
     try {
       //hosts.removeRange(int fromIndex, int toIndex)
@@ -166,6 +244,7 @@ public class PingerAsync {
    * Reads hosts from Database and returns the as list.
    *
    * @return List
+   * @deprecated
    */
   public static final List<HashMap<String,Object>> getSourcesDb()
   {
@@ -173,55 +252,32 @@ public class PingerAsync {
     List<HashMap<String,Object>> hosts = new ArrayList<HashMap<String,Object>>();
     HashMap<String,Object> host = null;
 
-    /*
-    PersistenceManager pm = PMF.get().getPersistenceManager();
-
-    Query query = pm.newQuery(Host.class);
-    query.setOrdering("updated desc");
-
-    try {
-        List<Host> results = (List<Host>) query.execute();
-        if (!results.isEmpty()) {
-            for (Host h : results) {
-                // ...
-                
-                LOG.info( h.getUrl() + ", " + h.getAdded().toString() + ", " + h.getStatus().toString() );
-            }
-        } else {
-            // ... no results ...
-        }
-    } finally {
-        query.closeAll();
-    }
-    */
-
 
     // Get the Datastore Service
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
-    // The Query interface assembles a query
+    // The Query interface assembles a query.
     Query q = new Query("Host");
 
-    // PreparedQuery contains the methods for fetching query results from the datastore
+    // PreparedQuery contains the methods for fetching query results from the datastore.
     PreparedQuery pq = datastore.prepare(q);
 
     for ( Entity result : pq.asIterable() ) {
       host = new HashMap<String,Object>();
 
       String url = (String) result.getProperty("url");
-      host.put( "host", url ); // host
-      host.put( "href", url );
+      //host.put( "host", url ); // host
+      host.put( "url", url );
       host.put( "added", (Date) result.getProperty("added") );
       host.put( "updated", (Date) result.getProperty("updated") );
       host.put( "status", String.valueOf(result.getProperty("status")) );
       
       hosts.add( host );
 
-      Date added = (Date) result.getProperty("added");
-      String status = String.valueOf(result.getProperty("status"));
-      LOG.info( url + ", " + added.toString() + ", " + status.toString() );
+      //Date added = (Date) result.getProperty("added");
+      //String status = String.valueOf(result.getProperty("status"));
+      //LOG.info( url + ", " + added.toString() + ", " + status.toString() );
     }
-
 
     return hosts;
   } // getSourcesDb
@@ -232,6 +288,7 @@ public class PingerAsync {
    * and returns the as list.
    *
    * @return List
+   * @deprecated
    */
   public static final List<HashMap<String,Object>> getSources()
   {

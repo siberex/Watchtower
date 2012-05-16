@@ -34,12 +34,21 @@ import com.google.appengine.api.datastore.Query;
 public class PingTask extends HttpServlet {
   private static final Logger LOG = Logger.getLogger(PingTask.class.getName());
 
+  /**
+   * 
+   * 
+   * @param req
+   * @throws IOException 
+   * @param resp
+   */
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
   throws IOException {
 
 
-    LOG.info("Ololo!");
-    List<HashMap<String,Object>> hosts = PingerAsync.getSourcesDb();
+    LOG.info("Launching task...");
+    PingerAsync pinger = new PingerAsync();
+
+    //List<HashMap<String,Object>> hosts = PingerAsync.getSourcesDb();
 
 
 
@@ -73,7 +82,7 @@ public class PingTask extends HttpServlet {
 
     /**
      * @todo Check for X-AppEngine-Cron: true request header.
-     * If not exists, retun text.
+     * If not exists, return text.
      */
     resp.setContentType("text/plain");
     resp.getWriter().println("Task launched");

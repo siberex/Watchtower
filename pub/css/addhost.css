@@ -4,6 +4,8 @@ html, body {
 	background-color: #AAA;
 	text-shadow: #FFF 0px 1px;
 	margin: 0;
+
+	behavior: url(/css/pie.htc);
 }
 
 body {
@@ -15,6 +17,8 @@ body {
     background: -o-radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* Opera 12 */
     background: -ms-radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* IE10 */
     background: radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* CSS3 */
+
+	behavior: url(/css/pie.htc);
 }
 #wrapper {
 	position: relative;
@@ -79,6 +83,8 @@ h3.error {
 		left: 0;*/
 		display: block;
 		float: left;
+
+		behavior: url(/css/pie.htc);
 	}
 	.form input[type="url"]:-moz-placeholder {
 		color: #a2a2a2;
@@ -124,6 +130,8 @@ h3.error {
 		-moz-box-shadow     : inset 1px 1px 0px rgba(255,255,255,0.9);
 		-webkit-box-shadow  : inset 1px 1px 0px rgba(255,255,255,0.9);
 		box-shadow          : inset 1px 1px 0px rgba(255,255,255,0.9);
+
+		behavior: url(/css/pie.htc);
 	}
 
 	.form button[type="submit"]:active {
@@ -149,4 +157,6 @@ h3.error {
         border-left: 1px solid #A0A0A0;
         border-bottom: 1px solid #F5F5F5;
         border-right: 1px solid #F5F5F5;
+
+		behavior: url(/css/pie.htc);
 	}
