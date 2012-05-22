@@ -4,7 +4,7 @@
 	  <h1>{{header}}</h1>
 	  {{^urlkey}}
 		{{#error}}<h3 class="error">{{error}}</h3>{{/error}}
-		<form method="POST" action"/addhost">
+		<form method="POST" action="/addhost" class="x-unselectable">
 			<input name="url" type="url" placeholder="{{placeholder}}" required="" value="{{value}}" />
 			<button type="submit" title="{{submit}}">↵</button>
 		</form>

@@ -18,4 +18,4 @@ app.post("/addhost", require("./actions/monitoring").addhost);
 app.get("/mon", require("./actions/monitoring").index);
 app.get("/asyncmon", require("./actions/monitoring").async);
 
-app.get("/test", require("./actions/monitoring").index);
+app.get("/test", require("./actions/index").test);

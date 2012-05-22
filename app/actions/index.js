@@ -19,9 +19,10 @@ function test(request) {
   var test = "———";
 
   var context = {
-    test : test
+    title  : "TEST",
+    test   : test
   }
 
-  throw new Error("Absolutely unexpected error!");
+  //throw new Error("Absolutely unexpected error!");
   return app.render("test.html", context);
 } // test
