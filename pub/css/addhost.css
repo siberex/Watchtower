@@ -1,162 +1,168 @@
 html, body {
-	width: 100%;
-	height: 100%;
-	background-color: #AAA;
-	text-shadow: #FFF 0px 1px;
-	margin: 0;
-
-	behavior: url(/css/pie.htc);
+    width: 100%;
+    height: 100%;
+    background-color: #AAA;
+    text-shadow: #FFF 0px 1px;
+    margin: 0;
 }
 
 body {
     background: #AAA;
     background: -moz-radial-gradient(30% 30px, circle farthest-side, #fff, #AAA); /* FF3.6+ */
-	background: -webkit-gradient(radial, 30% 30px, 0, 30% 30px, 100%, 
-					color-stop(0%,#FFF), color-stop(100%,#AAA)); /* Chrome, Safari4+ */
+    background: -webkit-gradient(radial, 30% 30px, 0, 30% 30px, 100%,
+                                 color-stop(0%,#FFF), color-stop(100%,#AAA)); /* Chrome, Safari4+ */
     background: -webkit-radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* Chrome 10+, Safari 5.1+ */
     background: -o-radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* Opera 12 */
     background: -ms-radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* IE10 */
     background: radial-gradient(30% 30px, circle farthest-side, #FFF, #AAA); /* CSS3 */
-
-	behavior: url(/css/pie.htc);
 }
+
+.x-unselectable {
+    user-select: none;
+    -o-user-select: none;
+    -ms-user-select: none;
+    -moz-user-select: -moz-none;
+    -webkit-user-select: none;
+    cursor: default;
+}
+
 #wrapper {
-	position: relative;
-	width: 100%;
-	height: 100%;
+    position: relative;
+    width: 100%;
+    height: 100%;
 }
 
 p.link {
-	font-family: 'PT Sans Caption', Geneva, Arial, Helvetica, sans-serif;
-	font-size: 15px;
-	line-height: 1.4em;
-	margin-top: 10px;
+    font-family: 'PT Sans Caption', Geneva, Arial, Helvetica, sans-serif;
+    font-size: 15px;
+    line-height: 1.4em;
+    margin-top: 10px;
 }
 h3.error {
-	color: #900000;
-	line-height: 1.5em;
-	margin-bottom: 25px;
+    color: #900000;
+    line-height: 1.5em;
+    margin-bottom: 25px;
 }
 
 .form {
-	position: absolute;
-	top: 40%;
-	left: 50%;
-	width: 600px;
-	height: 200px;
-	margin-left: -300px;
-	margin-top: -50px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    width: 600px;
+    height: 200px;
+    margin-left: -300px;
+    margin-top: -50px;
 }
 
 	.form h1 {
-		padding-bottom: 20px;
-		font-size: 25px;
-		text-align: center;
-		color: #333;
+            padding-bottom: 20px;
+            font-size: 25px;
+            text-align: center;
+            color: #333;
 	}
 
 	.form input[type="url"] {
-		width: 528px;
-		height: 46px;
+            width: 528px;
+            height: 46px;
 
-		color: #3C7BB9;
-		background-color: #FFF;
+            color: #3C7BB9;
+            background-color: #FFF;
 
-		font-size: 22px;
-		font-family: "Pt Sans", Arial, sans-serif;
+            font-size: 22px;
+            font-family: "Pt Sans", Arial, sans-serif;
 
-        border-top: 1px solid #909090;
-        border-left: 1px solid #a0a0a0;
-        border-bottom: 1px solid #a0a0a0;
-        border-right: none;
-        -moz-border-radius  : 5px 0px 0px 5px;
-        -webkit-border-radius : 5px 0px 0px 5px;
-        border-radius       : 5px 0px 0px 5px;
+            border-top: 1px solid #909090;
+            border-left: 1px solid #a0a0a0;
+            border-bottom: 1px solid #a0a0a0;
+            border-right: none;
+            -moz-border-radius  : 5px 0px 0px 5px;
+            -webkit-border-radius : 5px 0px 0px 5px;
+            border-radius       : 5px 0px 0px 5px;
 
-		-moz-box-shadow     : inset 1px 1px 0px 0 rgba(177,177,177,0.7), inset 0px 2px 0 0 rgba(229,229,229,0.5);
-		-webkit-box-shadow  : inset 1px 1px 0px 0 rgba(177,177,177,0.7), inset 0px 2px 0 0 rgba(229,229,229,0.5);
-		box-shadow          : inset 1px 1px 0px 0 rgba(177,177,177,0.7), inset 0px 2px 0 0 rgba(229,229,229,0.5);
+            -moz-box-shadow     : inset 1px 1px 0px 0 rgba(177,177,177,0.7), inset 0px 2px 0 0 rgba(229,229,229,0.5);
+            -webkit-box-shadow  : inset 1px 1px 0px 0 rgba(177,177,177,0.7), inset 0px 2px 0 0 rgba(229,229,229,0.5);
+            box-shadow          : inset 1px 1px 0px 0 rgba(177,177,177,0.7), inset 0px 2px 0 0 rgba(229,229,229,0.5);
 
-		padding-left: 10px;
-		/*position: absolute;
-		top: 0;
-		left: 0;*/
-		display: block;
-		float: left;
+            padding-left: 10px;
+            /*position: absolute;
+            top: 0;
+            left: 0;*/
+            display: block;
+            float: left;
 
-		behavior: url(/css/pie.htc);
+            behavior: url(/css/pie.htc);
 	}
 	.form input[type="url"]:-moz-placeholder {
-		color: #a2a2a2;
+            color: #a2a2a2;
 	}
 	.form input[type="url"]::-webkit-input-placeholder {
-		color: #a2a2a2;
+            color: #a2a2a2;
 	}
 
 	.form button[type="submit"] {
-		cursor: pointer;
-		font-family: "Pt Sans", Arial, sans-serif;
-		font-size: 26px;
-		line-height: 54px;
-		text-align: right;
-		text-shadow: #FFF 1px 1px;
+            cursor: pointer;
+            font-family: "Pt Sans", Arial, sans-serif;
+            font-size: 26px;
+            line-height: 54px;
+            text-align: right;
+            text-shadow: #FFF 1px 1px;
 
-		padding-right: 5px;
-		/*outline: none;*/
+            padding-right: 5px;
+            /*outline: none;*/
 
-		width: 60px;
-		height: 48px;
-		overflow: hidden;
-		color: #333;
+            width: 60px;
+            height: 48px;
+            overflow: hidden;
+            color: #333;
+
+            background: #E0E0E0;
+            background: -moz-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E0E0E0),
+                                            color-stop(66%,#CCC), color-stop(100%,#AAA));
+            background: -webkit-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
+            background: -o-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
+            background: -ms-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
+            background: linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
+
+            -moz-border-radius  : 0px 5px 5px 0px;
+            -webkit-border-radius : 0px 5px 5px 0px;
+            border-radius       : 0px 5px 5px 0px;
+
+            border-top: 1px solid #909090;
+            border-left: 1px solid #a0a0a0;
+            border-bottom: 1px solid #909090;
+            border-right: 1px solid #a0a0a0;
 		
-		background: #E0E0E0;
-		background: -moz-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
-		background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E0E0E0), 
-						color-stop(66%,#CCC), color-stop(100%,#AAA));
-		background: -webkit-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
-		background: -o-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
-		background: -ms-linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
-		background: linear-gradient(top, #E0E0E0 0%, #CCC 66%, #AAA 100%);
+            -moz-box-shadow     : inset 1px 1px 0px rgba(255,255,255,0.9);
+            -webkit-box-shadow  : inset 1px 1px 0px rgba(255,255,255,0.9);
+            box-shadow          : inset 1px 1px 0px rgba(255,255,255,0.9);
 
-        -moz-border-radius  : 0px 5px 5px 0px;
-        -webkit-border-radius : 0px 5px 5px 0px;
-        border-radius       : 0px 5px 5px 0px;
-
-        border-top: 1px solid #909090;
-        border-left: 1px solid #a0a0a0;
-        border-bottom: 1px solid #909090;
-        border-right: 1px solid #a0a0a0;
-		
-		-moz-box-shadow     : inset 1px 1px 0px rgba(255,255,255,0.9);
-		-webkit-box-shadow  : inset 1px 1px 0px rgba(255,255,255,0.9);
-		box-shadow          : inset 1px 1px 0px rgba(255,255,255,0.9);
-
-		behavior: url(/css/pie.htc);
+            behavior: url(/css/pie.htc);
 	}
 
 	.form button[type="submit"]:active {
-		color: #222;
-		text-shadow: #F0F0F0 1px 1px;
+            color: #222;
+            text-shadow: #F0F0F0 1px 1px;
 
-		line-height: 56px;
+            line-height: 56px;
 
-		background: #DADADA;
-		background: -moz-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
-		background: -webkit-gradient(linear, left top, left bottom,
-						color-stop(0%,#DADADA), color-stop(66%,#C0C0C0), color-stop(100%,#A0A0A0));
-		background: -webkit-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
-		background: -o-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
-		background: -ms-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
-		background: linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
+            background: #DADADA;
+            background: -moz-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
+            background: -webkit-gradient(linear, left top, left bottom,
+                                            color-stop(0%,#DADADA), color-stop(66%,#C0C0C0), color-stop(100%,#A0A0A0));
+            background: -webkit-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
+            background: -o-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
+            background: -ms-linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
+            background: linear-gradient(top, #DADADA 0%, #C0C0C0 66%, #A0A0A0 100%);
 
-		-moz-box-shadow     : inset 0 1px 1px rgba(0, 0, 0, 0.3);
-		-webkit-box-shadow  : inset 0 1px 1px rgba(0, 0, 0, 0.3);
-		box-shadow			: inset 0 1px 1px rgba(0, 0, 0, 0.3);
+            -moz-box-shadow     : inset 0 1px 1px rgba(0, 0, 0, 0.3);
+            -webkit-box-shadow  : inset 0 1px 1px rgba(0, 0, 0, 0.3);
+            box-shadow			: inset 0 1px 1px rgba(0, 0, 0, 0.3);
 
-        border-top: 1px solid #808080;
-        border-left: 1px solid #A0A0A0;
-        border-bottom: 1px solid #F5F5F5;
-        border-right: 1px solid #F5F5F5;
+            border-top: 1px solid #808080;
+            border-left: 1px solid #A0A0A0;
+            border-bottom: 1px solid #F5F5F5;
+            border-right: 1px solid #F5F5F5;
 
-		behavior: url(/css/pie.htc);
+            behavior: url(/css/pie.htc);
 	}
