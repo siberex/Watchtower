@@ -84,7 +84,7 @@ public class PingerAsync {
 
     int i = 0;
 
-    while (this.hostsIterator.hasNext() && i < PingerAsync.maxConcurrentRequests) {
+    while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
       host = new HashMap<String,Object>();
       result = this.hostsIterator.next();
 
@@ -135,15 +135,15 @@ public class PingerAsync {
    */
   public String ping() throws InterruptedException, ExecutionException
   {
-
+    
     HTTPRequest request = null;
     FetchOptions options = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
     URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
     Future<HTTPResponse> responseFuture;
-    HTTPResponse response;    
+    HTTPResponse response;
 
-    int code;
+    int code = 0;
 
     HashMap<String,Object> h;
     Iterator<HashMap<String,Object>> it = hosts.iterator();
