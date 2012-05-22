@@ -70,14 +70,16 @@ var addhostErrorCodes = {
     100: "Время сессии пользователя по какой-то причине истекло. Пожалуйста, попробуйте добавить сайт снова.",
     200: "Указан некорректный адрес сайта. Пожалуйста, проверьте адрес и попробуйте добавить сайт снова.",
     300: "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. Или, возможно, в адресе сайта ошибка.",
-    400: "Указан пустой адрес сайта. Пожалуйста, введите адрес сайта для добавления в систему мониторинга."/////,500: "",
+    400: "Указан пустой адрес сайта. Пожалуйста, введите адрес сайта для добавления в систему мониторинга."
+    // ,500: "" //,
   },
   "en": {
     0: "Unknown error",
     100: "Session is expired for some obscure reason. Please try to add this site again.",
     200: "There is error in URL. Please check the link address and click on submit again.",
     300: "Could not get answer from site. If your site is overloaded now, please try to add it again a bit later. Besides, it may be there is error in URL.",
-    400: "Empty URL address provided. Please type in URL of the site you want to add to monitoring."/////,500: "",
+    400: "Empty URL address provided. Please type in URL of the site you want to add to monitoring."
+    // ,500: "" //,
   }
 } // addhostErrorCodes var
 
@@ -150,7 +152,13 @@ function addhost(request) {
     request.session.data.init = (new Date()).toString();
 
     // Check for "http(s)://" at the beginning and add if there is no "http://" in URL:
-    var href = (/^https?:\/\//).test(host) ? host : "http://" + host;
+    var href = (/^https?|ftp:\/\//).test(host) ? host : "http://" + host;
+    
+    var parsedUrl = href.match(/^(?:(https?|ftp):\/\/)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)?(.*?)?(?:(\w+\.\w+)([^.]*))?$/);
+    if (!parsedUrl[0] || !parsedUrl[2]) {
+      return addhostError(200, context, request);
+    }
+    var domain = parsedUrl[2];
 
     var {Host} = require('models/host');
 
@@ -183,6 +191,7 @@ function addhost(request) {
     var newHost = new Host({
       //keyName : href,
       url     : href,
+      domain  : domain,
       status  : parseInt(status)
     });
     newHost.put();

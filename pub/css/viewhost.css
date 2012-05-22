@@ -1,4 +1,15 @@
+#wrapper h1 {
+	padding-top: 2em;
+	text-align: center;
+}
+
+#wrapper code {
+	display: block;
+	text-align: center;
+}
+
 #container {
     height: 500px;
     min-width: 500px;
+	margin: 2em 7em 0 7em;
 }
