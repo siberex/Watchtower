@@ -78,18 +78,22 @@ public class HostQuery {
      */
     public void setUrl(Host host) {
         this.host = host;
+        return this;
     }
 
     public void setAdded(Date executed) {
         this.executed = executed;
+        return this;
     }
 
     public void setStatus(String status) {
         this.status = status;
+        return this;
     }
 
     public void setUpdated(Float time) {
         this.time = time;
+        return this;
     }
 
 } // HostQuery class

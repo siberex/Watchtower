@@ -78,18 +78,22 @@ public class Host {
      */
     public void setUrl(String url) {
         this.url = url;
+        return this;
     }
 
     public void setAdded(Date added) {
         this.added = added;
+        return this;
     }
 
     public void setUpdated(Date updated) {
         this.updated = updated;
+        return this;
     }
 
     public void setStatus(String status) {
         this.status = Long.parseLong(status);
+        return this;
     }
 
 } // Host class

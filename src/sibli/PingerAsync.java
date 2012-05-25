@@ -79,24 +79,22 @@ public class PingerAsync {
 
     // PreparedQuery contains the methods for fetching query results from the datastore.
     PreparedQuery pq = datastore.prepare(q);
-
     this.hostsIterator = pq.asIterator();
 
     int i = 0;
 
+    // Adding first 10 hosts to queue.
     while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
       host = new HashMap<String,Object>();
       result = this.hostsIterator.next();
 
-      String url = (String) result.getProperty("url");
-      //host.put( "host", url ); // host
-      host.put( "url", url );
+      host.put( "url", (String) result.getProperty("url") );
       host.put( "added", (Date) result.getProperty("added") );
       host.put( "updated", (Date) result.getProperty("updated") ); // Last queried time
-      host.put( "status", String.valueOf(result.getProperty("status")) ); // Last status
+      //host.put( "status", String.valueOf(result.getProperty("status")) ); // Last status
+      host.put( "status", (Integer) result.getProperty("status") ); // Last status
 
       this.hostsQueue.add(host);
-
       i++;
     }
 
