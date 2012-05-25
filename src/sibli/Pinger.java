@@ -1,13 +1,19 @@
 package sibli;
 
 import java.util.*;
+import java.util.regex.*;
 
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-//import java.io.BufferedReader;
-//import java.io.InputStreamReader;
+import java.io.FileInputStream;
+import java.io.DataInputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import java.io.IOException;
+import java.io.FileNotFoundException;
+
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
 
@@ -24,10 +30,31 @@ import java.text.DecimalFormat;
 public class Pinger {
   //public static final Logger LOG = Logger.getLogger(Pinger.class);
   private static final Logger LOG = Logger.getLogger(Pinger.class.getName());
+
+  protected List<HashMap<String,Object>> hosts = null;
+  protected List<HashMap<String,Object>> hostsQueue = null;
+
+
+  public Pinger() {
+    this( getSources() );
+  } // constructor
   
+  public Pinger(List<HashMap<String,Object>> hosts) {
+    this.hosts = hosts;
+    this.hostsQueue = new ArrayList<HashMap<String,Object>>(this.maxConcurrentRequests);
+  } // constructor
+
   public static void main(String[] args) {
     // Just in case.
+    List<HashMap<String,Object>> hosts = getSources();
+
+    Iterator<HashMap<String,Object>> it = hosts.iterator();
+    while( it.hasNext() ) {
+      System.out.println( "Host: " + it.next().toString() );
+    }
   } // main
+
+
 
   /**
    * Pings provided url and returns status code from response.
@@ -76,4 +103,83 @@ public class Pinger {
       }
     }
   } // ping
+
+
+  /**
+   * Reads hosts from config file app/config/monitoring.cfg
+   * and returns the as list.
+   *
+   * @return List
+   */
+  public static final List<HashMap<String,Object>> getSources()
+  {
+    String config = "app/config/monitoring.cfg";
+
+    FileInputStream fstream = null;
+    DataInputStream input   = null;
+    BufferedReader bufferReader = null;
+
+    //List<String> hosts = new ArrayList<String>();
+
+    // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
+    List<HashMap<String,Object>> hosts = new ArrayList<HashMap<String,Object>>();
+    HashMap<String,Object> host = null;
+
+    String readLine = null;
+    String[] parsedLine = null;
+    String href = null;
+    String html = null;
+
+    Pattern urlRe = Pattern.compile("^(?:(https?|ftp)://)?([a-z0-9-]+(?:\\.[a-z0-9-]+)+)?(.*?)?(?:(\\w+\\.\\w+)([^.]*))?$");
+    Matcher urlMatcher = null;
+
+    try {
+      fstream = new FileInputStream(config);
+      input   = new DataInputStream(fstream);
+      bufferReader = new BufferedReader( new InputStreamReader(input) );
+
+      while ( ( readLine = bufferReader.readLine() ) != null ) {
+        if (readLine.trim().length() == 0)
+          continue;
+
+        parsedLine = readLine.split("\t");
+        href = parsedLine[0].trim();
+        if (href.length() == 0)
+          continue;
+
+        urlMatcher = urlRe.matcher(href);
+
+        if ( !urlMatcher.matches() || urlMatcher.group(2) == null )
+          continue;
+
+        html = (parsedLine.length < 2) ? "" : parsedLine[1].trim();
+
+        host = new HashMap<String,Object>();
+        host.put( "host", urlMatcher.group(2).intern() ); // host
+        host.put( "href", href );
+        host.put( "html", html );
+
+        hosts.add( host );
+      } // while
+
+    } catch (FileNotFoundException e) {
+      //System.out.println( "File not found: " + e.getMessage() );
+    } catch (IOException e) {
+      //System.out.println( "Error: " + e.getMessage() );
+    } finally {
+      try {
+        if (fstream != null)
+          fstream.close();
+        if (input != null)
+          input.close();
+        if (bufferReader != null)
+            bufferReader.close();
+      } catch (IOException e) {
+        // do nothing
+      }
+    } // finally
+
+    return hosts;
+  } //getSources
+
 } // Pinger class
