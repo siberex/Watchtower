@@ -76,22 +76,22 @@ public class HostQuery {
     /**
      * Setters
      */
-    public void setUrl(Host host) {
+    public HostQuery setUrl(Host host) {
         this.host = host;
         return this;
     }
 
-    public void setAdded(Date executed) {
+    public HostQuery setAdded(Date executed) {
         this.executed = executed;
         return this;
     }
 
-    public void setStatus(String status) {
+    public HostQuery setStatus(String status) {
         this.status = status;
         return this;
     }
 
-    public void setUpdated(Float time) {
+    public HostQuery setUpdated(Float time) {
         this.time = time;
         return this;
     }

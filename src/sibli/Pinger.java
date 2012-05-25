@@ -31,6 +31,8 @@ public class Pinger {
   //public static final Logger LOG = Logger.getLogger(Pinger.class);
   private static final Logger LOG = Logger.getLogger(Pinger.class.getName());
 
+  private static final int maxConcurrentRequests = 10;
+  
   protected List<HashMap<String,Object>> hosts = null;
   protected List<HashMap<String,Object>> hostsQueue = null;
 
