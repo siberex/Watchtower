@@ -30,6 +30,7 @@ import com.google.appengine.api.urlfetch.FetchOptions;
 import com.google.appengine.api.urlfetch.HTTPMethod;
 import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
+import com.google.appengine.api.urlfetch.HTTPHeader;
 
 import com.google.appengine.api.datastore.DatastoreService;
 //import com.google.appengine.api.datastore.AsyncDatastoreService;
@@ -54,6 +55,8 @@ public class PingerAsync {
   
   private static final double requestTimeout = 5.0; // Seconds
   private static final int maxConcurrentRequests = 10;
+  private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
+
   /**
    * @deprecated
    */
@@ -66,9 +69,15 @@ public class PingerAsync {
   public PingerAsync() {
 
     // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
-    //List<HashMap<String,Object>> hosts = new ArrayList<HashMap<String,Object>>();
+    this.hostsQueue = new ArrayList<HashMap<String,Object>>();
     HashMap<String,Object> host = null;
     Entity result = null;
+
+    /**
+     * HashSet have better performance for multiple insertions and deletions
+     * but it does not preserve elements ordering.
+     */
+    this.hostsPolled = new ArrayList<HashMap<String,Object>>();
 
     // Get the Datastore Service
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -79,6 +88,9 @@ public class PingerAsync {
 
     // PreparedQuery contains the methods for fetching query results from the datastore.
     PreparedQuery pq = datastore.prepare(q);
+
+    // For PreparedQuery.asIterator() results will be fetched asynchronously.
+    // https://developers.google.com/appengine/docs/java/datastore/async#Async_Queries
     this.hostsIterator = pq.asIterator();
 
     int i = 0;
@@ -135,37 +147,68 @@ public class PingerAsync {
   {
     
     HTTPRequest request = null;
+    // @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+    // (check imports beforehand)
     FetchOptions options = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+    HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
     URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
     Future<HTTPResponse> responseFuture;
-    HTTPResponse response;
 
-    int code = 0;
-
+    long timeStart;
+    long timeEnd;
     HashMap<String,Object> h;
-    Iterator<HashMap<String,Object>> it = hosts.iterator();
-
+    String sUrl;
+    //URL url;
+    ListIterator<HashMap<String,Object>> it = this.hostsQueue.listIterator();
     // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
-    // Adding first maxConcurrentRequests from hosts to queue:
+    // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
+    while ( it.hasNext() ) {
+      h = it.next(); 
+      //LOG.info( "Host: " + h.toString() );
+      sUrl = (String) h.get("url");
+      try {
+        //url = ;
 
-    while ( hosts.size() > 0 ) {
-      while ( it.hasNext() ) {
-        h = it.next();
-        System.out.println( "Host: " + h.toString() );
-        h.get("href");
-
-      } // while
+        request = new HTTPRequest(
+            new URL(sUrl),
+            HTTPMethod.HEAD,
+            options
+        );
+        request.setHeader(uaHeader);
+        
+        timeStart = System.currentTimeMillis();
+        responseFuture = fetcher.fetchAsync(request);
+        h.put("timeStart", timeStart);
+        h.put("future", responseFuture);
+        it.set(h); // Overwrite previous value, new fields added.
+        
+      } catch (MalformedURLException e) {
+        // This should not happen. Can be throwed by new URL();
+      } catch (IOException e) {
+        // This should not happen. Can be throwed by fetchAsync.
+      }
     } // while
 
+    h = null;
+    responseFuture = null;
+
+    HTTPResponse response;
+    int code = 0;
+    
+    while ( this.hostsQueue.size() > 0 ) {
+      //
+
+      //response = responseFuture.get();
+      //code = response.getResponseCode();
 
 
-
-
-    Iterator<HashMap<String,Object>> itq = hostsQueue.iterator();
-    while( itq.hasNext() ) {
-      //System.out.println( "Host: " + itq.next().toString() );
     }
+
+
+    //h.put(sUrl, url)
+    //hostsPolled.add(h);
+
 
 /************
 hosts = queryDB
@@ -206,13 +249,6 @@ timers[10]?
       long startTime = System.currentTimeMillis();
 
       responseFuture = fetcher.fetchAsync(request);
-      response = responseFuture.get();
-      code = response.getResponseCode();
-
-
-
-
-
 
       //connection.setRequestProperty("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
 
@@ -361,6 +397,11 @@ timers[10]?
 
 } // PingerAsync class
 
+/**
+ * @todo Add indexes to datastore:
+ * https://developers.google.com/appengine/docs/java/datastore/queries?hl=en-US#Introduction_to_Indexes
+ * 
+ */
 
 /**
  Useful links:

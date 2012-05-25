@@ -29,7 +29,7 @@ function test(request) {
   for (var i in allhosts) {
     h = allhosts[i];
 
-    parsedUrl = href.match(urlMatchRe);
+    parsedUrl = h.url.match(urlMatchRe);
     if (!parsedUrl[0] || !parsedUrl[2])
       continue;
 
