@@ -39,7 +39,6 @@ import com.google.appengine.api.datastore.Entity;
 //import com.google.appengine.api.datastore.KeyFactory;
 
 
-
 /**
  * PingerAsync class.
  *
@@ -87,7 +86,6 @@ public class PingerAsync {
     this.listQueuesPolled = new ArrayList<Future<Entity>>();
 
     // Get the Datastore Service
-    //DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
 
     // The Query interface assembles a query.
@@ -107,7 +105,6 @@ public class PingerAsync {
     while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
       host = this.hostsIterator.next();
       this.hostsQueue.add(host);
-      //this.hostsIterator.remove(); // Does not work! Workarounds: asList, own ListIterator. or: ...not needed
       i++;
     }
 
@@ -120,7 +117,11 @@ public class PingerAsync {
     System.out.println( "Error: This class should not be run in CLI mode." );
   } // main
 
-
+  /**
+   *
+   * @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+   * (check imports beforehand)
+   */
   private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
   private final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
   private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
@@ -173,10 +174,6 @@ public class PingerAsync {
    */
   public String ping() //throws InterruptedException, ExecutionException
   {
-    
-    // @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-    // (check imports beforehand)
-
     long timeStart;
     long timeEnd;
     Entity h;
@@ -187,8 +184,7 @@ public class PingerAsync {
     // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
     while ( it.hasNext() ) {
       h = fetchQueue( it.next() );
-      //LOG.info( "Host: " + h.toString() );
-      
+      //LOG.info( "Host: " + h.toString() );      
       if ( h != null ) { // if ( h.getClass().getName().equals("Entity") )
          // Overwrite previous value, new fields added.
         it.set(h);
@@ -207,7 +203,10 @@ public class PingerAsync {
 
 
     long overallStart = System.nanoTime();
-    
+
+    /**
+     * @todo Check this loop for bottlenecks, e.g. slow operations.
+     */
     while ( this.hostsQueue.size() > 0 ) {
 
       it = this.hostsQueue.listIterator(0);
@@ -240,20 +239,15 @@ public class PingerAsync {
             // This should never happen.
             code = 667;
             LOG.warning( e.getMessage() );
-          } /* catch (IOException e) {
-            // This should never happen.
-            code = 668;
-            LOG.warning( e.getMessage() );
-          } catch (TimeoutException e) {
-            code = 598;
-            LOG.info( e.getMessage() );
-          } */
+          }
 
+          /*
           LOG.info(h.getProperty("url").toString() + "\n"
                    + (new DecimalFormat("#.#####").format(time))
                    + " ms \t CODE: " + String.valueOf(code));
+           */
 
-          // Save HERE.
+          // Saving
           hostQueue = new Entity( "HostQuery", h.getKey() );
           hostQueue.setProperty( "host", h.getKey() ); // This actually is not needed if parent is present.
           hostQueue.setProperty( "executed", new Date() );
@@ -263,27 +257,22 @@ public class PingerAsync {
           h.setProperty("status", code);
           h.setProperty( "updated", new Date() );
 
-
-            /**
-             * @todo Use async. E.g. put without get and handle Future.
-             */
-            //this.datastore.put(hostQueue).get();
-            //this.datastore.put(h).get(); // WARNING: put() is slow operation!
-            listHostsPolled.add( (Future) this.datastore.put(h) );
-            listQueuesPolled.add( (Future) this.datastore.put(hostQueue) );
-
-
-          //datastore.
+          /**
+           * Synchronous saves will slow queue, so we need
+           * to use async datastore and Futures.
+           * Performance gain on local devserver is about 1-2 ms per 30 hosts save,
+           * but for App Engine servers and HRD gain is ~100 ms per every 30 hosts.
+           */
+          listHostsPolled.add( (Future) this.datastore.put(h) );
+          listQueuesPolled.add( (Future) this.datastore.put(hostQueue) );
 
           this.mapResponses.remove( h.getKey().getId() );
-          //this.hostsQueue.remove(0);
           it.remove();
           
           if ( this.hostsIterator.hasNext() ) {
             nextHost = fetchQueue( this.hostsIterator.next() );
             if ( nextHost != null ) {
-              //this.hostsQueue.add(nextHost);
-              it.add(nextHost);
+              it.add(nextHost); //this.hostsQueue.add(nextHost);
             }
           } // ? hostsIterator.hasNext
 
@@ -292,10 +281,10 @@ public class PingerAsync {
     } // while hostsQueue.size > 0
 
 
-    long overallEnd = System.nanoTime();
-    String totalTime = ( new DecimalFormat("#.#####").format( (overallEnd - overallStart) / 1000000.0 ) ) + " ms";
+    //long overallEnd = System.nanoTime();
+    //String totalTime = ( new DecimalFormat("#.#####").format( (overallEnd - overallStart) / 1000000.0 ) ) + " ms";
 
-    long saveStart = System.nanoTime();    
+    //long saveStart = System.nanoTime();
     for (int i = 0; i < listHostsPolled.size(); i++) {
       try {
         listHostsPolled.get(i).get();
@@ -306,36 +295,9 @@ public class PingerAsync {
         LOG.warning( e.getMessage() );
       }
     } // for
-    long saveEnd = System.nanoTime();
-
-    String saveTime = ( new DecimalFormat("#.#####").format( (saveEnd - saveStart) / 1000000.0 ) ) + " ms";
-    LOG.info("TOTAL TIME: " + totalTime);
-    LOG.info("Save time: " + saveTime);
-    return totalTime + " total, and for saving: " + saveTime;
-
-    /************
-    hosts = queryDB
-    queueSize = 0;
-    queue = new List
-    while ( hosts.iterator.hasNext() || queueSize < maxConcurrentRequests ) {
-      queue.add(host.data)
-      queueSize++;
-    }
-
-    finished = new List
-    while ( queue.size > 0 ) {
-      startPing( queue.next )
-
-    }
-
-
-    1.10 infinite iterator
-    queue
-    queueRun[10]
-    timers[10]?
-
-    *************/
-    //return "OK";
+    //long saveEnd = System.nanoTime();
+    //String saveTime = ( new DecimalFormat("#.#####").format( (saveEnd - saveStart) / 1000000.0 ) ) + " ms";
+    return "OK";
 
   } // ping
 
