@@ -263,19 +263,14 @@ public class PingerAsync {
           h.setProperty("status", code);
           h.setProperty( "updated", new Date() );
 
-          try {
+
             /**
              * @todo Use async. E.g. put without get and handle Future.
              */
-            this.datastore.put(hostQueue).get();
-            this.datastore.put(h).get(); // WARNING: put() is slow operation!
-            //listHostsPolled.add(null);
-            //listQueuesPolled.add(null);
-          } catch (ExecutionException e) {
-            LOG.warning( e.getMessage() );
-          } catch (java.lang.InterruptedException e) {
-            LOG.warning( e.getMessage() );
-          }
+            //this.datastore.put(hostQueue).get();
+            //this.datastore.put(h).get(); // WARNING: put() is slow operation!
+            listHostsPolled.add( (Future) this.datastore.put(h) );
+            listQueuesPolled.add( (Future) this.datastore.put(hostQueue) );
 
 
           //datastore.
@@ -299,8 +294,24 @@ public class PingerAsync {
 
     long overallEnd = System.nanoTime();
     String totalTime = ( new DecimalFormat("#.#####").format( (overallEnd - overallStart) / 1000000.0 ) ) + " ms";
-    LOG.info(totalTime);
-    return totalTime;
+
+    long saveStart = System.nanoTime();    
+    for (int i = 0; i < listHostsPolled.size(); i++) {
+      try {
+        listHostsPolled.get(i).get();
+        listQueuesPolled.get(i).get();
+      } catch (ExecutionException e) {
+        LOG.warning( e.getMessage() );
+      } catch (java.lang.InterruptedException e) {
+        LOG.warning( e.getMessage() );
+      }
+    } // for
+    long saveEnd = System.nanoTime();
+
+    String saveTime = ( new DecimalFormat("#.#####").format( (saveEnd - saveStart) / 1000000.0 ) ) + " ms";
+    LOG.info("TOTAL TIME: " + totalTime);
+    LOG.info("Save time: " + saveTime);
+    return totalTime + " total, and for saving: " + saveTime;
 
     /************
     hosts = queryDB
