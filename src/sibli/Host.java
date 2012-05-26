@@ -29,6 +29,9 @@ public class Host {
     private String url;
 
     @Persistent
+    private String domain;
+
+    @Persistent
     private Date added;
 
     @Persistent
@@ -37,16 +40,21 @@ public class Host {
     @Persistent
     private Long status;
 
+    @Persistent
+    private String finalurl;
 
     /**
      * Constructor
+     * @todo Add lazy constructors.
      */
-    public Host(String url,  Date added, Date updated, String status) {
+    public Host(String url, String domain, Date added, Date updated, String status) {
         this.url = url;
+        this.domain = domain;
         this.added = added;
         this.updated = updated;
         this.status = Long.parseLong(status);
-    }
+        this.finalurl = null;
+    } // constructor
 
 
     /**
@@ -58,6 +66,10 @@ public class Host {
 
     public String getUrl() {
         return (String) url;
+    }
+
+    public String getDomain() {
+        return (String) domain;
     }
 
     public Date getAdded() {
@@ -72,12 +84,20 @@ public class Host {
         return (Long) status;
     }
 
+    public String getFinalurl() {
+        return (String) finalurl;
+    }
 
     /**
      * Setters
      */
     public Host setUrl(String url) {
         this.url = url;
+        return this;
+    }
+
+    public Host setDomain(String domain) {
+        this.domain = domain;
         return this;
     }
 
@@ -93,6 +113,11 @@ public class Host {
 
     public Host setStatus(String status) {
         this.status = Long.parseLong(status);
+        return this;
+    }
+
+    public Host setFinalurl(String finalurl) {
+        this.finalurl = finalurl;
         return this;
     }
 

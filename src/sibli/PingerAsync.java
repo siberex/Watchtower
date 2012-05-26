@@ -27,8 +27,8 @@ import com.google.appengine.api.urlfetch.HTTPRequest;
 import com.google.appengine.api.urlfetch.HTTPResponse;
 import com.google.appengine.api.urlfetch.HTTPHeader;
 
-import com.google.appengine.api.datastore.DatastoreService;
-//import com.google.appengine.api.datastore.AsyncDatastoreService;
+//import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.AsyncDatastoreService;
 import com.google.appengine.api.datastore.DatastoreServiceFactory;
 
 import com.google.appengine.api.datastore.PreparedQuery;
@@ -51,10 +51,14 @@ public class PingerAsync {
   private static final int maxConcurrentRequests = 10;
   private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
+  protected AsyncDatastoreService datastore = null;
+  protected java.util.Iterator<Entity> hostsIterator = null;
+  
   /**
    * @var ArrayList
    */
   protected ArrayList<Entity> hostsQueue = null;
+
   /**
    * Represents hostsQueue host’s Future responses.
    * @var HashMap
@@ -63,7 +67,6 @@ public class PingerAsync {
   
   protected ArrayList<Entity> hostsPolled = null;
 
-  protected java.util.Iterator<Entity> hostsIterator = null;
 
   public PingerAsync()
   {
@@ -82,7 +85,8 @@ public class PingerAsync {
     this.hostsPolled = new ArrayList<Entity>();
 
     // Get the Datastore Service
-    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    //DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
 
     // The Query interface assembles a query.
     Query q = new Query("Host");
@@ -116,7 +120,8 @@ public class PingerAsync {
 
 
   private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-  private HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
+  //private final HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
+  private final HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
   private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
   /**
@@ -136,7 +141,7 @@ public class PingerAsync {
           HTTPMethod.HEAD,
           fetchOptions
       );
-      request.setHeader(uaHeader);
+      request.setHeader(this.uaHeader);
 
       Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
       long timeStart = System.nanoTime();
@@ -193,6 +198,7 @@ public class PingerAsync {
     h = null;
     Entity nextHost;
     HTTPResponse response = null;
+    URL finalUrl;
     double time = 0;
     int code = 0;
     long id = 0;
@@ -213,7 +219,10 @@ public class PingerAsync {
           
           try {
             response = responseFuture.get(); // Can throw some exceptions, see below.
-            // URL finalUrl = response.getFinalUrl(); // final URL or null if was no redirets.
+            finalUrl = response.getFinalUrl(); // final URL or null if was no redirets.
+            if (finalUrl != null) {
+              h.setProperty( "finalurl", finalUrl.toString() );
+            }
             code = response.getResponseCode();
           } catch (ExecutionException e) {
             // In most cases this means that DNS could not be resolved.
@@ -239,9 +248,21 @@ public class PingerAsync {
           LOG.info(h.getProperty("url").toString() + "\n"
                    + (new DecimalFormat("#.#####").format(time))
                    + " ms \t CODE: " + String.valueOf(code));
-          
+
           // Save HERE.
           h.setProperty("status", code);
+
+          try {
+            this.datastore.put(h).get(); // WARNING: put() is slow operation!
+
+          } catch (ExecutionException e) {
+            LOG.warning( e.getMessage() );
+          } catch (java.lang.InterruptedException e) {
+            LOG.warning( e.getMessage() );
+          }
+
+
+          //datastore.
 
           this.mapResponses.remove( h.getKey().getId() );
           //this.hostsQueue.remove(0);

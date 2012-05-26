@@ -24,19 +24,20 @@ function test(request) {
   var h, parsedUrl;
   var allhosts = Host.all().fetch(1000);
 
-  var urlMatchRe = /^(?:(https?|ftp):\/\/)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)?(.*?)?(?:(\w+\.\w+)([^.]*))?$/;
+  /*var urlMatchRe = /^(?:(https?|ftp):\/\/)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)?(.*?)?(?:(\w+\.\w+)([^.]*))?$/;
 
   for (var i in allhosts) {
     h = allhosts[i];
-
     parsedUrl = h.url.match(urlMatchRe);
     if (!parsedUrl[0] || !parsedUrl[2])
       continue;
-
     h.domain = parsedUrl[2];
-
     log.info( h.domain, h.url );
-
+    h.put();
+  }*/
+  for (var i in allhosts) {
+    h = allhosts[i];
+    h.finalurl = null;
     h.put();
   }
 

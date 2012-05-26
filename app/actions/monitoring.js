@@ -192,6 +192,7 @@ function addhost(request) {
       //keyName : href,
       url     : href,
       domain  : domain,
+      finalurl : null,
       status  : parseInt(status)
     });
     newHost.put();
