@@ -51,12 +51,22 @@ public class PingerAsync {
   private static final int maxConcurrentRequests = 10;
   private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
+  /**
+   * @var ArrayList
+   */
   protected ArrayList<Entity> hostsQueue = null;
+  /**
+   * Represents hostsQueue host’s Future responses.
+   * @var HashMap
+   */
+  protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
+  
   protected ArrayList<Entity> hostsPolled = null;
 
   protected java.util.Iterator<Entity> hostsIterator = null;
 
-  public PingerAsync() {
+  public PingerAsync()
+  {
     /**
      * @todo Check throws.
      */
@@ -87,21 +97,69 @@ public class PingerAsync {
 
     int i = 0;
 
-    // Adding first 10 hosts to queue.
+    // Adding first 10 hosts to queue (maxConcurrentRequests is 10 by default).
     while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
       host = this.hostsIterator.next();
       this.hostsQueue.add(host);
-      //this.hostsIterator.remove(); // Does not work! Workarounds: asList, own ListIterator. or: ...
+      //this.hostsIterator.remove(); // Does not work! Workarounds: asList, own ListIterator. or: ...not needed
       i++;
     }
 
+    this.mapResponses = new HashMap<Long, Future<HTTPResponse>>( this.hostsQueue.size(), (float) 1.25 );
+
   } // constructor
 
-  public static void main(String[] args) {
+  public static void main(String[] args)
+  {
     System.out.println( "Error: This class should not be run in CLI mode." );
   } // main
 
 
+  private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+  private HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
+  private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+
+  /**
+   * Sends async request to provided Entity host’s URL and saves start time
+   * and Future response in mapResponses.
+   *
+   * @param Entity host
+   * @return Entity/Null Modified entity or null on error.
+   */
+  private Entity fetchQueue(Entity host)
+  {
+    String url = (String) host.getProperty("url");
+
+    try {
+      HTTPRequest request = new HTTPRequest(
+          new URL(url),
+          HTTPMethod.HEAD,
+          fetchOptions
+      );
+      request.setHeader(uaHeader);
+
+      Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
+      long timeStart = System.nanoTime();
+
+      host.setUnindexedProperty("timeStart", timeStart);
+      this.mapResponses.put( host.getKey().getId(), responseFuture );
+
+    } catch (MalformedURLException e) {
+      // This should never happen. Can be throwed by new URL().
+      LOG.warning( e.getMessage() );
+      return null;
+    } catch (IllegalArgumentException e) {
+      // This should never happen. Can be throwed by h.setUnindexedProperty().
+      LOG.warning( e.getMessage() );
+      return null;
+    } catch (IOException e) {
+      // This should never happen. Can be throwed by fetcher.fetchAsync(request).
+      LOG.warning( e.getMessage() );
+      return null;
+    }
+
+    return host;
+  } // fetchQueue
 
   /**
    * Pings provided url list and returns status code from response.
@@ -110,64 +168,30 @@ public class PingerAsync {
   public String ping() //throws InterruptedException, ExecutionException
   {
     
-    HTTPRequest request = null;
     // @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
     // (check imports beforehand)
-    FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-    HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
-    URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
-    Future<HTTPResponse> responseFuture = null;
-    /**
-     * Should represent hostsQueue host’s Future responses.
-     * @var HashMap
-     */
-    HashMap<Long, Future<HTTPResponse>> mapResponses =
-            new HashMap<Long, Future<HTTPResponse>>( this.hostsQueue.size(), (float) 1.25 );
     long timeStart;
     long timeEnd;
     Entity h;
-    String sUrl;
-    //URL url;
+
     ListIterator<Entity> it = this.hostsQueue.listIterator(0);
     // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
     // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
     while ( it.hasNext() ) {
-      //i = it.nextIndex();
-      h = it.next(); 
+      h = fetchQueue( it.next() );
       //LOG.info( "Host: " + h.toString() );
-      sUrl = (String) h.getProperty("url");
-      try {
-        request = new HTTPRequest(
-            new URL(sUrl),
-            HTTPMethod.HEAD,
-            fetchOptions
-        );
-        request.setHeader(uaHeader);
-        
-        timeStart = System.nanoTime();
-        responseFuture = fetcher.fetchAsync(request);
-
-        h.setUnindexedProperty("timeStart", timeStart);
-        mapResponses.put( h.getKey().getId(), responseFuture );
-        it.set(h); // Overwrite previous value, new fields added.
-        
-      } catch (MalformedURLException e) {
-        // This should not happen. Can be throwed by new URL().
-        LOG.info(e.getMessage());
-      } catch (IllegalArgumentException e) {
-        // This should not happen. Can be throwed by h.setUnindexedProperty().
-        LOG.info(e.getMessage());
-      } catch (IOException e) {
-        // This should not happen. Can be throwed by fetcher.fetchAsync(request).
-        LOG.info(e.getMessage());
+      
+      if ( h != null ) { // if ( h.getClass().getName().equals("Entity") )
+         // Overwrite previous value, new fields added.
+        it.set(h);
       }
     } // while
 
-    h = null;
-    responseFuture = null;
-    timeStart = 0;
+    Future<HTTPResponse> responseFuture = null;
 
+    h = null;
+    Entity nextHost;
     HTTPResponse response = null;
     double time = 0;
     int code = 0;
@@ -180,40 +204,60 @@ public class PingerAsync {
       while ( it.hasNext() ) {
         h = it.next();
         id = h.getKey().getId();
-        responseFuture = mapResponses.get(id);
+        responseFuture = this.mapResponses.get(id);
         if ( responseFuture.isDone() || responseFuture.isCancelled() ) {
           timeEnd = System.nanoTime();
-
-          try {
-          response = responseFuture.get();
-          code = response.getResponseCode();
-
           timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ;
-          time = ( timeEnd - timeStart ) / 1000000.0;
+          time = (timeEnd - timeStart) / 1000000.0;
           h.removeProperty("timeStart"); // This is important
-
-          LOG.info(h.getProperty("url").toString());
-          LOG.info("DONE: " + (new DecimalFormat("#.#####").format(time)) + " ms, CODE: " + String.valueOf(code));
-
-          //host = this.hostsIterator.next();
-          //this.hostsQueue.add(host);
-          //this.hostsIterator.remove();
-
-          } catch (java.util.concurrent.ExecutionException e) {
-            LOG.info("ExecutionException throwed: " + e.getMessage());
+          
+          try {
+            response = responseFuture.get(); // Can throw some exceptions, see below.
+            // URL finalUrl = response.getFinalUrl(); // final URL or null if was no redirets.
+            code = response.getResponseCode();
+          } catch (ExecutionException e) {
+            // In most cases this means that DNS could not be resolved.
+            code = 599;
+            LOG.info( e.getMessage() );
+          } catch (CancellationException e) {
+            // This should never happen.
+            code = 666;
+            LOG.warning( e.getMessage() );
           } catch (java.lang.InterruptedException e) {
-            LOG.info("InterruptedException: " + e.getMessage());
-          }
+            // This should never happen.
+            code = 667;
+            LOG.warning( e.getMessage() );
+          } /* catch (IOException e) {
+            // This should never happen.
+            code = 668;
+            LOG.warning( e.getMessage() );
+          } catch (TimeoutException e) {
+            code = 598;
+            LOG.info( e.getMessage() );
+          } */
 
+          LOG.info(h.getProperty("url").toString() + "\n"
+                   + (new DecimalFormat("#.#####").format(time))
+                   + " ms \t CODE: " + String.valueOf(code));
+          
+          // Save HERE.
+          h.setProperty("status", code);
 
-          mapResponses.remove( h.getKey().getId() );
+          this.mapResponses.remove( h.getKey().getId() );
           //this.hostsQueue.remove(0);
           it.remove();
-        }
+          
+          if ( this.hostsIterator.hasNext() ) {
+            nextHost = fetchQueue( this.hostsIterator.next() );
+            if ( nextHost != null ) {
+              //this.hostsQueue.add(nextHost);
+              it.add(nextHost);
+            }
+          } // ? hostsIterator.hasNext
 
-      }
-
-    }
+        } // ? responseFuture.isDone
+      } // while it.hasNext
+    } // while hostsQueue.size > 0
 
 
     //h.put(sUrl, url)
