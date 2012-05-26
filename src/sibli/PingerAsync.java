@@ -55,6 +55,9 @@ public class PingerAsync {
   protected java.util.Iterator<Entity> hostsIterator = null;
 
   public PingerAsync() {
+    /**
+     * @todo Check throws.
+     */
 
     // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
     this.hostsQueue = new ArrayList<Entity>();
@@ -91,9 +94,6 @@ public class PingerAsync {
 
   } // constructor
 
-
-
-
   public static void main(String[] args) {
     System.out.println( "Error: This class should not be run in CLI mode." );
   } // main
@@ -104,7 +104,7 @@ public class PingerAsync {
    * Pings provided url list and returns status code from response.
    *
    */
-  public String ping() throws InterruptedException, ExecutionException
+  public String ping() //throws InterruptedException, ExecutionException
   {
     
     HTTPRequest request = null;
@@ -115,16 +115,23 @@ public class PingerAsync {
     URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
     Future<HTTPResponse> responseFuture;
-
+    /**
+     * Should represent hostsQueue host’s Future responses.
+     * @var HashMap
+     */
+    HashMap<Long, Future<HTTPResponse>> listResponses =
+            new HashMap<Long, Future<HTTPResponse>>( this.hostsQueue.size(), (float) 1.25 );
     long timeStart;
     long timeEnd;
     Entity h;
     String sUrl;
+    //int i;
     //URL url;
     ListIterator<Entity> it = this.hostsQueue.listIterator();
     // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
     // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
     while ( it.hasNext() ) {
+      //i = it.nextIndex();
       h = it.next(); 
       //LOG.info( "Host: " + h.toString() );
       sUrl = (String) h.getProperty("url");
@@ -136,11 +143,11 @@ public class PingerAsync {
         );
         request.setHeader(uaHeader);
         
-        timeStart = System.currentTimeMillis();
+        timeStart = System.nanoTime();
         responseFuture = fetcher.fetchAsync(request);
 
         h.setUnindexedProperty("timeStart", timeStart);               /////////////// h.removeProperty("timeStart");
-        h.setUnindexedProperty("responseFuture", responseFuture);     /////////////// h.removeProperty("responseFuture");
+        listResponses.put( h.getKey().getId(), responseFuture );
         it.set(h); // Overwrite previous value, new fields added.
         
       } catch (MalformedURLException e) {
@@ -168,6 +175,7 @@ public class PingerAsync {
       //response = responseFuture.get();
       //code = response.getResponseCode();
 
+      listResponses.remove( this.hostsQueue.get(0).getKey().getId() );
       this.hostsQueue.remove(0);
     }
 

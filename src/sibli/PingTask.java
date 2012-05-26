@@ -5,8 +5,8 @@ import java.util.*;
 import java.io.IOException;
 import javax.servlet.http.*;
 
-//import org.apache.log4j.Logger;
-import java.util.logging.Logger;
+import org.apache.log4j.Logger;
+//import java.util.logging.Logger;
 
 import sibli.PingerAsync;
 
@@ -47,9 +47,8 @@ public class PingTask extends HttpServlet {
 
     LOG.info("Launching task...");
     PingerAsync pinger = new PingerAsync();
-
-    //List<HashMap<String,Object>> hosts = PingerAsync.getSourcesDb();
-
+    String ok = pinger.ping();
+    LOG.info( ok );
 
 
     /*
@@ -85,7 +84,7 @@ public class PingTask extends HttpServlet {
      * If not exists, return text.
      */
     resp.setContentType("text/plain");
-    resp.getWriter().println("Task launched");
+    resp.getWriter().println("Task launched ... " + ok);
 
     /*
     // Get statistics (https://developers.google.com/appengine/docs/java/datastore/stats):
