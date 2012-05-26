@@ -141,7 +141,7 @@ public class PingerAsync {
           HTTPMethod.HEAD,
           fetchOptions
       );
-      request.setHeader(this.uaHeader);
+      request.setHeader( new HTTPHeader("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52") );
 
       Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
       long timeStart = System.nanoTime();
@@ -251,6 +251,7 @@ public class PingerAsync {
 
           // Save HERE.
           h.setProperty("status", code);
+          h.setProperty( "updated", new Date() );
 
           try {
             this.datastore.put(h).get(); // WARNING: put() is slow operation!

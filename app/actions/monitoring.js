@@ -133,7 +133,7 @@ function addhost(request) {
     if (!request.params.url || !request.params.url.length) {
       return addhostError(400, context, request);
     }
-    var host = request.params.url;
+    var host = request.params.url.trim();
 
     // In case of error let’s save input value to display it back in form input.
     context.value = host;
@@ -165,12 +165,12 @@ function addhost(request) {
     /**
      * We need to check host for existance in DB.
      * We don’t want to create tons of hosts with identical URL.
-     * If host exists, let’s update its time added. 
+     * If host exists, let’s update its time updated. 
      */
     var existingHost = Host.all().filter("url =", href).fetch(1);
     if (existingHost && existingHost[0]) {
       var key =  existingHost[0].key();
-      existingHost[0].added = new Date();
+      existingHost[0].updated = new Date();
       existingHost[0].put();
       context.existing = true;
       return addhostSuccess(key, context, request);
@@ -179,7 +179,8 @@ function addhost(request) {
     // Ping host to check URL is correct and site available.
     var Pinger = new Packages.sibli.Pinger();
     var status = Pinger.ping(href);
-    // @todo: Add timing.
+    // @todo: Add new status and timing saving for existing host too.
+    // @todo: Add timing, e.g. creation of first HostQueue entity for host.
 
     if (status == "Malformed URL" || status == "URL is null") {
       return addhostError(200, context, request);
