@@ -3,4 +3,4 @@ cron:
   url: /pingtask
 # Use as backend:
   target: hostpinger
-  schedule: every 1 hours
+  schedule: every 20 minutes
