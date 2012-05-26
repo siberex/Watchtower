@@ -3,6 +3,8 @@ package sibli;
 import java.util.*;
 import java.util.concurrent.*;
 
+import java.text.DecimalFormat;
+
 //import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -89,6 +91,7 @@ public class PingerAsync {
     while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
       host = this.hostsIterator.next();
       this.hostsQueue.add(host);
+      //this.hostsIterator.remove(); // Does not work! Workarounds: asList, own ListIterator. or: ...
       i++;
     }
 
@@ -114,20 +117,19 @@ public class PingerAsync {
     HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
     URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
-    Future<HTTPResponse> responseFuture;
+    Future<HTTPResponse> responseFuture = null;
     /**
      * Should represent hostsQueue host’s Future responses.
      * @var HashMap
      */
-    HashMap<Long, Future<HTTPResponse>> listResponses =
+    HashMap<Long, Future<HTTPResponse>> mapResponses =
             new HashMap<Long, Future<HTTPResponse>>( this.hostsQueue.size(), (float) 1.25 );
     long timeStart;
     long timeEnd;
     Entity h;
     String sUrl;
-    //int i;
     //URL url;
-    ListIterator<Entity> it = this.hostsQueue.listIterator();
+    ListIterator<Entity> it = this.hostsQueue.listIterator(0);
     // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
     // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
     while ( it.hasNext() ) {
@@ -146,8 +148,8 @@ public class PingerAsync {
         timeStart = System.nanoTime();
         responseFuture = fetcher.fetchAsync(request);
 
-        h.setUnindexedProperty("timeStart", timeStart);               /////////////// h.removeProperty("timeStart");
-        listResponses.put( h.getKey().getId(), responseFuture );
+        h.setUnindexedProperty("timeStart", timeStart);
+        mapResponses.put( h.getKey().getId(), responseFuture );
         it.set(h); // Overwrite previous value, new fields added.
         
       } catch (MalformedURLException e) {
@@ -164,19 +166,53 @@ public class PingerAsync {
 
     h = null;
     responseFuture = null;
+    timeStart = 0;
 
-    HTTPResponse response;
+    HTTPResponse response = null;
+    double time = 0;
     int code = 0;
+    long id = 0;
 
     //while (this.hostsIterator.hasNext())
     while ( this.hostsQueue.size() > 0 ) {
-      //
 
-      //response = responseFuture.get();
-      //code = response.getResponseCode();
+      it = this.hostsQueue.listIterator(0);
+      while ( it.hasNext() ) {
+        h = it.next();
+        id = h.getKey().getId();
+        responseFuture = mapResponses.get(id);
+        if ( responseFuture.isDone() || responseFuture.isCancelled() ) {
+          timeEnd = System.nanoTime();
 
-      listResponses.remove( this.hostsQueue.get(0).getKey().getId() );
-      this.hostsQueue.remove(0);
+          try {
+          response = responseFuture.get();
+          code = response.getResponseCode();
+
+          timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ;
+          time = ( timeEnd - timeStart ) / 1000000.0;
+          h.removeProperty("timeStart"); // This is important
+
+          LOG.info(h.getProperty("url").toString());
+          LOG.info("DONE: " + (new DecimalFormat("#.#####").format(time)) + " ms, CODE: " + String.valueOf(code));
+
+          //host = this.hostsIterator.next();
+          //this.hostsQueue.add(host);
+          //this.hostsIterator.remove();
+
+          } catch (java.util.concurrent.ExecutionException e) {
+            LOG.info("ExecutionException throwed: " + e.getMessage());
+          } catch (java.lang.InterruptedException e) {
+            LOG.info("InterruptedException: " + e.getMessage());
+          }
+
+
+          mapResponses.remove( h.getKey().getId() );
+          //this.hostsQueue.remove(0);
+          it.remove();
+        }
+
+      }
+
     }
 
 
