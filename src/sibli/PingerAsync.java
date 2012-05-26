@@ -120,8 +120,7 @@ public class PingerAsync {
 
 
   private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-  //private final HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", userAgent);
-  private final HTTPHeader uaHeader = new HTTPHeader("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52");
+  private final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
   private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
   /**
@@ -141,7 +140,7 @@ public class PingerAsync {
           HTTPMethod.HEAD,
           fetchOptions
       );
-      request.setHeader( new HTTPHeader("HTTP_USER_AGENT", "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52") );
+      request.setHeader( uaHeader );
 
       Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
       long timeStart = System.nanoTime();
