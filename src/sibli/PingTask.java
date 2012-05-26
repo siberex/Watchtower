@@ -48,7 +48,7 @@ public class PingTask extends HttpServlet {
     LOG.info("Launching task...");
     PingerAsync pinger = new PingerAsync();
     String ok = pinger.ping();
-    LOG.info( ok );
+    //LOG.info( ok );
 
 
     /*

@@ -65,7 +65,8 @@ public class PingerAsync {
    */
   protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
   
-  protected ArrayList<Entity> hostsPolled = null;
+  protected ArrayList<Future<Entity>> listHostsPolled = null;
+  protected ArrayList<Future<Entity>> listQueuesPolled = null;
 
 
   public PingerAsync()
@@ -82,7 +83,8 @@ public class PingerAsync {
      * HashSet have better performance for multiple insertions and deletions
      * but it does not preserve elements ordering.
      */
-    this.hostsPolled = new ArrayList<Entity>();
+    this.listHostsPolled = new ArrayList<Future<Entity>>();
+    this.listQueuesPolled = new ArrayList<Future<Entity>>();
 
     // Get the Datastore Service
     //DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
@@ -178,6 +180,7 @@ public class PingerAsync {
     long timeStart;
     long timeEnd;
     Entity h;
+    Entity hostQueue;
 
     ListIterator<Entity> it = this.hostsQueue.listIterator(0);
     // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
@@ -202,7 +205,9 @@ public class PingerAsync {
     int code = 0;
     long id = 0;
 
-    //while (this.hostsIterator.hasNext())
+
+    long overallStart = System.nanoTime();
+    
     while ( this.hostsQueue.size() > 0 ) {
 
       it = this.hostsQueue.listIterator(0);
@@ -249,12 +254,23 @@ public class PingerAsync {
                    + " ms \t CODE: " + String.valueOf(code));
 
           // Save HERE.
+          hostQueue = new Entity( "HostQuery", h.getKey() );
+          hostQueue.setProperty( "host", h.getKey() ); // This actually is not needed if parent is present.
+          hostQueue.setProperty( "executed", new Date() );
+          hostQueue.setProperty("status", code);
+          hostQueue.setProperty("time", time);
+
           h.setProperty("status", code);
           h.setProperty( "updated", new Date() );
 
           try {
+            /**
+             * @todo Use async. E.g. put without get and handle Future.
+             */
+            this.datastore.put(hostQueue).get();
             this.datastore.put(h).get(); // WARNING: put() is slow operation!
-
+            //listHostsPolled.add(null);
+            //listQueuesPolled.add(null);
           } catch (ExecutionException e) {
             LOG.warning( e.getMessage() );
           } catch (java.lang.InterruptedException e) {
@@ -281,9 +297,10 @@ public class PingerAsync {
     } // while hostsQueue.size > 0
 
 
-    //h.put(sUrl, url)
-    //hostsPolled.add(h);
-
+    long overallEnd = System.nanoTime();
+    String totalTime = ( new DecimalFormat("#.#####").format( (overallEnd - overallStart) / 1000000.0 ) ) + " ms";
+    LOG.info(totalTime);
+    return totalTime;
 
     /************
     hosts = queryDB
@@ -307,7 +324,7 @@ public class PingerAsync {
     timers[10]?
 
     *************/
-    return "OK";
+    //return "OK";
 
   } // ping
 

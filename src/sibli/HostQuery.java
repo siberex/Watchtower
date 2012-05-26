@@ -25,6 +25,17 @@ public class HostQuery {
     @Persistent(valueStrategy = IdGeneratorStrategy.IDENTITY)
     private Key key;
 
+    /**
+     * NB:
+     * https://developers.google.com/appengine/docs/java/datastore/jdo/relationships
+     *
+     * In some cases, you may find it necessary to model an owned relationship as if it is unowned.
+     * This is because all objects involved in an owned relationship are automatically placed in the same entity group,
+     * and an entity group can only support one to ten writes per second. So, for example, if a parent object
+     * is receiving .75 writes per second and a child object is receiving .75 writes per second,
+     * it may make sense to model this relationship as unowned so that both parent and child reside in their own,
+     * independent entity groups.
+     */
     @Persistent
     private Host host;
 

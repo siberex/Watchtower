@@ -21,6 +21,7 @@ function test(request) {
   var log = require("ringo/logging").getLogger(module.id);
 
   var {Host} = require('models/host');
+  var {HostQuery} = require('models/hostquery');
   var h, parsedUrl;
   var allhosts = Host.all().fetch(1000);
 
@@ -35,11 +36,21 @@ function test(request) {
     log.info( h.domain, h.url );
     h.put();
   }*/
-  for (var i in allhosts) {
+  /*for (var i in allhosts) {
     h = allhosts[i];
     h.finalurl = null;
     h.put();
-  }
+  }*/
+
+  h = allhosts[0];
+  var hq = new HostQuery({
+    host : h.key(),
+    status: 888,
+    time: 1000,
+    parent: h.key()
+  });
+  
+  hq.put();
 
   var context = {
     title  : "TEST",
