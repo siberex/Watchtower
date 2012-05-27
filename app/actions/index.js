@@ -42,6 +42,8 @@ function test(request) {
     h.put();
   }*/
 
+  return;
+
   h = allhosts[0];
   var hq = new HostQuery({
     host : h.key(),

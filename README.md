@@ -2,7 +2,9 @@ Watchtower
 =============
 
 Watchtower is a site monitoring system.
+
 You can play with it here: http://mon.sib.li
+
 Written for Google App Engine deployment.
 
 
@@ -17,6 +19,7 @@ Before deploy (important!)
    — /errors/timeout.html
 3. Rename app.yaml.example to app.yaml and set your application
    identifier (application: YOUR-APP-ID) on first line.
+
 Now you are ready to deploy to Google App Engine.
 
 Also you can deploy to any server with Java installed,
