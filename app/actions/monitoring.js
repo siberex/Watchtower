@@ -8,9 +8,12 @@ var system = require('system');
 
 var {app, config} = require("../main");
 var {getLang} = require("../helpers");
-export("index", "async", "addhost", "viewhost");
+export("index", "getdata", "addhost", "viewhost");
 
-
+/**
+ * @todo This is old stuff, to be deprecated.
+ * Java in JS reflection usage examples.
+ */
 function index(request) {
   var lang = getLang(request);
   var title = (lang == "ru")
@@ -62,7 +65,7 @@ function index(request) {
 
 
 /**
- * @param Object Stativ hash for error messages.
+ * @param Object Static hash for error messages.
  */
 var addhostErrorCodes = {
   "ru": {
@@ -112,6 +115,10 @@ function addhostSuccess(urlKey, context, req) {
   return app.render("addhost.html", context);
 }
 
+
+/**
+ * Adding host to queue, Wachtower main page action.
+ */
 function addhost(request) {
   var lang = getLang(request);
   var context = {
@@ -213,26 +220,9 @@ function addhost(request) {
 } // addhost
 
 
-// for debug purposes
-function fixTypes() {
-  var log = require("ringo/logging").getLogger(module.id);
-
-  var {Host} = require('models/host');
-  var h;
-  var allhosts = Host.all().fetch(1000);
-
-  for (var i in allhosts) {
-    h = allhosts[i];
-    h.status = parseInt(h.status);
-
-    log.info( h.url, h.status );
-
-    h.put();
-  }
-  return h;
-} // fixTypes
-
-
+/**
+ * Page for viewing monitoring statistics.
+ */
 function viewhost(request, key) {
   var lang = getLang(request);
   var context = {
@@ -272,37 +262,27 @@ function viewhost(request, key) {
 } // viewhost
 
 
-function async(request) {
-  var lang = getLang(request);
-  var title = (lang == "ru")
-            ? "Мониторинг"
-            : "Monitoring";
+/**
+ * Return accumulated statistics for viewed host in JSON.
+ */
+function getdata(request, key) {
 
-  //var sources = getSources();
-  var PingerAsync = new Packages.sibli.PingerAsync();
-  var sources = PingerAsync.getSources();
-  //var test = PingerAsync.ping(sources);
-  var test = {};
-  // @todo Catch exceptions like:
-  // JavaException: java.util.concurrent.ExecutionException: java.net.SocketTimeoutException: Timeout while fetching: http://www.sib.li
 
   var context = {
-    title : title,
-    lang  : lang,
-    test  : uneval(test),
-    head  : app.renderPart("asyncmon-header.html", {
-                sources : uneval(test)
-            })
-  };
+      test: "OK"
 
-  return app.render("asyncmon.html", context);
-} // async
+  }
+  return app.render(null, context, {
+    contentType: "application/json"
+  });
+} // getdata
 
 
 /**
  * Returns hosts list from app/config/monitoring.cfg
  * Uses Java to access config file.
  *
+ * @todo This is old stuff, to be deprecated.
  * @return {Array} Hosts.
  */
 function getSources() {
@@ -347,10 +327,11 @@ function getSources() {
 
 
 /**
- * @todo: Add ability to ping IP in case of host inavailability.
+ * @todo: Add ability to query finalurl in case of original url inavailability.
  * @todo: Add Google Prediction?
  * @todo: Add notification server.
- * @todo: Notification by SMS.
- * @todo: Use Prospective search to detect failures and send notifications.
+ * @todo: Notifications by XMPP.
+ * @todo: Use Prospective search to filter failures and send notifications:
+ *        https://developers.google.com/appengine/docs/java/prospectivesearch
  * @todo: Test API degradation with Capabilities Status Configuration: http://localhost:8080/_ah/admin/capabilitiesstatus
  */
