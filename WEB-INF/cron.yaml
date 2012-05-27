@@ -1,6 +1,7 @@
 cron:
 - description: Monitoring system, query hosts task
   url: /pingtask
-# Use as backend:
+# Specifing backend name as a target
   target: hostpinger
-  schedule: every 20 minutes
+  timezone: Asia/Irkutsk
+  schedule: every 2 minutes

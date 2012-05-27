@@ -2,5 +2,4 @@ backends:
 - name: hostpinger
   class: B1
   instances: 1
-  max_concurrent_requests: 2
-  options: dynamic, failfast
+  max_concurrent_requests: 10

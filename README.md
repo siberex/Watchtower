@@ -1,10 +1,7 @@
-Crying Banksy
+Watchtower
 =============
 
-Crying Banksy is an image gallery engine written completely
-on Javascript with RingoJS (JS runtime based on Mozilla Rhino),
-and Stick (JSGI middleware for RingoJS).
-
+Watchtower is a site monitoring system.
 Written for Google App Engine deployment.
 
 
