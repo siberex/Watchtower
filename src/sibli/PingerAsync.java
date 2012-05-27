@@ -35,7 +35,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 
 import com.google.appengine.api.datastore.Entity;
-//import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Key;
 //import com.google.appengine.api.datastore.KeyFactory;
 
 
@@ -64,8 +64,8 @@ public class PingerAsync {
    */
   protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
   
-  protected ArrayList<Future<Entity>> listHostsPolled = null;
-  protected ArrayList<Future<Entity>> listQueuesPolled = null;
+  protected ArrayList<Future<Key>> listHostsPolled = null;
+  protected ArrayList<Future<Key>> listQueuesPolled = null;
 
 
   public PingerAsync()
@@ -82,8 +82,8 @@ public class PingerAsync {
      * HashSet have better performance for multiple insertions and deletions
      * but it does not preserve elements ordering.
      */
-    this.listHostsPolled = new ArrayList<Future<Entity>>();
-    this.listQueuesPolled = new ArrayList<Future<Entity>>();
+    this.listHostsPolled = new ArrayList<Future<Key>>();
+    this.listQueuesPolled = new ArrayList<Future<Key>>();
 
     // Get the Datastore Service
     this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
@@ -263,8 +263,8 @@ public class PingerAsync {
            * Performance gain on local devserver is about 1-2 ms per 30 hosts save,
            * but for App Engine servers and HRD gain is ~100 ms per every 30 hosts.
            */
-          listHostsPolled.add( (Future) this.datastore.put(h) );
-          listQueuesPolled.add( (Future) this.datastore.put(hostQueue) );
+          listHostsPolled.add( this.datastore.put(h) );
+          listQueuesPolled.add( this.datastore.put(hostQueue) );
 
           this.mapResponses.remove( h.getKey().getId() );
           it.remove();

@@ -3,3 +3,5 @@ backends:
   class: B1
   instances: 1
   max_concurrent_requests: 10
+  options: dynamic
+#  options: dynamic, failfast
