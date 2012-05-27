@@ -2,6 +2,7 @@ Watchtower
 =============
 
 Watchtower is a site monitoring system.
+You can play with it here: http://mon.sib.li
 Written for Google App Engine deployment.
 
 
