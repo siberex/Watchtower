@@ -228,8 +228,13 @@ public class PingerAsync {
             }
             code = response.getResponseCode();
           } catch (ExecutionException e) {
-            // In most cases this means that DNS could not be resolved.
-            code = 599;
+            // java.net.SocketTimeoutException
+            if ( e.getClass().getName().equals("SocketTimeoutException") ) {
+              code = 598;
+            } else {
+              // In most cases this means that DNS could not be resolved.
+              code = 599;
+            }
             LOG.info( e.getMessage() );
           } catch (CancellationException e) {
             // This should never happen.

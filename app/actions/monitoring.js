@@ -258,7 +258,7 @@ function viewhost(request, key) {
   }
 
   context.key = h.key();
-  context.url = h.url;
+  context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
   context.head = app.renderPart("viewhost-header.html", context);
   return app.render("viewhost.html", context);
 } // viewhost
@@ -294,39 +294,38 @@ function getdata(request, key) {
         }
     }
     //context.url = h.url;
-    var stats = [];
-    var entityToObject = require("appengine/google/appengine/ext/db/utils").entityToObject;
 
+    var stats = [];
     try {
-        //stats = HostQuery.all().filter("host =", h.key()).fetch(10);
-        var output = "[\n";
-        var testTime = 1333238400000;
-        var q;
-        var results = HostQuery.all().ancestor(h).order("-executed").fetch(1000);
-        for (var it in results) {
-            q = results[it];
-            testTime = q.executed.getTime();
-            testTime = parseInt(testTime/1000)*1000;
-            output += "{x:" + testTime.toString() +',y:' + q.time.toFixed(2) + "},\n" // name:" + '"'+q.status+'",' + "
-            testTime += 86400000;
+        HostQuery.all().ancestor(h).order("-executed").limit(1000).forEach(function(q) {
+            stats.push({
+                x : q.executed.getTime(),
+                y : q.time,
+                s : q.status.toString()
+            });
+        });
+
+        /**
+         * This is important because it seems order("-executed")
+         * does not sort all data properly.
+         */
+        var sortFn = function(a, b) {
+            if (a.x > b.x) return  1;
+            if (a.x < b.x) return -1;
+            return 0;
         }
-        /*HostQuery.all().ancestor(h).order("-executed").limit(1000).forEach(function(q) {
-            //stats.push( [testTime,q.time] ); // q.executed.getTime()
-            output += "[" + q.executed.getTime().toString() +',' + q.time.toFixed(2) + "],\n"
-            testTime += 86400000;
-        });*/
-        output = output.substr(0, output.length-2) + "\n]";
+        stats = stats.sort(sortFn);
+
     } catch(e) {
         log.error(e.message ? e.message : e);
     }
 
-    context.stats = stats;
+    //context.stats = stats;
 
     return {
         status: 200,
         headers: {"Content-Type": "text/javascript"},
-        body: [callback + '(' + output + ');']
-        //body: [callback + '(' + uneval(stats) + ');']
+        body: [callback + '(' + uneval(stats) + ');']
     };
 } // getdata
 
