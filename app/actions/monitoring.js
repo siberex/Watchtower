@@ -72,7 +72,7 @@ var addhostErrorCodes = {
     0: "Неизвестная ошибка",
     100: "Время сессии пользователя по какой-то причине истекло. Пожалуйста, попробуйте добавить сайт снова.",
     200: "Указан некорректный адрес сайта. Пожалуйста, проверьте адрес и попробуйте добавить сайт снова.",
-    300: "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. Или, возможно, в адресе сайта ошибка.",
+    300: "Не удалось получить ответ от сайта. Если сайт сейчас перегружен и отвечает медленно, попробуйте снова через пару минут. �?ли, возможно, в адресе сайта ошибка.",
     400: "Указан пустой адрес сайта. Пожалуйста, введите адрес сайта для добавления в систему мониторинга."
     // ,500: "" //,
   },
@@ -228,7 +228,8 @@ function viewhost(request, key) {
   var context = {
     title   : (lang == "ru") ? "Результаты мониторинга" : "Monitoring statistics",
     head    : app.renderPart("viewhost-header.html", context),
-    lang    : lang
+    lang    : lang,
+    baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
   }
   context.header = context.title;
 
@@ -256,8 +257,9 @@ function viewhost(request, key) {
     return app.render("viewhost.html", context);
   }
 
-  key = h.key();
+  context.key = h.key();
   context.url = h.url;
+  context.head = app.renderPart("viewhost-header.html", context);
   return app.render("viewhost.html", context);
 } // viewhost
 
@@ -266,15 +268,66 @@ function viewhost(request, key) {
  * Return accumulated statistics for viewed host in JSON.
  */
 function getdata(request, key) {
+    var log = require("ringo/logging").getLogger(module.id);
+    var context = {};
+    var {Host} = require('models/host');
+    var {HostQuery} = require('models/hostquery');
+    var h = null;
+    try {
+        h = Host.get(key);
+    } catch(e) {
+        h = null;
+    }
+    if (!h) {
+        return {
+            status: 404,
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: ['{ERROR: "Not Found"}']
+        }
+    }
+    var callback = request.params.callback;
+    if (!callback) {
+        return {
+            status: 400,
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: ['{ERROR: "Bad Request"}']
+        }
+    }
+    //context.url = h.url;
+    var stats = [];
+    var entityToObject = require("appengine/google/appengine/ext/db/utils").entityToObject;
 
+    try {
+        //stats = HostQuery.all().filter("host =", h.key()).fetch(10);
+        var output = "[\n";
+        var testTime = 1333238400000;
+        var q;
+        var results = HostQuery.all().ancestor(h).order("-executed").fetch(1000);
+        for (var it in results) {
+            q = results[it];
+            testTime = q.executed.getTime();
+            testTime = parseInt(testTime/1000)*1000;
+            output += "{x:" + testTime.toString() +',y:' + q.time.toFixed(2) + "},\n" // name:" + '"'+q.status+'",' + "
+            testTime += 86400000;
+        }
+        /*HostQuery.all().ancestor(h).order("-executed").limit(1000).forEach(function(q) {
+            //stats.push( [testTime,q.time] ); // q.executed.getTime()
+            output += "[" + q.executed.getTime().toString() +',' + q.time.toFixed(2) + "],\n"
+            testTime += 86400000;
+        });*/
+        output = output.substr(0, output.length-2) + "\n]";
+    } catch(e) {
+        log.error(e.message ? e.message : e);
+    }
 
-  var context = {
-      test: "OK"
+    context.stats = stats;
 
-  }
-  return app.render(null, context, {
-    contentType: "application/json"
-  });
+    return {
+        status: 200,
+        headers: {"Content-Type": "text/javascript"},
+        body: [callback + '(' + output + ');']
+        //body: [callback + '(' + uneval(stats) + ');']
+    };
 } // getdata
 
 

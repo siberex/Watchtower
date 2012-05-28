@@ -6,5 +6,6 @@
 /WEB-INF/appengine-generated/
 
 /.stuff/
+/.idea/
 /nbproject/private/
 /WEB-INF/classes/
