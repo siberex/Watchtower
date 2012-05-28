@@ -10,4 +10,4 @@ cron:
 # Let’s use frontend until we’ll truly needed backend
 # (backends have higher timeout limits, for example)
   timezone: Asia/Irkutsk
-  schedule: every 10 minutes
+  schedule: every 5 minutes
