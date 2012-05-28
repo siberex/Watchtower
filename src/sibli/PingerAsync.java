@@ -202,7 +202,7 @@ public class PingerAsync {
     long id = 0;
 
 
-    long overallStart = System.nanoTime();
+    //long overallStart = System.nanoTime();
 
     /**
      * @todo Check this loop for bottlenecks, e.g. slow operations.
