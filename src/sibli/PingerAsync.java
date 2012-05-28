@@ -172,7 +172,7 @@ public class PingerAsync {
    * Pings provided url list and returns status code from response.
    *
    */
-  public String ping() //throws InterruptedException, ExecutionException
+  public String ping()
   {
     long timeStart;
     long timeEnd;
@@ -228,8 +228,7 @@ public class PingerAsync {
             }
             code = response.getResponseCode();
           } catch (ExecutionException e) {
-            // java.net.SocketTimeoutException
-            if ( e.getClass().getName().equals("SocketTimeoutException") ) {
+            if ( e.getClass().getName().equals("java.net.SocketTimeoutException") ) {
               code = 598;
             } else {
               // In most cases this means that DNS could not be resolved.
