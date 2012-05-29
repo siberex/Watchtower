@@ -47,7 +47,7 @@ public class PingerAsync {
   private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
   
   private static final double requestTimeout = 5.0; // Seconds
-  private static final int maxConcurrentRequests = 10;
+  private static final int maxConcurrentRequests = 100; // 100 for backend, 10 for frontend!
   private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
   protected AsyncDatastoreService datastore = null;
@@ -172,7 +172,7 @@ public class PingerAsync {
    * Pings provided url list and returns status code from response.
    *
    */
-  public String ping()
+  public void ping()
   {
     long timeStart;
     long timeEnd;
@@ -301,7 +301,6 @@ public class PingerAsync {
     } // for
     //long saveEnd = System.nanoTime();
     //String saveTime = ( new DecimalFormat("#.#####").format( (saveEnd - saveStart) / 1000000.0 ) ) + " ms";
-    return "OK";
 
   } // ping
 
