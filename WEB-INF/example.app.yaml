@@ -39,7 +39,7 @@ system_properties:
   java.util.logging.config.file: WEB-INF/logging.properties
 
 
-# Set this only for production deploy:
+## Set this only for production deploy:
 #env_variables:
 #  RINGO_ENV: production
 #  DEFAULT_ENCODING: UTF-8
@@ -61,10 +61,10 @@ handlers:
     init_params:
       ringo-home: /
       module-path: app
-# devel:
+## devel:
       app: app
       optlevel: -1
-# production:
+## production:
 #      app: production
 #      production: true
 #      optlevel: 9
