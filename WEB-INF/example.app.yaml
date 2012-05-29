@@ -30,6 +30,8 @@ welcome_files:
 
 # Sessions.
 sessions_enabled: true
+async_session_persistence:
+   enabled: true
 
 
 # Configure java.util.logging.
