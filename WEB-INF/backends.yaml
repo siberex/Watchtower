@@ -3,6 +3,7 @@ backends:
   class: B1
   instances: 1
   max_concurrent_requests: 10
-  options: failfast
+#  options: failfast
 #  options: dynamic
-#  options: dynamic, failfast
+# No need to spawn persistent instance.
+  options: dynamic, failfast

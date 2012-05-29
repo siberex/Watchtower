@@ -47,7 +47,7 @@ public class PingerAsync {
   private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
   
   private static final double requestTimeout = 5.0; // Seconds
-  private static final int maxConcurrentRequests = 100; // 100 for backend, 10 for frontend!
+  private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!
   private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
   protected AsyncDatastoreService datastore = null;
@@ -68,13 +68,14 @@ public class PingerAsync {
   protected ArrayList<Future<Key>> listQueuesPolled = null;
 
 
+  /**
+   * Constructor.
+   * @todo Check throws.
+   */
   public PingerAsync()
   {
-    /**
-     * @todo Check throws.
-     */
 
-    // Oh, Java. This means [{k: v}, {k: v}, {k: v}, ...]
+
     this.hostsQueue = new ArrayList<Entity>();
     Entity host = null;
 
@@ -234,6 +235,7 @@ public class PingerAsync {
               // In most cases this means that DNS could not be resolved.
               code = 599;
             }
+            LOG.info( e.getClass().getName() );
             LOG.info( e.getMessage() );
           } catch (CancellationException e) {
             // This should never happen.
