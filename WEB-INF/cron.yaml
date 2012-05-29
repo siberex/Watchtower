@@ -2,7 +2,7 @@ cron:
 - description: Monitoring system, query hosts task
   url: /pingtask
 # Specifing backend name as a target
-#  target: hostpinger
+  target: hostpinger
 # (without it requests will be served by frontentd)
 # Backend instances use more resources than frontend
 # (15-20% additional resource cost in comparison

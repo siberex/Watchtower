@@ -5,8 +5,8 @@ import java.util.*;
 import java.io.IOException;
 import javax.servlet.http.*;
 
-import org.apache.log4j.Logger;
-//import java.util.logging.Logger;
+//import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 import sibli.PingerAsync;
 
@@ -45,9 +45,9 @@ public class PingTask extends HttpServlet {
   throws IOException {
 
 
-    LOG.info("Launching task...");
+    //LOG.info("Launching task...");
     PingerAsync pinger = new PingerAsync();
-    String ok = pinger.ping();
+    pinger.ping();
     //LOG.info( ok );
 
 
@@ -83,8 +83,9 @@ public class PingTask extends HttpServlet {
      * @todo Check for X-AppEngine-Cron: true request header.
      * If not exists, return text.
      */
-    resp.setContentType("text/plain");
-    resp.getWriter().println("Task launched ... " + ok);
+    return;
+    //resp.setContentType("text/plain");
+    //resp.getWriter().println("Task launched ... " + ok);
 
     /*
     // Get statistics (https://developers.google.com/appengine/docs/java/datastore/stats):
