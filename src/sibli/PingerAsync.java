@@ -229,14 +229,15 @@ public class PingerAsync {
             }
             code = response.getResponseCode();
           } catch (ExecutionException e) {
-            if ( e.getClass().getName().equals("java.net.SocketTimeoutException") ) {
+            Throwable cause = e.getCause();
+            if ( cause.getClass().getName().equals("java.net.SocketTimeoutException") ) {
               code = 598;
             } else {
               // In most cases this means that DNS could not be resolved.
               code = 599;
             }
-            LOG.info( e.getClass().getName() );
-            LOG.info( e.getMessage() );
+            //LOG.info( cause.getClass().getName() );
+            //LOG.info( e.getMessage() );
           } catch (CancellationException e) {
             // This should never happen.
             code = 666;
