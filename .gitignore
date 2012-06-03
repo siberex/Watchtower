@@ -1,11 +1,7 @@
-/WEB-INF/app.yaml
-/WEB-INF/app.yaml.*
 /WEB-INF/appengine-web.xml
 /WEB-INF/web.xml
 
 /WEB-INF/appengine-generated/
 
-/.stuff/
 /.idea/
-/nbproject/private/
 /WEB-INF/classes/

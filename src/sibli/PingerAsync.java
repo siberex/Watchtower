@@ -113,9 +113,9 @@ public class PingerAsync {
 
   } // constructor
 
-  public static void main(String[] args)
+  public static void main(String[] args) throws Exception
   {
-    System.out.println( "Error: This class should not be run in CLI mode." );
+    throw new Exception( "This class should not be run in CLI mode." );
   } // main
 
   /**
@@ -201,7 +201,8 @@ public class PingerAsync {
     double time = 0;
     int code = 0;
     long id = 0;
-
+    Date dtUpdated = null;
+    Throwable cause = null;
 
     //long overallStart = System.nanoTime();
 
@@ -217,7 +218,7 @@ public class PingerAsync {
         responseFuture = this.mapResponses.get(id);
         if ( responseFuture.isDone() || responseFuture.isCancelled() ) {
           timeEnd = System.nanoTime();
-          timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ;
+          timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ; // this is slow way
           time = (timeEnd - timeStart) / 1000000.0;
           h.removeProperty("timeStart"); // This is important
           
@@ -229,11 +230,11 @@ public class PingerAsync {
             }
             code = response.getResponseCode();
           } catch (ExecutionException e) {
-            Throwable cause = e.getCause();
+            cause = e.getCause();
             if ( cause.getClass().getName().equals("java.net.SocketTimeoutException") ) {
               code = 598;
             } else {
-              // In most cases this means that DNS could not be resolved.
+              // In most cases that means DNS could not be resolved.
               code = 599;
             }
             //LOG.info( cause.getClass().getName() );
@@ -255,14 +256,17 @@ public class PingerAsync {
            */
 
           // Saving
+          dtUpdated = new Date();
+          // It is important to set parent for this entity.
           hostQueue = new Entity( "HostQuery", h.getKey() );
-          hostQueue.setProperty( "host", h.getKey() ); // This actually is not needed if parent is present.
-          hostQueue.setProperty( "executed", new Date() );
+          // Setting additional reference is not needed if parent is present.
+          // hostQueue.setProperty( "host", h.getKey() );
+          hostQueue.setProperty( "executed", dtUpdated );
           hostQueue.setProperty("status", code);
           hostQueue.setProperty("time", time);
 
           h.setProperty("status", code);
-          h.setProperty( "updated", new Date() );
+          h.setProperty( "updated", dtUpdated );
 
           /**
            * Synchronous saves will slow queue, so we need

@@ -40,6 +40,9 @@ public class PingTask extends HttpServlet {
    * @param req
    * @throws IOException 
    * @param resp
+   *
+   * @todo Catch com.google.apphosting.api.ApiProxy.OverQuotaException in case of qouta exceed:
+   * https://developers.google.com/appengine/docs/quotas
    */
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
   throws IOException {
@@ -101,3 +104,13 @@ public class PingTask extends HttpServlet {
 
 
 } // PingTask class
+
+
+/**
+@todo Handle big resultset warning on host view:
+com.google.appengine.api.datastore.QueryResultsSourceImpl logChunkSizeWarning
+WARNING: This query does not have a chunk size set in FetchOptions and has returned over 1000 results.
+If result sets of this size are common for this query, consider setting a chunk size to improve performance.
+To disable this warning set the following system property in appengine-web.xml (the value of the
+property doesn't matter): 'appengine.datastore.disableChunkSizeWarning'
+*/

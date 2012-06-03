@@ -1,0 +1,9 @@
+<datastore-indexes autoGenerate="false">
+	<!-- datastore-index kind="HostQuery" ancestor="false" source="manual">
+		<property name="status" direction="asc"/>
+		<property name="time" direction="asc"/>
+	</datastore-index --> <!-- Write-expensive index -->
+	<datastore-index kind="HostQuery" ancestor="true">
+		<property name="executed" direction="desc"/>
+	</datastore-index>
+</datastore-indexes>
