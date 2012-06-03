@@ -25,19 +25,81 @@ function test(request) {
   var h, parsedUrl;
   //var allhosts = Host.all().fetch(1000);
 
+  log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getAppId() ); // sib-watchtower
+  //log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
+  //return app.render("test.html", {title  : "TEST"});
+
+  var startCursor = request.params.cursor || null; 
+  if (startCursor == "no-cursor") startCursor = null;
+
   var datastore = com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService();
+  var query = new com.google.appengine.api.datastore.Query("HostQuery");
 
-  /*
-  var hqs = HostQuery.all().fetch(10000);
-  for (var i in hqs) {
-    //hqs[i].host = null;
-    //hqs[i].delattr("host");
-    //delete(hqs[i].host);
-    hqs[i].put();
+  // IMPORTANT!!!
+  query.addFilter("host", com.google.appengine.api.datastore.Query.FilterOperator.NOT_EQUAL, null);
+
+  // PreparedQuery contains the methods for fetching query results from the datastore.
+  var pq = datastore.prepare(query);
+
+  // Instead of multiple datastore puts and having sex with cursors let’s use batch datastore write.
+  var fetchOptions = com.google.appengine.api.datastore.FetchOptions.Builder.withChunkSize(50000).limit(50000);
+  var hqList = pq.asQueryResultList( fetchOptions );
+  var hqIterator = hqList.listIterator();
+  var hq = null;
+  try {
+    while ( hqIterator.hasNext() ) {
+      hq = hqIterator.next();
+      hq.removeProperty("host");
+      hqIterator.set(hq);
+    }
+    datastore.put(hqList);
+  } catch (e) {
+    log.info( e.message );
+    log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
+    return app.render("test.html", {title  : "TEST", test: test, error: e.message});
   }
-  **/
 
-  return app.render("test.html", {title  : "TEST"});
+  log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
+  return app.render("test.html", {title  : "TEST", test: test});
+
+  // Multiple puts is a bad way...
+  var fetchOptions = com.google.appengine.api.datastore.FetchOptions.Builder.withChunkSize(5000).limit(5000);
+  if ( startCursor ) {
+    try {
+      var decodedCursor = com.google.appengine.api.datastore.Cursor.fromWebSafeString(startCursor);
+      fetchOptions = fetchOptions.startCursor( decodedCursor );
+    } catch (e) {
+      // java.lang.IllegalArgumentException: Unable to decode provided cursor.
+      startCursor = null;
+    } 
+  }
+  var hqIterator = pq.asQueryResultIterator( fetchOptions );
+
+  var cursor = null;
+  var hq = null;
+  try {
+    while ( hqIterator.hasNext() ) {
+      hq = hqIterator.next();
+      //hq.getProperty("executed");
+      hq.removeProperty ("host");
+      datastore.put(hq);
+      cursor = hqIterator.getCursor();
+      if ( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() < 1001 ) {
+        break;
+      }
+    }
+  } catch (e) {
+    //log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
+    // java.lang.IllegalArgumentException: The requested query has expired. Please restart it with the last cursor to read more results.
+    // com.google.appengine.api.datastore.DatastoreFailureException: query has expired or is invalid. Please restart it with the last cursor to read more results.
+    test = cursor ? cursor.toWebSafeString() : "no-cursor";
+    return app.render("test.html", {title  : "TEST", test: test, error: e.message});
+  }
+
+  //log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
+
+  test = cursor ? cursor.toWebSafeString() : "no-cursor";
+  return app.render("test.html", {title  : "TEST", test: test});
   /*
   var hqs = HostQuery.all().filter("time >", 4000).filter("status =", 599).fetch(100000);
   for (var i in hqs) {

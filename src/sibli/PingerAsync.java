@@ -48,6 +48,7 @@ public class PingerAsync {
   
   private static final double requestTimeout = 5.0; // Seconds
   private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!
+  private static final int maxEntitiesBatchPut = 500; // 500 recommended.
   private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
   protected AsyncDatastoreService datastore = null;
@@ -65,7 +66,7 @@ public class PingerAsync {
   protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
   
   protected ArrayList<Future<Key>> listHostsPolled = null;
-  protected ArrayList<Future<Key>> listQueuesPolled = null;
+  protected ArrayList<Future<Key>> listFutureBatchSaves = null;
 
 
   /**
@@ -84,7 +85,7 @@ public class PingerAsync {
      * but it does not preserve elements ordering.
      */
     this.listHostsPolled = new ArrayList<Future<Key>>();
-    this.listQueuesPolled = new ArrayList<Future<Key>>();
+    this.listFutureBatchSaves = new ArrayList<Future<Key>>();
 
     // Get the Datastore Service
     this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
@@ -218,7 +219,8 @@ public class PingerAsync {
         responseFuture = this.mapResponses.get(id);
         if ( responseFuture.isDone() || responseFuture.isCancelled() ) {
           timeEnd = System.nanoTime();
-          timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ; // this is slow way
+          //timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ; // this is slow way
+          timeStart = (Long) h.getProperty("timeStart"); // better, but slow anyway — no need to store in entity.
           time = (timeEnd - timeStart) / 1000000.0;
           h.removeProperty("timeStart"); // This is important
           
@@ -275,7 +277,7 @@ public class PingerAsync {
            * but for App Engine servers and HRD gain is ~100 ms per every 30 hosts.
            */
           listHostsPolled.add( this.datastore.put(h) );
-          listQueuesPolled.add( this.datastore.put(hostQueue) );
+          listFutureBatchSaves.add( this.datastore.put(hostQueue) );
 
           this.mapResponses.remove( h.getKey().getId() );
           it.remove();
@@ -299,7 +301,7 @@ public class PingerAsync {
     for (int i = 0; i < listHostsPolled.size(); i++) {
       try {
         listHostsPolled.get(i).get();
-        listQueuesPolled.get(i).get();
+        listFutureBatchSaves.get(i).get();
       } catch (ExecutionException e) {
         LOG.warning( e.getMessage() );
       } catch (java.lang.InterruptedException e) {
