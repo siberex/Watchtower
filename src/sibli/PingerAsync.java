@@ -46,9 +46,9 @@ import com.google.appengine.api.datastore.Key;
 public class PingerAsync {
   private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
   
-  private static final double requestTimeout = 5.0; // Seconds
-  private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!
-  private static final int maxEntitiesBatchPut = 500; // 500 recommended.
+  private static final double requestTimeout = 5.0; // Seconds // @todo use type float ?
+  private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!  // @todo use type short ?
+  private static final int maxEntitiesBatchPut = 500; // 500 recommended. // @todo use type short ?
   private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
   protected AsyncDatastoreService datastore = null;
@@ -67,6 +67,7 @@ public class PingerAsync {
   
   protected ArrayList<Future<Key>> listHostsPolled = null;
   protected ArrayList<Future<Key>> listFutureBatchSaves = null;
+  protected int countBatchSavedEntities = 0; // increments by maxEntitiesBatchPut value
 
 
   /**
@@ -148,7 +149,7 @@ public class PingerAsync {
       request.setHeader( uaHeader );
 
       Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
-      long timeStart = System.nanoTime();
+      long timeStart = System.nanoTime(); // no need to create variable
 
       host.setUnindexedProperty("timeStart", timeStart);
       this.mapResponses.put( host.getKey().getId(), responseFuture );

@@ -48,6 +48,8 @@ public class PingTask extends HttpServlet {
   throws IOException {
 
 
+    String backend = com.google.appengine.api.backends.BackendServiceFactory.getBackendService().getCurrentBackend(); // name of bakend or null
+
     //LOG.info("Launching task...");
     PingerAsync pinger = new PingerAsync();
     pinger.ping();
