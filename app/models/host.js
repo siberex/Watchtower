@@ -6,5 +6,7 @@ var Host = exports.Host = db.Model('Host', {
   domain    : new db.StringProperty( {DEFAULT: null} ),
   added     : new db.DateTimeProperty({autoNowAdd: true}),
   updated   : new db.DateTimeProperty({autoNowAdd: true}),
-  status    : new db.IntegerProperty()
+  status    : new db.IntegerProperty(),
+  viewed    : new db.DateTimeProperty(),
+  useget    : new db.BooleanProperty( {DEFAULT: false} ) // Use GET method instead of HEAD
 });
