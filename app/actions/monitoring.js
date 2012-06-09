@@ -148,7 +148,7 @@ function addhost(request) {
     if (!request.session.data.init) {
       // No session (e.g. direct POST from bot or browser not supporting session headers)
       // or more than 30 minutes left since page load (session was destroyed).
-
+      request.session.data.init = (new Date()).toString();
       return addhostError(100, context, request);
     }
     /**
