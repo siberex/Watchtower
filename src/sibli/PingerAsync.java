@@ -3,7 +3,7 @@ package sibli;
 import java.util.*;
 import java.util.concurrent.*;
 
-import java.text.DecimalFormat;
+//import java.text.DecimalFormat;
 
 //import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -36,7 +36,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 
 import com.google.appengine.api.datastore.Entity;
-import com.google.appengine.api.datastore.Key;
+//import com.google.appengine.api.datastore.Key;
 //import com.google.appengine.api.datastore.KeyFactory;
 
 
@@ -88,7 +88,6 @@ public class PingerAsync {
     /**
      * Constructor.
      * @param String backend Backend instance name or null if run in frontend environment.
-     * @todo Check throws.
      */
     public PingerAsync(String backend) {
 
@@ -113,8 +112,10 @@ public class PingerAsync {
         this.listFutureBatchHostSaves = new ArrayList<Future>();
         this.listFutureBatchQuerySaves = new ArrayList<Future>();
 
-
-        // Get the Datastore Service
+        /**
+         * Get the Datastore Service
+         * @todo Check throws here and below.
+         */
         this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
 
         // The Query interface assembles a query.
@@ -169,10 +170,8 @@ public class PingerAsync {
             request.setHeader(uaHeader);
 
             Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
-            long timeStart = System.nanoTime(); // no need to create variable
 
-            //host.setUnindexedProperty("timeStart", timeStart);
-            this.mapResponseTimes.put(id, timeStart);
+            this.mapResponseTimes.put( id, System.nanoTime() );
             this.mapResponses.put(id, responseFuture);
 
         } catch (MalformedURLException e) {
@@ -196,27 +195,18 @@ public class PingerAsync {
      * Pings provided url list and returns status code from response.
      */
     public void ping() {
-        long timeStart;
-        long timeEnd;
         Entity h;
-        Entity hostQueue;
+        Entity hQuery;
 
         ListIterator<Entity> it = this.hostsQueue.listIterator(0);
         // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
         // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
         while (it.hasNext()) {
             fetchQueue(it.next());
-            //h = fetchQueue( it.next() );
-            //LOG.info( "Host: " + h.toString() );
-            //if ( h != null ) { // if ( h.getClass().getName().equals("Entity") )
-            // Overwrite previous value, new fields added.
-            //  it.set(h);
-            //}
         } // while
 
         Future<HTTPResponse> responseFuture = null;
 
-        h = null;
         Entity nextHost;
         HTTPResponse response = null;
         URL finalUrl;
@@ -225,6 +215,7 @@ public class PingerAsync {
         long id = 0;
         Date dtUpdated = null;
         Throwable cause = null;
+        int polledSize = 0;
 
         //long overallStart = System.nanoTime();
 
@@ -238,13 +229,10 @@ public class PingerAsync {
                 h = it.next();
                 id = h.getKey().getId();
                 responseFuture = this.mapResponses.get(id);
+
                 if (responseFuture.isDone() || responseFuture.isCancelled()) {
-                    timeEnd = System.nanoTime();
-                    //timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ; // this is slow way
-                    //timeStart = (Long) h.getProperty("timeStart"); // better, but slow anyway — no need to store in entity.
-                    timeStart = this.mapResponseTimes.remove(id);
-                    time = (timeEnd - timeStart) / 1000000.0;
-                    //h.removeProperty("timeStart"); // This is important
+                    time = ( System.nanoTime() - this.mapResponseTimes.remove(id) ) / 1000000.0;
+                    dtUpdated = new Date();
 
                     try {
                         response = responseFuture.get(); // Can throw some exceptions, see below.
@@ -262,8 +250,6 @@ public class PingerAsync {
                             // In most cases that means DNS could not be resolved.
                             code = 599;
                         }
-                        //LOG.info( cause.getClass().getName() );
-                        //LOG.info( e.getMessage() );
                     } catch (CancellationException e) {
                         // This should never happen.
                         code = 666;
@@ -274,27 +260,20 @@ public class PingerAsync {
                         LOG.warning(e.getMessage());
                     }
 
-                    /*
-                   LOG.info(h.getProperty("url").toString() + "\n"
-                            + (new DecimalFormat("#.#####").format(time))
-                            + " ms \t CODE: " + String.valueOf(code));
-                    */
-
                     // Saving
-                    dtUpdated = new Date();
                     // It is important to set parent for this entity.
-                    hostQueue = new Entity("HostQuery", h.getKey());
-                    // Setting additional reference is not needed if parent is present.
-                    // hostQueue.setProperty( "host", h.getKey() );
-                    hostQueue.setProperty("executed", dtUpdated);
-                    hostQueue.setProperty("status", code);
-                    hostQueue.setProperty("time", time);
+                    hQuery = new Entity("HostQuery", h.getKey());
+                    hQuery.setProperty("executed", dtUpdated);
+                    hQuery.setProperty("status", code);
+                    hQuery.setProperty("time", time);
 
                     h.setProperty("status", code);
                     h.setProperty("updated", dtUpdated);
 
                     this.listHosts.add(h);
-                    this.listQueries.add(hostQueue);
+                    this.listQueries.add(hQuery);
+
+                    polledSize++; // Trick to not call size() each time.
 
                     /**
                      * Synchronous saves will slow queue, so we need
@@ -302,35 +281,32 @@ public class PingerAsync {
                      * Performance gain on local devserver is about 1-2 ms per 30 hosts save,
                      * but for App Engine servers (and HRD) gain is ~100 ms per every 30 hosts.
                      * Also we need batch saves to improve perfomance.
+                     *
+                     * @todo Check throws.
                      */
-                    if (this.listHosts.size() >= this.countBatchSavedEntities) { // size() is slow way
-                        // Future
+                    if (polledSize >= this.countBatchSavedEntities) { // Calling size() is a slow way
                         this.listFutureBatchHostSaves.add(
                                 this.datastore.put(
-                                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listHosts.size())
+                                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
                                 )
                         );
 
-                        // Future
                         this.listFutureBatchQuerySaves.add(
                                 this.datastore.put(
-                                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listQueries.size())
+                                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
                                 )
-                        );
+                        ); // Future
 
                         this.countBatchSavedEntities += maxEntitiesBatchPut;
                     }
 
-                    //listFutureBatchHostSaves.add( this.datastore.put(h) );
-                    //listFutureBatchQuerySaves.add( this.datastore.put(hostQueue) );
-
                     this.mapResponses.remove(id);
                     it.remove();
 
-                    if (this.hostsIterator.hasNext()) {
+                    if ( this.hostsIterator.hasNext() ) {
                         nextHost = fetchQueue(this.hostsIterator.next());
                         if (nextHost != null) {
-                            it.add(nextHost); //this.hostsQueue.add(nextHost);
+                            it.add(nextHost);
                         }
                     } // ? hostsIterator.hasNext
 
@@ -338,20 +314,21 @@ public class PingerAsync {
             } // while it.hasNext
         } // while hostsQueue.size > 0
 
-        // Addind tail
-        // Future
+        /**
+         * Addind tail.
+         * @todo Check throws.
+         */
         this.listFutureBatchHostSaves.add(
                 this.datastore.put(
-                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listHosts.size())
+                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
                 )
-        );
+        ); // Future
 
-        // Future
         this.listFutureBatchQuerySaves.add(
                 this.datastore.put(
-                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listQueries.size())
+                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
                 )
-        );
+        ); // Future
 
 
         //long overallEnd = System.nanoTime();
