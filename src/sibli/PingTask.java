@@ -46,8 +46,6 @@ public class PingTask extends HttpServlet {
    */
   public void doGet(HttpServletRequest req, HttpServletResponse resp)
   throws IOException {
-
-
     String backend = com.google.appengine.api.backends.BackendServiceFactory.getBackendService().getCurrentBackend(); // name of bakend or null
 
     //LOG.info("Launching task...");
