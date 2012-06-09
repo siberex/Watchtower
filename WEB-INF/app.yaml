@@ -42,9 +42,9 @@ system_properties:
 
 
 ## Set this only for production deploy:
-#env_variables:
-#  RINGO_ENV: production
-#  DEFAULT_ENCODING: UTF-8
+env_variables:
+  RINGO_ENV: production
+  DEFAULT_ENCODING: UTF-8
 
 
 # Warmup requests, xmpp, mail.
@@ -68,12 +68,12 @@ handlers:
       ringo-home: /
       module-path: app
 ## devel:
-      app: app
-      optlevel: -1
+#      app: app
+#      optlevel: -1
 ## production:
-#      app: production
-#      production: true
-#      optlevel: 9
+      app: production
+      production: true
+      optlevel: 9
   - url: /test
     login: admin
     name: WatchTower
