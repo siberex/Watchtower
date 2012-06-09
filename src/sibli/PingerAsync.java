@@ -20,6 +20,7 @@ import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 
 import static com.google.appengine.api.urlfetch.FetchOptions.Builder.*;
+
 import com.google.appengine.api.urlfetch.FetchOptions;
 
 import com.google.appengine.api.urlfetch.HTTPMethod;
@@ -41,285 +42,330 @@ import com.google.appengine.api.datastore.Key;
 
 /**
  * PingerAsync class.
- *
  */
 public class PingerAsync {
-  private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
-  
-  private static final double requestTimeout = 5.0; // Seconds // @todo use type float ?
-  private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!  // @todo use type short ?
-  private static final int maxEntitiesBatchPut = 500; // 500 recommended. // @todo use type short ?
-  private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
+    private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
 
-  protected AsyncDatastoreService datastore = null;
-  protected java.util.Iterator<Entity> hostsIterator = null;
-  
-  /**
-   * @var ArrayList
-   */
-  protected ArrayList<Entity> hostsQueue = null;
+    private static final double requestTimeout = 5.0; // Seconds // @todo use type float ?
+    private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!  // @todo use type short ?
+    private static final int maxEntitiesBatchPut = 500; // 500 recommended. // @todo use type short ?
+    private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
 
-  /**
-   * Represents hostsQueue host’s Future responses.
-   * @var HashMap
-   */
-  protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
-  
-  protected ArrayList<Future<Key>> listHostsPolled = null;
-  protected ArrayList<Future<Key>> listFutureBatchSaves = null;
-  protected int countBatchSavedEntities = 0; // increments by maxEntitiesBatchPut value
-
-
-  /**
-   * Constructor.
-   * @todo Check throws.
-   */
-  public PingerAsync()
-  {
-
-
-    this.hostsQueue = new ArrayList<Entity>();
-    Entity host = null;
+    protected AsyncDatastoreService datastore = null;
+    protected java.util.Iterator<Entity> hostsIterator = null;
 
     /**
-     * HashSet have better performance for multiple insertions and deletions
-     * but it does not preserve elements ordering.
+     * @var ArrayList
      */
-    this.listHostsPolled = new ArrayList<Future<Key>>();
-    this.listFutureBatchSaves = new ArrayList<Future<Key>>();
-
-    // Get the Datastore Service
-    this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
-
-    // The Query interface assembles a query.
-    Query q = new Query("Host");
-    q.addSort("updated", Query.SortDirection.DESCENDING);
-
-    // PreparedQuery contains the methods for fetching query results from the datastore.
-    PreparedQuery pq = datastore.prepare(q);
-
-    // For PreparedQuery.asIterator() results will be fetched asynchronously.
-    // https://developers.google.com/appengine/docs/java/datastore/async#Async_Queries
-    this.hostsIterator = pq.asIterator();
-
-    int i = 0;
-
-    // Adding first 10 hosts to queue (maxConcurrentRequests is 10 by default).
-    while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
-      host = this.hostsIterator.next();
-      this.hostsQueue.add(host);
-      i++;
-    }
-
-    this.mapResponses = new HashMap<Long, Future<HTTPResponse>>( this.hostsQueue.size(), (float) 1.25 );
-
-  } // constructor
-
-  public static void main(String[] args) throws Exception
-  {
-    throw new Exception( "This class should not be run in CLI mode." );
-  } // main
-
-  /**
-   *
-   * @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-   * (check imports beforehand)
-   */
-  private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-  private final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
-  private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
-
-  /**
-   * Sends async request to provided Entity host’s URL and saves start time
-   * and Future response in mapResponses.
-   *
-   * @param Entity host
-   * @return Entity/Null Modified entity or null on error.
-   */
-  private Entity fetchQueue(Entity host)
-  {
-    String url = (String) host.getProperty("url");
-
-    try {
-      HTTPRequest request = new HTTPRequest(
-          new URL(url),
-          HTTPMethod.HEAD,
-          fetchOptions
-      );
-      request.setHeader( uaHeader );
-
-      Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
-      long timeStart = System.nanoTime(); // no need to create variable
-
-      host.setUnindexedProperty("timeStart", timeStart);
-      this.mapResponses.put( host.getKey().getId(), responseFuture );
-
-    } catch (MalformedURLException e) {
-      // This should never happen. Can be throwed by new URL().
-      LOG.warning( e.getMessage() );
-      return null;
-    } catch (IllegalArgumentException e) {
-      // This should never happen. Can be throwed by h.setUnindexedProperty().
-      LOG.warning( e.getMessage() );
-      return null;
-    } catch (IOException e) {
-      // This should never happen. Can be throwed by fetcher.fetchAsync(request).
-      LOG.warning( e.getMessage() );
-      return null;
-    }
-
-    return host;
-  } // fetchQueue
-
-  /**
-   * Pings provided url list and returns status code from response.
-   *
-   */
-  public void ping()
-  {
-    long timeStart;
-    long timeEnd;
-    Entity h;
-    Entity hostQueue;
-
-    ListIterator<Entity> it = this.hostsQueue.listIterator(0);
-    // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
-    // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
-    while ( it.hasNext() ) {
-      h = fetchQueue( it.next() );
-      //LOG.info( "Host: " + h.toString() );      
-      if ( h != null ) { // if ( h.getClass().getName().equals("Entity") )
-         // Overwrite previous value, new fields added.
-        it.set(h);
-      }
-    } // while
-
-    Future<HTTPResponse> responseFuture = null;
-
-    h = null;
-    Entity nextHost;
-    HTTPResponse response = null;
-    URL finalUrl;
-    double time = 0;
-    int code = 0;
-    long id = 0;
-    Date dtUpdated = null;
-    Throwable cause = null;
-
-    //long overallStart = System.nanoTime();
+    protected ArrayList<Entity> hostsQueue = null;
 
     /**
-     * @todo Check this loop for bottlenecks, e.g. slow operations.
+     * Represents hostsQueue host’s Future responses.
+     *
+     * @var HashMap
      */
-    while ( this.hostsQueue.size() > 0 ) {
+    protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
+    protected HashMap<Long, Long> mapResponseTimes = null;
 
-      it = this.hostsQueue.listIterator(0);
-      while ( it.hasNext() ) {
-        h = it.next();
-        id = h.getKey().getId();
-        responseFuture = this.mapResponses.get(id);
-        if ( responseFuture.isDone() || responseFuture.isCancelled() ) {
-          timeEnd = System.nanoTime();
-          //timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ; // this is slow way
-          timeStart = (Long) h.getProperty("timeStart"); // better, but slow anyway — no need to store in entity.
-          time = (timeEnd - timeStart) / 1000000.0;
-          h.removeProperty("timeStart"); // This is important
-          
-          try {
-            response = responseFuture.get(); // Can throw some exceptions, see below.
-            finalUrl = response.getFinalUrl(); // final URL or null if was no redirets.
-            if (finalUrl != null) {
-              h.setProperty( "finalurl", finalUrl.toString() );
+    protected ArrayList<Entity> listHosts = null;
+    protected ArrayList<Entity> listQueries = null;
+
+    protected ArrayList<Future> listFutureBatchHostSaves = null;
+    protected ArrayList<Future> listFutureBatchQuerySaves = null;
+    protected int countBatchSavedEntities = 0; // increments by maxEntitiesBatchPut value
+
+
+    /**
+     * Constructor.
+     *
+     * @todo Check throws.
+     */
+    public PingerAsync() {
+
+        this.countBatchSavedEntities = maxEntitiesBatchPut;
+        this.hostsQueue = new ArrayList<Entity>();
+        Entity host = null;
+
+        /**
+         * HashSet have better performance for multiple insertions and deletions
+         * but it does not preserve elements ordering.
+         */
+        this.listFutureBatchHostSaves = new ArrayList<Future>();
+        this.listFutureBatchQuerySaves = new ArrayList<Future>();
+
+        this.listHosts = new ArrayList<Entity>();
+        this.listQueries = new ArrayList<Entity>();
+
+
+        // Get the Datastore Service
+        this.datastore = DatastoreServiceFactory.getAsyncDatastoreService();
+
+        // The Query interface assembles a query.
+        Query q = new Query("Host");
+        q.addSort("updated", Query.SortDirection.DESCENDING);
+
+        // PreparedQuery contains the methods for fetching query results from the datastore.
+        PreparedQuery pq = datastore.prepare(q);
+
+        // For PreparedQuery.asIterator() results will be fetched asynchronously.
+        // https://developers.google.com/appengine/docs/java/datastore/async#Async_Queries
+        this.hostsIterator = pq.asIterator();
+
+        int i = 0;
+
+        // Adding first 10 hosts to queue (maxConcurrentRequests is 10 by default).
+        while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
+            host = this.hostsIterator.next();
+            this.hostsQueue.add(host);
+            i++;
+        }
+
+        this.mapResponses = new HashMap<Long, Future<HTTPResponse>>(this.hostsQueue.size(), (float) 1.25);
+        this.mapResponseTimes = new HashMap<Long, Long>(this.hostsQueue.size(), (float) 1.25);
+
+    } // constructor
+
+    public static void main(String[] args) throws Exception {
+        throw new Exception("This class should not be run in CLI mode.");
+    } // main
+
+    /**
+     * @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+     * (check imports beforehand)
+     */
+    private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+    private final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
+    private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+
+    /**
+     * Sends async request to provided Entity host’s URL and saves start time
+     * and Future response in mapResponses.
+     *
+     * @param Entity host
+     * @return Entity/Null Modified entity or null on error.
+     */
+    private Entity fetchQueue(Entity host) {
+        String url = (String) host.getProperty("url");
+        long id = host.getKey().getId();
+
+        try {
+            HTTPRequest request = new HTTPRequest(
+                    new URL(url),
+                    HTTPMethod.HEAD,
+                    fetchOptions
+            );
+            request.setHeader(uaHeader);
+
+            Future<HTTPResponse> responseFuture = fetcher.fetchAsync(request);
+            long timeStart = System.nanoTime(); // no need to create variable
+
+            //host.setUnindexedProperty("timeStart", timeStart);
+            this.mapResponseTimes.put(id, timeStart);
+            this.mapResponses.put(id, responseFuture);
+
+        } catch (MalformedURLException e) {
+            // This should never happen. Can be thrown by new URL().
+            LOG.warning(e.getMessage());
+            return null;
+        } catch (IllegalArgumentException e) {
+            // This should never happen. Can be thrown by h.setUnindexedProperty().
+            LOG.warning(e.getMessage());
+            return null;
+        } catch (IOException e) {
+            // This should never happen. Can be thrown by fetcher.fetchAsync(request).
+            LOG.warning(e.getMessage());
+            return null;
+        }
+
+        return host;
+    } // fetchQueue
+
+    /**
+     * Pings provided url list and returns status code from response.
+     */
+    public void ping() {
+        long timeStart;
+        long timeEnd;
+        Entity h;
+        Entity hostQueue;
+
+        ListIterator<Entity> it = this.hostsQueue.listIterator(0);
+        // NB for non-GAE implementations: ArrayList is NOT synchronized structure!
+        // Queuing first 10 hosts (maxConcurrentRequests is 10 by default):
+        while (it.hasNext()) {
+            fetchQueue(it.next());
+            //h = fetchQueue( it.next() );
+            //LOG.info( "Host: " + h.toString() );
+            //if ( h != null ) { // if ( h.getClass().getName().equals("Entity") )
+            // Overwrite previous value, new fields added.
+            //  it.set(h);
+            //}
+        } // while
+
+        Future<HTTPResponse> responseFuture = null;
+
+        h = null;
+        Entity nextHost;
+        HTTPResponse response = null;
+        URL finalUrl;
+        double time = 0;
+        int code = 0;
+        long id = 0;
+        Date dtUpdated = null;
+        Throwable cause = null;
+
+        //long overallStart = System.nanoTime();
+
+        /**
+         * @todo Check this loop for bottlenecks, e.g. slow operations.
+         */
+        while (this.hostsQueue.size() > 0) {
+
+            it = this.hostsQueue.listIterator(0);
+            while (it.hasNext()) {
+                h = it.next();
+                id = h.getKey().getId();
+                responseFuture = this.mapResponses.get(id);
+                if (responseFuture.isDone() || responseFuture.isCancelled()) {
+                    timeEnd = System.nanoTime();
+                    //timeStart = Long.parseLong( h.getProperty("timeStart").toString() ) ; // this is slow way
+                    //timeStart = (Long) h.getProperty("timeStart"); // better, but slow anyway — no need to store in entity.
+                    timeStart = this.mapResponseTimes.remove(id);
+                    time = (timeEnd - timeStart) / 1000000.0;
+                    //h.removeProperty("timeStart"); // This is important
+
+                    try {
+                        response = responseFuture.get(); // Can throw some exceptions, see below.
+                        finalUrl = response.getFinalUrl(); // final URL or null if was no redirets.
+                        if (finalUrl != null) {
+                            h.setProperty("finalurl", finalUrl.toString());
+                        }
+                        code = response.getResponseCode();
+                    } catch (ExecutionException e) {
+                        cause = e.getCause();
+                        if (cause.getClass().getName().equals("java.net.SocketTimeoutException")) {
+                            code = 598;
+                        } else {
+                            // In most cases that means DNS could not be resolved.
+                            code = 599;
+                        }
+                        //LOG.info( cause.getClass().getName() );
+                        //LOG.info( e.getMessage() );
+                    } catch (CancellationException e) {
+                        // This should never happen.
+                        code = 666;
+                        LOG.warning(e.getMessage());
+                    } catch (java.lang.InterruptedException e) {
+                        // This should never happen.
+                        code = 667;
+                        LOG.warning(e.getMessage());
+                    }
+
+                    /*
+                   LOG.info(h.getProperty("url").toString() + "\n"
+                            + (new DecimalFormat("#.#####").format(time))
+                            + " ms \t CODE: " + String.valueOf(code));
+                    */
+
+                    // Saving
+                    dtUpdated = new Date();
+                    // It is important to set parent for this entity.
+                    hostQueue = new Entity("HostQuery", h.getKey());
+                    // Setting additional reference is not needed if parent is present.
+                    // hostQueue.setProperty( "host", h.getKey() );
+                    hostQueue.setProperty("executed", dtUpdated);
+                    hostQueue.setProperty("status", code);
+                    hostQueue.setProperty("time", time);
+
+                    h.setProperty("status", code);
+                    h.setProperty("updated", dtUpdated);
+
+                    this.listHosts.add(h);
+                    this.listQueries.add(hostQueue);
+
+                    /**
+                     * Synchronous saves will slow queue, so we need
+                     * to use async datastore and Futures.
+                     * Performance gain on local devserver is about 1-2 ms per 30 hosts save,
+                     * but for App Engine servers (and HRD) gain is ~100 ms per every 30 hosts.
+                     * Also we need batch saves to improve perfomance.
+                     */
+                    if (this.listHosts.size() >= this.countBatchSavedEntities) { // size() is slow way
+                        // Future
+                        this.listFutureBatchHostSaves.add(
+                                this.datastore.put(
+                                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listHosts.size())
+                                )
+                        );
+
+                        // Future
+                        this.listFutureBatchQuerySaves.add(
+                                this.datastore.put(
+                                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listQueries.size())
+                                )
+                        );
+
+                        this.countBatchSavedEntities += maxEntitiesBatchPut;
+                    }
+
+                    //listFutureBatchHostSaves.add( this.datastore.put(h) );
+                    //listFutureBatchQuerySaves.add( this.datastore.put(hostQueue) );
+
+                    this.mapResponses.remove(id);
+                    it.remove();
+
+                    if (this.hostsIterator.hasNext()) {
+                        nextHost = fetchQueue(this.hostsIterator.next());
+                        if (nextHost != null) {
+                            it.add(nextHost); //this.hostsQueue.add(nextHost);
+                        }
+                    } // ? hostsIterator.hasNext
+
+                } // ? responseFuture.isDone
+            } // while it.hasNext
+        } // while hostsQueue.size > 0
+
+        // Addind tail
+        // Future
+        this.listFutureBatchHostSaves.add(
+                this.datastore.put(
+                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listHosts.size())
+                )
+        );
+
+        // Future
+        this.listFutureBatchQuerySaves.add(
+                this.datastore.put(
+                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, this.listQueries.size())
+                )
+        );
+
+
+        //long overallEnd = System.nanoTime();
+        //String totalTime = ( new DecimalFormat("#.#####").format( (overallEnd - overallStart) / 1000000.0 ) ) + " ms";
+
+        //long saveStart = System.nanoTime();
+        for (int i = 0; i < listFutureBatchHostSaves.size(); i++) {
+            try {
+                listFutureBatchHostSaves.get(i).get();
+                listFutureBatchQuerySaves.get(i).get();
+            } catch (ExecutionException e) {
+                LOG.warning(e.getMessage());
+            } catch (java.lang.InterruptedException e) {
+                LOG.warning(e.getMessage());
             }
-            code = response.getResponseCode();
-          } catch (ExecutionException e) {
-            cause = e.getCause();
-            if ( cause.getClass().getName().equals("java.net.SocketTimeoutException") ) {
-              code = 598;
-            } else {
-              // In most cases that means DNS could not be resolved.
-              code = 599;
-            }
-            //LOG.info( cause.getClass().getName() );
-            //LOG.info( e.getMessage() );
-          } catch (CancellationException e) {
-            // This should never happen.
-            code = 666;
-            LOG.warning( e.getMessage() );
-          } catch (java.lang.InterruptedException e) {
-            // This should never happen.
-            code = 667;
-            LOG.warning( e.getMessage() );
-          }
+        } // for
+        //long saveEnd = System.nanoTime();
+        //String saveTime = ( new DecimalFormat("#.#####").format( (saveEnd - saveStart) / 1000000.0 ) ) + " ms";
 
-          /*
-          LOG.info(h.getProperty("url").toString() + "\n"
-                   + (new DecimalFormat("#.#####").format(time))
-                   + " ms \t CODE: " + String.valueOf(code));
-           */
-
-          // Saving
-          dtUpdated = new Date();
-          // It is important to set parent for this entity.
-          hostQueue = new Entity( "HostQuery", h.getKey() );
-          // Setting additional reference is not needed if parent is present.
-          // hostQueue.setProperty( "host", h.getKey() );
-          hostQueue.setProperty( "executed", dtUpdated );
-          hostQueue.setProperty("status", code);
-          hostQueue.setProperty("time", time);
-
-          h.setProperty("status", code);
-          h.setProperty( "updated", dtUpdated );
-
-          /**
-           * Synchronous saves will slow queue, so we need
-           * to use async datastore and Futures.
-           * Performance gain on local devserver is about 1-2 ms per 30 hosts save,
-           * but for App Engine servers and HRD gain is ~100 ms per every 30 hosts.
-           */
-          listHostsPolled.add( this.datastore.put(h) );
-          listFutureBatchSaves.add( this.datastore.put(hostQueue) );
-
-          this.mapResponses.remove( h.getKey().getId() );
-          it.remove();
-          
-          if ( this.hostsIterator.hasNext() ) {
-            nextHost = fetchQueue( this.hostsIterator.next() );
-            if ( nextHost != null ) {
-              it.add(nextHost); //this.hostsQueue.add(nextHost);
-            }
-          } // ? hostsIterator.hasNext
-
-        } // ? responseFuture.isDone
-      } // while it.hasNext
-    } // while hostsQueue.size > 0
-
-
-    //long overallEnd = System.nanoTime();
-    //String totalTime = ( new DecimalFormat("#.#####").format( (overallEnd - overallStart) / 1000000.0 ) ) + " ms";
-
-    //long saveStart = System.nanoTime();
-    for (int i = 0; i < listHostsPolled.size(); i++) {
-      try {
-        listHostsPolled.get(i).get();
-        listFutureBatchSaves.get(i).get();
-      } catch (ExecutionException e) {
-        LOG.warning( e.getMessage() );
-      } catch (java.lang.InterruptedException e) {
-        LOG.warning( e.getMessage() );
-      }
-    } // for
-    //long saveEnd = System.nanoTime();
-    //String saveTime = ( new DecimalFormat("#.#####").format( (saveEnd - saveStart) / 1000000.0 ) ) + " ms";
-
-  } // ping
+    } // ping
 
 } // PingerAsync class
 
 /**
  * @todo Add indexes to datastore:
  * https://developers.google.com/appengine/docs/java/datastore/queries?hl=en-US#Introduction_to_Indexes
- * 
+ *
  */
 
 /**
