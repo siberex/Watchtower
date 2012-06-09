@@ -19,7 +19,7 @@ import java.util.logging.Logger;
 import com.google.appengine.api.urlfetch.URLFetchService;
 import com.google.appengine.api.urlfetch.URLFetchServiceFactory;
 
-import static com.google.appengine.api.urlfetch.FetchOptions.Builder.*;
+//import static com.google.appengine.api.urlfetch.FetchOptions.Builder.*;
 
 import com.google.appengine.api.urlfetch.FetchOptions;
 
@@ -46,17 +46,17 @@ import com.google.appengine.api.datastore.Key;
 public class PingerAsync {
     private static final Logger LOG = Logger.getLogger(PingerAsync.class.getName());
 
-    private static final double requestTimeout = 5.0; // Seconds // @todo use type float ?
-    private static final int maxConcurrentRequests = 10; // 100 for backend, 10 for frontend!  // @todo use type short ?
+    /**
+     * @todo This is used only in constructor, move there?
+     */
+    protected short maxConcurrentRequests = 10; // 100 for backend, 10 for frontend.
     private static final int maxEntitiesBatchPut = 500; // 500 recommended. // @todo use type short ?
-    private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
+
 
     protected AsyncDatastoreService datastore = null;
     protected java.util.Iterator<Entity> hostsIterator = null;
 
-    /**
-     * @var ArrayList
-     */
+    // Queue for hosts, contains max maxConcurrentRequests elements at a time.
     protected ArrayList<Entity> hostsQueue = null;
 
     /**
@@ -74,27 +74,44 @@ public class PingerAsync {
     protected ArrayList<Future> listFutureBatchQuerySaves = null;
     protected int countBatchSavedEntities = 0; // increments by maxEntitiesBatchPut value
 
+    /**
+     * Request options.
+     * fetchOptions and uaHeader defined as final only to improve runtime performance.
+     */
+    private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
+    private static final double requestTimeout = 5.0; // Seconds
+    public static final FetchOptions fetchOptions = FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
+    public static final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
+    protected static final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
+
 
     /**
      * Constructor.
-     *
+     * @param String backend Backend instance name or null if run in frontend environment.
      * @todo Check throws.
      */
-    public PingerAsync() {
+    public PingerAsync(String backend) {
 
-        this.countBatchSavedEntities = maxEntitiesBatchPut;
-        this.hostsQueue = new ArrayList<Entity>();
+        if (backend != null) {
+            this.maxConcurrentRequests = 100; // For backends 100 is good.
+        }
+
+        this.countBatchSavedEntities = maxEntitiesBatchPut; // Important.
+        this.hostsQueue = new ArrayList<Entity>(this.maxConcurrentRequests);
         Entity host = null;
 
         /**
-         * HashSet have better performance for multiple insertions and deletions
-         * but it does not preserve elements ordering.
+         * Here will be saved Entities with acquired responses
+         * to batch save in datastore by portions of maxEntitiesBatchPut size.
+         */
+        this.listHosts = new ArrayList<Entity>();
+        this.listQueries = new ArrayList<Entity>();
+
+        /**
+         * Here will be saved Future datastore batch puts.
          */
         this.listFutureBatchHostSaves = new ArrayList<Future>();
         this.listFutureBatchQuerySaves = new ArrayList<Future>();
-
-        this.listHosts = new ArrayList<Entity>();
-        this.listQueries = new ArrayList<Entity>();
 
 
         // Get the Datastore Service
@@ -107,14 +124,16 @@ public class PingerAsync {
         // PreparedQuery contains the methods for fetching query results from the datastore.
         PreparedQuery pq = datastore.prepare(q);
 
-        // For PreparedQuery.asIterator() results will be fetched asynchronously.
-        // https://developers.google.com/appengine/docs/java/datastore/async#Async_Queries
+        /**
+         * For PreparedQuery.asIterator() results will be fetched asynchronously.
+         * @see https://developers.google.com/appengine/docs/java/datastore/async#Async_Queries
+         */
         this.hostsIterator = pq.asIterator();
 
         int i = 0;
 
         // Adding first 10 hosts to queue (maxConcurrentRequests is 10 by default).
-        while (this.hostsIterator.hasNext() && i < maxConcurrentRequests) {
+        while (this.hostsIterator.hasNext() && i < this.maxConcurrentRequests) {
             host = this.hostsIterator.next();
             this.hostsQueue.add(host);
             i++;
@@ -129,13 +148,6 @@ public class PingerAsync {
         throw new Exception("This class should not be run in CLI mode.");
     } // main
 
-    /**
-     * @todo ? Use FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-     * (check imports beforehand)
-     */
-    private final FetchOptions fetchOptions = allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
-    private final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
-    private final URLFetchService fetcher = URLFetchServiceFactory.getURLFetchService();
 
     /**
      * Sends async request to provided Entity host’s URL and saves start time
@@ -236,9 +248,10 @@ public class PingerAsync {
 
                     try {
                         response = responseFuture.get(); // Can throw some exceptions, see below.
-                        finalUrl = response.getFinalUrl(); // final URL or null if was no redirets.
+                        finalUrl = response.getFinalUrl(); // final URL or null (if there was no redirects).
                         if (finalUrl != null) {
-                            h.setProperty("finalurl", finalUrl.toString());
+                            if ( !finalUrl.equals( h.getProperty("finalurl") ) )
+                                h.setProperty("finalurl", finalUrl.toString());
                         }
                         code = response.getResponseCode();
                     } catch (ExecutionException e) {
