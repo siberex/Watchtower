@@ -11,28 +11,32 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{lang}}{{^lang}}en{{/lang}}">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>{{title}}</title>
 
   <meta name="generator" content="Siberex" />
-  <meta name="keywords" content="Siberex, Stephan Legachev, Stepan Legachev, Степан Легачёв, Степан Легачев, Stephan Legachyov, Стёпка Легачёв" />
-  
-  <title>{{title}}</title>
+  <meta name="keywords" content="Host monitoring service" />
 
   {{#canonical}}<link rel="canonical" href="{{canonical}}" />{{/canonical}}
 
-	<script type="text/javascript">
-	  WebFontConfig = {
-		google: { families: [ 'PT Sans:400,700,400italic', 'PT Sans Caption:400,700:cyrillic,latin' ] }
-	  };
-	  (function() {
-		var wf = document.createElement('script');
-		wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
-			'://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
-		wf.type = 'text/javascript';
-		wf.async = 'true';
-		var s = document.getElementsByTagName('script')[0];
-		s.parentNode.insertBefore(wf, s);
-	  })();
-	</script>
+    <script type="text/javascript">
+      WebFontConfig = {
+        google: { families: [ 'PT Sans:400,700,400italic', 'PT Sans Caption:400,700:cyrillic,latin' ] }
+      };
+      (function() {
+        var wf = document.createElement('script');
+        wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+            '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+      })();
+    </script>
+
+  <script src="/js/hide-address-bar.js"></script>
 
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
   <link rel="icon" href="/favicon.png" type="image/png" />
@@ -54,6 +58,6 @@
 <body {{#bodyclass}}class="{{bodyclass}}"{{/bodyclass}} {{{bodyprops}}}>
 {{{content}}}
 
-<div class="footer">&nbsp;← <a href="http://www.sib.li">Stephan Legachev</a></div>
+<div class="footer"><span class="left-arrow">←</span><a href="http://www.sib.li">Stephan Legachev</a><span class="right-arrow">→</span></div>
 </body>
 </html>
