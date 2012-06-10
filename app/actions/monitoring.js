@@ -227,6 +227,7 @@ function viewhost(request, key) {
   var lang = getLang(request);
   var context = {
     title   : (lang == "ru") ? "Результаты мониторинга" : "Monitoring statistics",
+    addhost : (lang == "ru") ? "Добавить сайт" : "Add host",
     head    : app.renderPart("viewhost-header.html", context),
     lang    : lang,
     baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
