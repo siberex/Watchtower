@@ -13,3 +13,22 @@
     min-width: 500px;
 	margin: 2em 7em 0 7em;
 }
+
+.footer {
+    left: auto;
+    right: 5px;
+    text-shadow: #DDD 0px 1px;
+}
+
+.footer .left-arrow {
+    display: none;
+}
+.footer .right-arrow {
+    display: inline;
+}
+
+.addhost {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+}

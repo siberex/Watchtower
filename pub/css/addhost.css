@@ -36,9 +36,20 @@ body {
     height: 100%; */
 }
 
+.left-arrow, .right-arrow {
+    padding: 0 5px 0 5px;
+}
+
 .footer {
 	position: absolute;
-	top: 0;
+	top: 2px;
+    left: 2px;
+}
+.footer .left-arrow {
+    display: inline;
+}
+.footer .right-arrow {
+    display: none;
 }
 
 p.link {
