@@ -273,7 +273,8 @@ public class PingerAsync {
                     this.listHosts.add(h);
                     this.listQueries.add(hQuery);
 
-                    polledSize++; // Trick to not call size() each time.
+
+                    polledSize++; // Trick to not call listHosts.size() each time.
 
                     /**
                      * Synchronous saves will slow queue, so we need
@@ -284,17 +285,17 @@ public class PingerAsync {
                      *
                      * @todo Check throws.
                      */
-                    if (polledSize >= this.countBatchSavedEntities) { // Calling size() is a slow way
+                    if (polledSize >= this.countBatchSavedEntities) {
                         this.listFutureBatchHostSaves.add(
-                                this.datastore.put(
-                                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
-                                )
+                            this.datastore.put(
+                                this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
+                            )
                         );
 
                         this.listFutureBatchQuerySaves.add(
-                                this.datastore.put(
-                                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
-                                )
+                            this.datastore.put(
+                                this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
+                            )
                         ); // Future
 
                         this.countBatchSavedEntities += maxEntitiesBatchPut;
@@ -319,15 +320,15 @@ public class PingerAsync {
          * @todo Check throws.
          */
         this.listFutureBatchHostSaves.add(
-                this.datastore.put(
-                        this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
-                )
+            this.datastore.put(
+                this.listHosts.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
+            )
         ); // Future
 
         this.listFutureBatchQuerySaves.add(
-                this.datastore.put(
-                        this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
-                )
+            this.datastore.put(
+                this.listQueries.subList(this.countBatchSavedEntities - maxEntitiesBatchPut, polledSize)
+            )
         ); // Future
 
 
