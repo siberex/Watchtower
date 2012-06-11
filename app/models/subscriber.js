@@ -10,5 +10,7 @@ var Subscriber = exports.Subscriber = db.Model('Subscriber', {
   email     : new db.EmailProperty({required: true}),
   host      : new db.ReferenceProperty({referenceClass: Host, required: true}),
   updated   : new db.DateTimeProperty({autoNowAdd: true}),
-  notificationTriggers : new db.ListProperty({itemType: db.BooleanProperty})
+  usemail   : new db.BooleanProperty({defaultValue: false}),
+  jabber    : new db.BooleanProperty({defaultValue: false})
+  //options : new db.ListProperty({itemType: db.BooleanProperty})
 });
