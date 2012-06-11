@@ -266,7 +266,7 @@ function viewhost(request, key) {
         h.viewed = new Date();
         h.put();
     } catch (e) {
-        log.error("TERRIBLE ERROR");
+        log.error("Error: " + e.message);
     }
 
     context.key = h.key();
