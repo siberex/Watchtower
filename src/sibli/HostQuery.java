@@ -43,9 +43,11 @@ public class HostQuery {
     private Date executed;
 
     @Persistent
+    @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
     private String status;
 
     @Persistent
+    @Extension(vendorName="datanucleus", key="gae.unindexed", value="true")
     private Float time;
 
 
