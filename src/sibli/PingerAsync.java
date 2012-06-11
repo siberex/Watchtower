@@ -95,7 +95,7 @@ public class PingerAsync {
             this.maxConcurrentRequests = 100; // For backends 100 is good.
         }
 
-        LOG.info( "concurrences: " + String.valueOf(this.maxConcurrentRequests) ); // DEBUG
+        //LOG.info( "concurrences: " + String.valueOf(this.maxConcurrentRequests) ); // DEBUG
 
         this.countBatchSavedEntities = maxEntitiesBatchPut; // Important.
         this.hostsQueue = new ArrayList<Entity>(this.maxConcurrentRequests);
@@ -122,7 +122,7 @@ public class PingerAsync {
 
         // The Query interface assembles a query.
         Query q = new Query("Host");
-        q.addSort("updated", Query.SortDirection.DESCENDING);
+        // q.addSort("updated", Query.SortDirection.DESCENDING); // field is unindexed now
 
         // PreparedQuery contains the methods for fetching query results from the datastore.
         PreparedQuery pq = datastore.prepare(q);
@@ -269,9 +269,12 @@ public class PingerAsync {
                     hQuery.setUnindexedProperty("status", code);
                     hQuery.setUnindexedProperty("time", time);
 
+                    // HEAD method not supported.
+                    if (code == 405) {
+                        h.setUnindexedProperty("useget", true);
+                    }
                     h.setProperty("status", code);
-                    // @todo Do not sort on updated property and save it unindexed?
-                    h.setProperty("updated", dtUpdated);
+                    h.setUnindexedProperty("updated", dtUpdated);
 
                     this.listHosts.add(h);
                     this.listQueries.add(hQuery);

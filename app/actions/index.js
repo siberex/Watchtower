@@ -16,19 +16,29 @@ function index(request) {
 
 
 function test(request) {
-  var test = "OK";
+    var test = "OK";
 
-  var log = require("ringo/logging").getLogger(module.id);
+    var log = require("ringo/logging").getLogger(module.id);
 
-  var {Host} = require('models/host');
-  var {HostQuery} = require('models/hostquery');
-  var h, parsedUrl;
-  //var allhosts = Host.all().fetch(1000);
+    var {Host} = require('models/host');
+    var {HostQuery} = require('models/hostquery');
+    var h, parsedUrl;
+    //var allhosts = Host.all().fetch(1000);
 
-  log.error("TEST"); return;
+    /* for (var i in allhosts) {
+        h = allhosts[i];
+        h.viewed = h.viewed || h.added;
+        h.views = h.views || 0;
+        h.put();
+    } */
+
+    log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
+    return app.render("test.html", {title  : "TEST", test: test});
+
   //log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
   //return app.render("test.html", {title  : "TEST"});
 
+  /*
   var startCursor = request.params.cursor || null; 
   if (startCursor == "no-cursor") startCursor = null;
 
@@ -50,7 +60,6 @@ function test(request) {
         hq = hqIterator.next();
       //hq.removeProperty("host");
         hq.setUnindexedProperty("status", hq.getProperty('status'));
-
         hq.setUnindexedProperty("time", hq.getProperty('time'));
         hqIterator.set(hq);
     }
@@ -60,9 +69,7 @@ function test(request) {
     log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
     return app.render("test.html", {title  : "TEST", test: test, error: e.message});
   }
-
-  log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
-  return app.render("test.html", {title  : "TEST", test: test});
+  */
 
   /*
   // Multiple puts is a bad way...

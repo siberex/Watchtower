@@ -5,7 +5,7 @@ var Host = exports.Host = db.Model('Host', {
   finalurl  : new db.LinkProperty(    {defaultValue: null} ),
   domain    : new db.StringProperty(  {defaultValue: null} ),
   added     : new db.DateTimeProperty({autoNowAdd: true, indexed: false}),
-  updated   : new db.DateTimeProperty({autoNowAdd: true}), // @todo define as unindexed and use last added HostQuery.updated instead?
+  updated   : new db.DateTimeProperty({autoNowAdd: true, indexed: false}), // NEW: unindexed
   status    : new db.IntegerProperty( {required: true}),
   viewed    : new db.DateTimeProperty({autoNowAdd: true}),
   views     : new db.IntegerProperty( {defaultValue: 0} ),
