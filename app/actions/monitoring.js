@@ -225,44 +225,47 @@ function addhost(request) {
  * Page for viewing monitoring statistics.
  */
 function viewhost(request, key) {
-  var lang = getLang(request);
-  var context = {
-    title   : (lang == "ru") ? "Результаты мониторинга" : "Monitoring statistics",
-    addhost : (lang == "ru") ? "Добавить сайт" : "Add host",
-    head    : app.renderPart("viewhost-header.html", context),
-    lang    : lang,
-    baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
-  }
-  context.header = context.title;
+    var lang = getLang(request);
+    var context = {
+        title   : (lang == "ru") ? "Результаты мониторинга" : "Monitoring statistics",
+        addhost : (lang == "ru") ? "Добавить сайт" : "Add host",
+        head    : app.renderPart("viewhost-header.html", context),
+        lang    : lang,
+        baseUrl : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
+    }
+    context.header = context.title;
 
-  if (!key) {
-    context.error = (lang == "ru")
-                  ? "Ключ сайта не задан. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
-                  : "Monitored host key was not provided. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
+    if (!key) {
+        context.error = (lang == "ru")
+            ? "Ключ сайта не задан. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
+            : "Monitored host key was not provided. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
+        context.head = app.renderPart("viewhost-header.html", context);
+        return app.render("viewhost.html", context);
+    }
+
+    var {Host} = require('models/host');
+    var h = null;
+    try {
+        h = Host.get(key);
+    } catch (e) {
+        h = null;
+    }
+
+    if (!h) {
+        context.error = (lang == "ru")
+            ? "Ключ сайта не найден в базе. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
+            : "Provided host key not found. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
+        context.head = app.renderPart("viewhost-header.html", context);
+        return app.render("viewhost.html", context);
+    }
+
+    h.views = h.views + 1;
+    h.viewed = new Date();
+
+    context.key = h.key();
+    context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
     context.head = app.renderPart("viewhost-header.html", context);
     return app.render("viewhost.html", context);
-  }
-  
-  var {Host} = require('models/host');
-  var h = null;
-  try {
-    h = Host.get(key);
-  } catch (e) {
-    h = null;
-  }
-
-  if (!h) {
-    context.error = (lang == "ru")
-                  ? "Ключ сайта не найден в базе. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
-                  : "Provided host key not found. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
-    context.head = app.renderPart("viewhost-header.html", context);
-    return app.render("viewhost.html", context);
-  }
-
-  context.key = h.key();
-  context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
-  context.head = app.renderPart("viewhost-header.html", context);
-  return app.render("viewhost.html", context);
 } // viewhost
 
 
