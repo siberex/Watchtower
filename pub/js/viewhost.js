@@ -1,11 +1,42 @@
 $(function() {
     $.getJSON(dataUrl, function(data) {
 
+        for (var i in data) {
+            if (data[i].s != "200" || data[i].y > 2000) {
+                data[i].color = "red";
+                data[i].marker = {
+                    fillColor   : "red",
+                    lineColor   : "red",
+                    states      : {
+                        hover       : {
+                            fillColor   : 'red',
+                            lineColor   : 'red'
+                        }
+                    }
+                };
+            }
+        }
+
+
         // Create the chart
         window.chart = new Highcharts.StockChart({
             chart : {
-                renderTo : 'container'
+                renderTo : 'container',
+                events: {
+                    redraw: function(event) {
+                        if (chart.xAxis) {
+                            var extremes = chart.xAxis[0].getExtremes();
+                            if (extremes && extremes.min == extremes.dataMin) {
+                                //console.log("time to load more data!");
+                            }
+                        }
+                    }
+                }
             },
+            credits: {
+                enabled: false
+            },
+
             xAxis: {
                 //ordinal: false,
                 type: 'datetime'
@@ -20,7 +51,11 @@ $(function() {
             rangeSelector : {
                 enabled: true,
                 inputEnabled: false,
-                buttons: [{   //  'millisecond', 'second', 'minute', 'day', 'week', 'month', 'ytd' (year to date), 'year' and 'all'.
+                buttons: [{
+                    type: 'minute',
+                    count: 360,
+                    text: '6h'
+                }, {
                     type: 'day',
                     count: 1,
                     text: '1d'
@@ -44,8 +79,8 @@ $(function() {
                 shared      : false,
                 crosshairs  : true,
                 formatter   : function() {
-                    return Highcharts.dateFormat('%d.%m %H:%M', this.x) +':<br/>' + this.series.name + ': '
-                         + '<span style="font-weight:bold;color:' + (this.y<='2000'?'black':'red') + '">' + parseInt(this.y) + '</span> ms'
+                    return Highcharts.dateFormat('%d %b %H:%M', this.x) +':<br/>' + this.series.name + ': '
+                         + '<span style="font-weight:bold;color:' + (this.y<=2000?'black':'red') + '">' + parseInt(this.y) + '</span> ms'
                          + (this.point.s ? '<br />Status: ' + '<span style="font-weight:bold;color:' + (this.point.s=='200'?'black':'red') + '">' + this.point.s + '</span>' : '');
                 }
             },
