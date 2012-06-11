@@ -122,7 +122,8 @@ function addhostSuccess(urlKey, context, req) {
 function addhost(request) {
   var lang = getLang(request);
   var context = {
-    head      : '<link rel="stylesheet" href="/css/addhost.css" />',
+    head      : '<link rel="stylesheet" href="/css/addhost.css" />' + "\n" +
+                '', // <meta name="viewport" content="width=800, initial-scale=1.0" />
     lang      : lang,
     title     : (lang == "ru") ? "Мониторинг сайта — Добавление адреса"
                                : "Site monitoring — Host add",

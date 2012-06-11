@@ -14,6 +14,10 @@
 	margin: 2em 7em 0 7em;
 }
 
+#wrapper {
+    padding-bottom: 5em;
+}
+
 .footer {
     left: auto;
     right: 5px;
