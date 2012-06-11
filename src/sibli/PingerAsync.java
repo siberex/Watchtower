@@ -95,6 +95,8 @@ public class PingerAsync {
             this.maxConcurrentRequests = 100; // For backends 100 is good.
         }
 
+        LOG.info( "concurrences: " + String.valueOf(this.maxConcurrentRequests) ); // DEBUG
+
         this.countBatchSavedEntities = maxEntitiesBatchPut; // Important.
         this.hostsQueue = new ArrayList<Entity>(this.maxConcurrentRequests);
         Entity host = null;
@@ -264,10 +266,11 @@ public class PingerAsync {
                     // It is important to set parent for this entity.
                     hQuery = new Entity("HostQuery", h.getKey());
                     hQuery.setProperty("executed", dtUpdated);
-                    hQuery.setProperty("status", code);
-                    hQuery.setProperty("time", time);
+                    hQuery.setUnindexedProperty("status", code);
+                    hQuery.setUnindexedProperty("time", time);
 
                     h.setProperty("status", code);
+                    // @todo Do not sort on updated property and save it unindexed?
                     h.setProperty("updated", dtUpdated);
 
                     this.listHosts.add(h);
