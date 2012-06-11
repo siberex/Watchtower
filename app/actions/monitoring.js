@@ -225,6 +225,8 @@ function addhost(request) {
  * Page for viewing monitoring statistics.
  */
 function viewhost(request, key) {
+    var log = require("ringo/logging").getLogger(module.id);
+
     var lang = getLang(request);
     var context = {
         title   : (lang == "ru") ? "Результаты мониторинга" : "Monitoring statistics",
@@ -259,8 +261,13 @@ function viewhost(request, key) {
         return app.render("viewhost.html", context);
     }
 
-    h.views = h.views + 1;
-    h.viewed = new Date();
+    try {
+        h.views = (h.views ? h.views : 0) + 1;
+        h.viewed = new Date();
+        h.put();
+    } catch (e) {
+        log.error("TERRIBLE ERROR");
+    }
 
     context.key = h.key();
     context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
