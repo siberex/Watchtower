@@ -25,7 +25,7 @@ function test(request) {
   var h, parsedUrl;
   //var allhosts = Host.all().fetch(1000);
 
-  log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getAppId() ); // sib-watchtower
+  log.error("TEST"); return;
   //log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
   //return app.render("test.html", {title  : "TEST"});
 
@@ -35,8 +35,7 @@ function test(request) {
   var datastore = com.google.appengine.api.datastore.DatastoreServiceFactory.getDatastoreService();
   var query = new com.google.appengine.api.datastore.Query("HostQuery");
 
-  // IMPORTANT!!!
-  query.addFilter("host", com.google.appengine.api.datastore.Query.FilterOperator.NOT_EQUAL, null);
+  query.addFilter("status", com.google.appengine.api.datastore.Query.FilterOperator.NOT_EQUAL, null);
 
   // PreparedQuery contains the methods for fetching query results from the datastore.
   var pq = datastore.prepare(query);
@@ -48,9 +47,12 @@ function test(request) {
   var hq = null;
   try {
     while ( hqIterator.hasNext() ) {
-      hq = hqIterator.next();
-      hq.removeProperty("host");
-      hqIterator.set(hq);
+        hq = hqIterator.next();
+      //hq.removeProperty("host");
+        hq.setUnindexedProperty("status", hq.getProperty('status'));
+
+        hq.setUnindexedProperty("time", hq.getProperty('time'));
+        hqIterator.set(hq);
     }
     datastore.put(hqList);
   } catch (e) {
@@ -62,6 +64,7 @@ function test(request) {
   log.info( com.google.apphosting.api.ApiProxy.getCurrentEnvironment().getRemainingMillis() );
   return app.render("test.html", {title  : "TEST", test: test});
 
+  /*
   // Multiple puts is a bad way...
   var fetchOptions = com.google.appengine.api.datastore.FetchOptions.Builder.withChunkSize(5000).limit(5000);
   if ( startCursor ) {
@@ -100,6 +103,8 @@ function test(request) {
 
   test = cursor ? cursor.toWebSafeString() : "no-cursor";
   return app.render("test.html", {title  : "TEST", test: test});
+  */
+
   /*
   var hqs = HostQuery.all().filter("time >", 4000).filter("status =", 599).fetch(100000);
   for (var i in hqs) {
