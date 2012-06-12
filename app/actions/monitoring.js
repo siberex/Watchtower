@@ -268,6 +268,7 @@ function viewhost(request, key) {
 
     context.initialData = uneval( loadData(h) );
     context.key = h.key();
+    context.title += " (" + h.domain + ")";
     context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
     context.head = app.renderPart("viewhost-header.html", context);
     return app.render("viewhost.html", context);
@@ -287,8 +288,12 @@ function loadData(host, from, to) {
     var log = require("ringo/logging").getLogger(module.id);
     if (typeof host == "undefined")
         return [];
-    var from = from || new Date((new Date())- 3 * 24*60*60*1000); // 3 days ago
-    var to = to || (new Date()); // now
+    var from = (typeof from !== "undefined")
+             ? ( new Date(from) )
+             : ( new Date((new Date())- 3 * 24*60*60*1000) ); // 3 days ago
+    var to = (typeof to !== "undefined")
+           ? ( new Date(to) )
+           : ( new Date() ); // now
 
     var {HostQuery} = require('models/hostquery');
     var stats = [];
@@ -296,7 +301,8 @@ function loadData(host, from, to) {
         //var pq = HostQuery.all().ancestor(host).order("-executed").chunkSize(limit).limit(limit);
         var pq = HostQuery.all().ancestor(host).order("-executed");
         pq.filter("executed >", from).filter("executed <", to);
-        log.info("YARR: " + pq.count());
+        //log.info("YARR: " + pq.count());
+        // @todo ? Check if there is no results and, if so, load some without filters.
         pq.forEach(function(q) {
             stats.push({
                 x : q.executed.getTime(),
