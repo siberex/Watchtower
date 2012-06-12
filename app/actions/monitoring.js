@@ -43,11 +43,11 @@ function index(request) {
       cStart = new Date().getTime();
       host.status = Pinger.ping(host.href);
       //cEnd = new Date().getTime();
-      host.time = (new Date().getTime() - cStart) / 1000.0;
+      host.time = parseInt( (new Date().getTime() - cStart) / 1000.0 );
     } catch (e) {
       // This will never happen, 
       // all exceptions caught in Pinger.
-      host.status = "err";
+      host.status = 666;
     }
   }
   //var tEnd = +new Date();
@@ -290,7 +290,7 @@ function loadData(host, from, to) {
         return [];
     var from = (typeof from !== "undefined")
              ? ( new Date(from) )
-             : ( new Date((new Date())- 14 * 24*60*60*1000) ); // 3 days ago
+             : ( new Date((new Date())- 3 * 24*60*60*1000) ); // 3 days ago
     var to = (typeof to !== "undefined")
            ? ( new Date(to) )
            : ( new Date() ); // now
