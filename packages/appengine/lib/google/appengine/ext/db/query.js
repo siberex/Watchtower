@@ -91,7 +91,15 @@ Query.prototype.keysOnly = function () {
     return this;
 }
 
-// FIXME: Deprecate, not available in the Python SDK, use fetch()
+Query.prototype.chunkSize = function (size) {
+    if (!this.fetchOptions) {
+        this.fetchOptions = JFetchOptionsBuilder.withChunkSize(size);
+    } else {
+        this.fetchOptions.chunkSize(size);
+    }
+    return this;
+}
+
 Query.prototype.limit = function (limit) {
     if (!this.fetchOptions) {
     	this.fetchOptions = JFetchOptionsBuilder.withLimit(limit);
@@ -101,7 +109,6 @@ Query.prototype.limit = function (limit) {
 	return this;
 }
 
-// FIXME: Deprecate, not available in the Python SDK, use fetch()
 Query.prototype.offset = function (offset) {
 	if (!this.fetchOptions) throw Error("Call .limit(n) before calling .offset(n)");
 	this.fetchOptions = this.fetchOptions.offset(offset);
