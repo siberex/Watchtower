@@ -187,8 +187,8 @@ function addhost(request) {
     // Ping host to check URL is correct and site available.
     var Pinger = new Packages.sibli.Pinger();
     var status = Pinger.ping(href);
-    // @todo: Add new status and timing saving for existing host too.
-    // @todo: Add timing, e.g. creation of first HostQueue entity for host.
+    // @todo: ? Add new status and timing saving for existing host too.
+    // @todo: ? Add timing and creation of first HostQuery entity for host.
 
     if (status == "Malformed URL" || status == "URL is null") {
       return addhostError(200, context, request);
@@ -202,7 +202,8 @@ function addhost(request) {
       url     : href,
       domain  : domain,
       finalurl : null,
-      status  : parseInt(status)
+      status  : parseInt(status),
+      useget  : !!(~~status == 405)
     });
     newHost.put();
     var key = newHost.key();
@@ -250,10 +251,6 @@ function viewhost(request, key) {
     try {
         h = Host.get(key);
     } catch (e) {
-        h = null;
-    }
-
-    if (!h) {
         context.error = (lang == "ru")
             ? "Ключ сайта не найден в базе. Чтобы добавить сайт в&nbsp;систему мониторинга и&nbsp;получить ссылку с&nbsp;ключом, перейдите на&nbsp;<a href=\"/addhost\">страницу добавления сайта</a>."
             : "Provided host key not found. You can add your site to monitoring system and get link with host key on <a href=\"/addhost\">this page</a>.";
@@ -269,6 +266,7 @@ function viewhost(request, key) {
         log.error("Error: " + e.message);
     }
 
+    context.initialData = uneval( loadData(h) );
     context.key = h.key();
     context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
     context.head = app.renderPart("viewhost-header.html", context);
@@ -276,41 +274,29 @@ function viewhost(request, key) {
 } // viewhost
 
 
-/**
- * Return accumulated statistics for viewed host in JSON.
- */
-function getdata(request, key) {
-    var log = require("ringo/logging").getLogger(module.id);
-    var context = {};
-    var limit = request.params.limit || 1000;
-    var {Host} = require('models/host');
-    var {HostQuery} = require('models/hostquery');
-    var h = null;
-    try {
-        h = Host.get(key);
-    } catch(e) {
-        h = null;
-    }
-    if (!h) {
-        return {
-            status: 404,
-            headers: {"Content-Type": "application/json; charset=utf-8"},
-            body: ['{ERROR: "Not Found"}']
-        }
-    }
-    var callback = request.params.callback;
-    if (!callback) {
-        return {
-            status: 400,
-            headers: {"Content-Type": "application/json; charset=utf-8"},
-            body: ['{ERROR: "Bad Request"}']
-        }
-    }
-    //context.url = h.url;
+function sortFn(a, b) {
+    if (a.x > b.x) return  1;
+    if (a.x < b.x) return -1;
+    return 0;
+}
 
+/**
+ * Loads HostQuery data for specified interval.
+ */
+function loadData(host, from, to) {
+    var log = require("ringo/logging").getLogger(module.id);
+    if (typeof host == "undefined")
+        return [];
+    var from = from || new Date((new Date())- 3 * 24*60*60*1000); // 3 days ago
+    var to = to || (new Date()); // now
+
+    var {HostQuery} = require('models/hostquery');
     var stats = [];
-    try {
-        var pq = HostQuery.all().ancestor(h).order("-executed").chunkSize(limit).limit(limit);
+    //try {
+        //var pq = HostQuery.all().ancestor(host).order("-executed").chunkSize(limit).limit(limit);
+        var pq = HostQuery.all().ancestor(host).order("-executed");
+        pq.filter("executed >", from).filter("executed <", to);
+        log.info("YARR: " + pq.count());
         pq.forEach(function(q) {
             stats.push({
                 x : q.executed.getTime(),
@@ -323,23 +309,49 @@ function getdata(request, key) {
          * This is important because it seems order("-executed")
          * does not sort all data properly.
          */
-        var sortFn = function(a, b) {
-            if (a.x > b.x) return  1;
-            if (a.x < b.x) return -1;
-            return 0;
-        };
         stats = stats.sort(sortFn);
+        return stats;
+    //} catch(e) {
+    //    log.error(e.message ? e.message : e);
+    //    return [];
+    //}
+} // loadData
 
+/**
+ * Return accumulated statistics for viewed host in JSON.
+ */
+function getdata(request, key) {
+    var log = require("ringo/logging").getLogger(module.id);
+    var context = {};
+    //var limit = request.params.limit || 1000;
+    var {Host} = require('models/host');
+    var h = null;
+    try {
+        h = Host.get(key);
     } catch(e) {
-        log.error(e.message ? e.message : e);
+        return {
+            status: 404,
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: ['{ERROR: "Not Found"}']
+        }
     }
 
-    //context.stats = stats;
+    var callback = request.params.callback || null;
+    /* if (!callback) {
+        return {
+            status: 400,
+            headers: {"Content-Type": "application/json; charset=utf-8"},
+            body: ['{ERROR: "Bad Request"}']
+        }
+    } */
+    //context.url = h.url;
+
+    var stats = loadData(h, request.params.from, request.params.to);
 
     return {
         status: 200,
-        headers: {"Content-Type": "text/javascript"},
-        body: [callback + '(' + uneval(stats) + ');']
+        headers: {"Content-Type": "text/javascript"}, // test "application/json"
+        body: ( callback ? ([callback + '(' + uneval(stats) + ');']) : [uneval(stats)] )
     };
 } // getdata
 
