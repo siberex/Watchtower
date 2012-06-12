@@ -19,7 +19,12 @@ function dataPreFormat(data) {
     return data;
 }
 
-$(function() {
+$(document).ready(function() {
+    Highcharts.setOptions({
+        global: {
+            useUTC: false
+        }
+    });
 
     function loadData() {
         chart.showLoading();
@@ -51,6 +56,9 @@ $(function() {
                 }
             }
         },
+        title : {
+            text : hostUrl
+        },
         credits: {
             enabled: false
         },
@@ -65,9 +73,6 @@ $(function() {
                     console.log( Highcharts.dateFormat('%d %b %H:%M', e.min), Highcharts.dateFormat('%d %b %H:%M', e.max) );
                 }
             }
-        },
-        title : {
-            text : hostUrl
         },
         yAxis: {
             title : 'Response time (ms)',
@@ -86,6 +91,7 @@ $(function() {
             }]
             //,max: 5000
         },
+
         rangeSelector : {
             enabled: true,
             inputEnabled: false,
@@ -113,8 +119,8 @@ $(function() {
             selected : 1
         },
         plotOptions: {
-            line: {
-                gapSize: 2
+            areaspline : {
+                gapSize: 4
             }
         },
         scrollbar : {
@@ -134,8 +140,8 @@ $(function() {
         series : [{
             name    : "Response time",
             data    : (typeof initialData !== "undefined" ? dataPreFormat(initialData) : []),
-            //type: 'areaspline',
-            id: 'dataseries',
+            type    : 'areaspline',
+            id      : 'dataseries',
             fillColor : {
                 linearGradient : {
                     x1: 0,
@@ -145,7 +151,7 @@ $(function() {
                 },
                 stops : [[0, Highcharts.getOptions().colors[0]], [1, 'rgba(0,0,0,0)']]
             },
-            //lineWidth : 0, // 1
+            lineWidth : 0, // 1
             marker  : {
                 enabled : true,
                 radius  : 2
