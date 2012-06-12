@@ -180,7 +180,6 @@ IntegerProperty.prototype.getValueForDatastore = function (obj) {
 
 /** @override */
 IntegerProperty.prototype.makeValueFromDatastore = function (value) {
-    //return value;
     if ( typeof value == "undefined" )
       return null;
     if ( value === null )
@@ -219,12 +218,12 @@ FloatProperty.prototype.getValueForDatastore = function (obj) {
 // THINK: check for null/undefined? Number(null) = 0, Number(undefined) = NaN, hmm...
 // FloatProperty.prototype.makeValueFromDatastore = Number;
 FloatProperty.prototype.makeValueFromDatastore = function (value) {
-    //return value;
     if ( typeof value == "undefined" )
       return null;
     if ( value === null )
       return null;
     return Number(value);
+    //return value;
 }
 
 /**
@@ -242,12 +241,14 @@ DateProperty.prototype.init = function (constructor) {
 }
 
 DateProperty.prototype.getValueForDatastore = function (obj) {
-    if (this.autoNow) {
-        obj[this.name] = new Date();
-    } else if (this.autoNowAdd && (!obj.isSaved())) {
-        obj[this.name] = new Date();
-    } else if ((this.defaultValue != undefined) && (obj[this.name] == undefined)) {
-        obj[this.name] = this.defaultValue;
+    if (obj.isSaved) { // (obj instanceof Model)
+        if (this.autoNow) {
+            obj[this.name] = new Date();
+        } else if (this.autoNowAdd && (!obj.isSaved())) {
+            obj[this.name] = new Date();
+        } else if ((this.defaultValue != undefined) && (obj[this.name] == undefined)) {
+            obj[this.name] = this.defaultValue;
+        }
     }
 
     var val = obj[this.name];

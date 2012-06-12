@@ -55,7 +55,7 @@ Query.prototype.filter = function (property_op, value) {
 	    } else {
         	var obj = {};
         	obj[property.name] = value;
-        	filterValue = property.getValueForDatastore(obj)
+        	filterValue = property.getValueForDatastore(obj);
 	    }
 	
 	    this.query.addFilter(parts[0], FILTER_OPERATORS[parts[1]], filterValue);
