@@ -266,7 +266,7 @@ function viewhost(request, key) {
         log.error("Error: " + e.message);
     }
 
-    context.initialData = uneval( loadData(h) );
+    context.initialData = uneval( loadData(h) ).replace(/\s/g, '');
     context.key = h.key();
     context.title += " (" + h.domain + ")";
     context.url = h.url.replace('"', '&quot;').replace(/^(https?|ftp):\/\//, '');
@@ -288,16 +288,16 @@ function loadData(host, from, to) {
     var log = require("ringo/logging").getLogger(module.id);
     if (typeof host == "undefined")
         return [];
-    var from = (typeof from !== "undefined")
+    var from = ( (typeof from !== "undefined") && from )
              ? ( new Date(from) )
              : ( new Date((new Date())- 3 * 24*60*60*1000) ); // 3 days ago
-    var to = (typeof to !== "undefined")
+    var to = ( (typeof to !== "undefined") && to )
            ? ( new Date(to) )
            : ( new Date() ); // now
 
     var {HostQuery} = require('models/hostquery');
     var stats = [];
-    //try {
+    try {
         //var pq = HostQuery.all().ancestor(host).order("-executed").chunkSize(limit).limit(limit);
         var pq = HostQuery.all().ancestor(host).order("-executed");
         pq.filter("executed >", from).filter("executed <", to);
@@ -307,7 +307,7 @@ function loadData(host, from, to) {
             stats.push({
                 x : q.executed.getTime(),
                 y : parseInt(q.time), // ~~q.time
-                s : q.status.toString()
+                s : q.status
             });
         });
 
@@ -316,11 +316,11 @@ function loadData(host, from, to) {
          * does not sort all data properly.
          */
         stats = stats.sort(sortFn);
+    } catch(e) {
+        log.error(e.message ? e.message : e);
+    } finally {
         return stats;
-    //} catch(e) {
-    //    log.error(e.message ? e.message : e);
-    //    return [];
-    //}
+    }
 } // loadData
 
 /**
@@ -352,12 +352,18 @@ function getdata(request, key) {
     } */
     //context.url = h.url;
 
-    var stats = loadData(h, request.params.from, request.params.to);
+    var from = ((typeof request.params.from !== "undefined") && !isNaN(request.params.from))
+             ? request.params.from : null;
+    var to = ((typeof request.params.to !== "undefined") && !isNaN(request.params.to))
+           ? request.params.to : null;
+    var stats = loadData(h, from, to);
+
+    var json = uneval(stats).replace(/\s/g, '');
 
     return {
         status: 200,
         headers: {"Content-Type": "text/javascript"}, // test "application/json"
-        body: ( callback ? ([callback + '(' + uneval(stats) + ');']) : [uneval(stats)] )
+        body: ( callback ? ([callback + '(' + json + ');']) : [json] )
     };
 } // getdata
 
