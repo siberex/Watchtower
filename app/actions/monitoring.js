@@ -282,6 +282,7 @@ function viewhost(request, key) {
 function getdata(request, key) {
     var log = require("ringo/logging").getLogger(module.id);
     var context = {};
+    var limit = request.params.limit || 1000;
     var {Host} = require('models/host');
     var {HostQuery} = require('models/hostquery');
     var h = null;
@@ -309,10 +310,11 @@ function getdata(request, key) {
 
     var stats = [];
     try {
-        HostQuery.all().ancestor(h).order("-executed").limit(1000).forEach(function(q) {
+        var pq = HostQuery.all().ancestor(h).order("-executed").chunkSize(limit).limit(limit);
+        pq.forEach(function(q) {
             stats.push({
                 x : q.executed.getTime(),
-                y : q.time,
+                y : parseInt(q.time), // ~~q.time
                 s : q.status.toString()
             });
         });
@@ -325,7 +327,7 @@ function getdata(request, key) {
             if (a.x > b.x) return  1;
             if (a.x < b.x) return -1;
             return 0;
-        }
+        };
         stats = stats.sort(sortFn);
 
     } catch(e) {

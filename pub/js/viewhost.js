@@ -38,14 +38,33 @@ $(function() {
             },
 
             xAxis: {
-                //ordinal: false,
-                type: 'datetime'
+                ordinal: false,
+                type: 'datetime',
+                events: {
+                    setExtremes: function(e) {
+                        // this - axis
+                        console.log(e.min, e.max);
+                    }
+                }
             },
             title : {
                 text : hostUrl
             },
             yAxis: {
-                title : 'Response time (ms)'
+                title : 'Response time (ms)',
+                plotBands: [{
+                    from: 0,
+                    to: 500,
+                    color: '#EEFFEE'
+                }, {
+                    from: 501,
+                    to: 2000,
+                    color: '#FFFFEE'
+                }, {
+                    from: 2001,
+                    to: 5000,
+                    color: '#FFEEEE'
+                }]
                 //,max: 5000
             },
             rangeSelector : {
@@ -59,6 +78,10 @@ $(function() {
                     type: 'day',
                     count: 1,
                     text: '1d'
+                }, {
+                    type: 'day',
+                    count: 3,
+                    text: '3d'
                 }, {
                     type: 'week',
                     count: 1,
@@ -90,6 +113,7 @@ $(function() {
                 data    : data,
                 type: 'areaspline',
                 id: 'dataseries',
+                //pointInterval: 15 * 60 * 1000,
                 fillColor : {
                     linearGradient : {
                         x1: 0,
