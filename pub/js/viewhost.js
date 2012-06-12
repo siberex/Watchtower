@@ -20,10 +20,21 @@ function dataPreFormat(data) {
 }
 
 $(function() {
-    /*
-    $.getJSON(dataUrl, function(data) {
-    });
-    */
+
+    function loadData() {
+        chart.showLoading();
+        $.get(dataUrl, {
+            from : Math.round(min),
+            to   : Math.round(max)
+        }, function(data) {
+            //chart.get('dataseries') // series
+            //chart.series[0].setData(newData);
+            //alert("success");
+        }, 'json').error(function() {
+            //alert("error");
+            chart.hideLoading();
+        });
+    }
 
     // Create the chart
     window.chart = new Highcharts.StockChart({
@@ -49,8 +60,9 @@ $(function() {
             type: 'datetime',
             events: {
                 setExtremes: function(e) {
-                    // this - axis
-                    console.log(e.min, e.max);
+                    var extremes = this.getExtremes(); // this - xAxis
+                    //console.log(extremes.dataMin, extremes.dataMax);
+                    console.log( Highcharts.dateFormat('%d %b %H:%M', e.min), Highcharts.dateFormat('%d %b %H:%M', e.max) );
                 }
             }
         },
@@ -100,7 +112,11 @@ $(function() {
             }],
             selected : 1
         },
-
+        plotOptions: {
+            line: {
+                gapSize: 2
+            }
+        },
         scrollbar : {
             enabled : false
         },
@@ -118,9 +134,8 @@ $(function() {
         series : [{
             name    : "Response time",
             data    : (typeof initialData !== "undefined" ? dataPreFormat(initialData) : []),
-            type: 'areaspline',
+            //type: 'areaspline',
             id: 'dataseries',
-            //pointInterval: 15 * 60 * 1000,
             fillColor : {
                 linearGradient : {
                     x1: 0,
@@ -130,7 +145,7 @@ $(function() {
                 },
                 stops : [[0, Highcharts.getOptions().colors[0]], [1, 'rgba(0,0,0,0)']]
             },
-            lineWidth : 0, // 1
+            //lineWidth : 0, // 1
             marker  : {
                 enabled : true,
                 radius  : 2
