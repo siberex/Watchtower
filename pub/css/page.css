@@ -51,7 +51,7 @@ h1, h2, h3 {
 }
 
 .powered {
-    position: absolute;
+    position: fixed;
     bottom: 2px;
     right: 4px;
     text-shadow: #EEE 0px 1px;
