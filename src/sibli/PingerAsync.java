@@ -36,7 +36,7 @@ import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 
 import com.google.appengine.api.datastore.Entity;
-//import com.google.appengine.api.datastore.Key;
+import com.google.appengine.api.datastore.Key;
 //import com.google.appengine.api.datastore.KeyFactory;
 
 
@@ -57,7 +57,7 @@ public class PingerAsync {
     protected java.util.Iterator<Entity> hostsIterator = null;
 
     // Queue for hosts, contains max maxConcurrentRequests elements at a time.
-    protected ArrayList<Entity> hostsQueue = null;
+    protected List<Entity> hostsQueue = null;
 
     /**
      * Represents hostsQueue host’s Future responses.
@@ -67,11 +67,11 @@ public class PingerAsync {
     protected HashMap<Long, Future<HTTPResponse>> mapResponses = null;
     protected HashMap<Long, Long> mapResponseTimes = null;
 
-    protected ArrayList<Entity> listHosts = null;
-    protected ArrayList<Entity> listQueries = null;
+    protected List<Entity> listHosts = null;
+    protected List<Entity> listQueries = null;
 
-    protected ArrayList<Future> listFutureBatchHostSaves = null;
-    protected ArrayList<Future> listFutureBatchQuerySaves = null;
+    protected List<Future> listFutureBatchHostSaves = null;
+    protected List<Future> listFutureBatchQuerySaves = null;
     protected int countBatchSavedEntities = 0; // increments by maxEntitiesBatchPut value
 
     /**
@@ -180,10 +180,6 @@ public class PingerAsync {
             // This should never happen. Can be thrown by new URL().
             LOG.warning(e.getMessage());
             return null;
-        } catch (IllegalArgumentException e) {
-            // This should never happen. Can be thrown by h.setUnindexedProperty().
-            LOG.warning(e.getMessage());
-            return null;
         } catch (IOException e) {
             // This should never happen. Can be thrown by fetcher.fetchAsync(request).
             LOG.warning(e.getMessage());
@@ -209,14 +205,13 @@ public class PingerAsync {
 
         Future<HTTPResponse> responseFuture = null;
 
-        Entity nextHost;
-        HTTPResponse response = null;
+        HTTPResponse response;
         URL finalUrl;
-        double time = 0;
-        int code = 0;
-        long id = 0;
-        Date dtUpdated = null;
-        Throwable cause = null;
+        int time;
+        int code;
+        long id;
+        Key key;
+        Date dtUpdated;
         int polledSize = 0;
 
         //long overallStart = System.nanoTime();
@@ -229,28 +224,27 @@ public class PingerAsync {
             it = this.hostsQueue.listIterator(0);
             while (it.hasNext()) {
                 h = it.next();
-                id = h.getKey().getId();
+                key = h.getKey();
+                id = key.getId();
                 responseFuture = this.mapResponses.get(id);
 
-                if (responseFuture.isDone() || responseFuture.isCancelled()) {
-                    time = ( System.nanoTime() - this.mapResponseTimes.remove(id) ) / 1000000.0;
+                if ( responseFuture.isDone() || responseFuture.isCancelled() ) {
+                    time = (int) (( System.nanoTime() - this.mapResponseTimes.remove(id) ) / 1000000.0);
                     dtUpdated = new Date();
 
                     try {
                         response = responseFuture.get(); // Can throw some exceptions, see below.
                         finalUrl = response.getFinalUrl(); // final URL or null (if there was no redirects).
                         if (finalUrl != null) {
-                            if ( !finalUrl.equals( h.getProperty("finalurl") ) )
-                                h.setProperty("finalurl", finalUrl.toString());
+                            if ( !finalUrl.toString().equals( h.getProperty("finalurl") ) )
+                                h.setProperty( "finalurl", finalUrl.toString() );
                         }
                         code = response.getResponseCode();
                     } catch (ExecutionException e) {
-                        cause = e.getCause();
-                        if (cause.getClass().getName().equals("java.net.SocketTimeoutException")) {
-                            code = 598;
+                        if ( e.getCause().getClass().getName().equals("java.net.SocketTimeoutException") ) {
+                            code = 598; // Timeout.
                         } else {
-                            // In most cases that means DNS could not be resolved.
-                            code = 599;
+                            code = 599; // DNS could not be resolved.
                         }
                     } catch (CancellationException e) {
                         // This should never happen.
@@ -264,7 +258,7 @@ public class PingerAsync {
 
                     // Saving
                     // It is important to set parent for this entity.
-                    hQuery = new Entity("HostQuery", h.getKey());
+                    hQuery = new Entity("HostQuery", key);
                     hQuery.setProperty("executed", dtUpdated);
                     hQuery.setUnindexedProperty("status", code);
                     hQuery.setUnindexedProperty("time", time);
@@ -278,8 +272,6 @@ public class PingerAsync {
 
                     this.listHosts.add(h);
                     this.listQueries.add(hQuery);
-
-
                     polledSize++; // Trick to not call listHosts.size() each time.
 
                     /**
@@ -290,6 +282,7 @@ public class PingerAsync {
                      * Also we need batch saves to improve perfomance.
                      *
                      * @todo Check throws.
+                     * @todo Can I subList into new List and clear old one to not spread it’s size over time?
                      */
                     if (polledSize >= this.countBatchSavedEntities) {
                         this.listFutureBatchHostSaves.add(
@@ -311,10 +304,7 @@ public class PingerAsync {
                     it.remove();
 
                     if ( this.hostsIterator.hasNext() ) {
-                        nextHost = fetchQueue(this.hostsIterator.next());
-                        if (nextHost != null) {
-                            it.add(nextHost);
-                        }
+                        it.add( fetchQueue(this.hostsIterator.next()) );
                     } // ? hostsIterator.hasNext
 
                 } // ? responseFuture.isDone
