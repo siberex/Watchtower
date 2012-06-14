@@ -37,7 +37,7 @@ public class HostQuery {
      * it may make sense to model this relationship as unowned so that both parent and child reside in their own,
      * independent entity groups.
      */
-    @Persistent
+    @Persistent(dependent = "true")
     private Host host;
 
     @Persistent

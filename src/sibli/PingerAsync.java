@@ -92,7 +92,7 @@ public class PingerAsync {
     public PingerAsync(String backend) {
 
         //if (backend != null) {
-            // Backends are allowed to make up to 100 simultaneous API calls. ← Does this include URL Fetch calls???
+            // Backends are NOT allowed to make up to 100 simultaneous URL Fetch calls!
         //    this.maxConcurrentRequests = 100;
         //}
 
