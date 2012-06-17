@@ -9,7 +9,17 @@ var redMarker =  {
     }
 };
 
+function sortFn(a, b) {
+    if (a.x > b.x) return  1;
+    if (a.x < b.x) return -1;
+    return 0;
+}
+
 function dataPreFormat(data) {
+    //if (!(data instanceof Array) ) // Object.prototype.toString.call(data) == '[object Array]'
+    //    return [];
+    if (!data.sort) return [];
+    data = data.sort(sortFn);
     for (var i in data) {
         if (data[i].s != "200" || data[i].y > 2000) {
             data[i].color = "red";
@@ -26,18 +36,20 @@ $(document).ready(function() {
         }
     });
 
-    function loadData() {
-        chart.showLoading();
+    function loadData(min, max) {
+        //chart.showLoading();
         $.get(dataUrl, {
-            from : Math.round(min),
-            to   : Math.round(max)
-        }, function(data) {
-            //chart.get('dataseries') // series
-            //chart.series[0].setData(newData);
-            //alert("success");
+            from : min ? Math.round(min) : null,
+            to   : max ? Math.round(max) : null
+        }, function(data, status) {
+            if (status && status == "success" && data && data.length) {
+                var series = chart.get('dataseries'); // chart.series[0]
+                series.setData( dataPreFormat(data) );
+            } else {
+                //chart.hideLoading();
+            }
         }, 'json').error(function() {
-            //alert("error");
-            chart.hideLoading();
+            //chart.hideLoading();
         });
     }
 
@@ -46,6 +58,9 @@ $(document).ready(function() {
         chart : {
             renderTo : 'container',
             events: {
+                load: function(event) {
+                    loadData( (new Date()).getTime() - 7 * 24*60*60*1000, false );
+                },
                 redraw: function(event) {
                     if (chart.xAxis) {
                         var extremes = chart.xAxis[0].getExtremes();
@@ -70,7 +85,7 @@ $(document).ready(function() {
                 setExtremes: function(e) {
                     var extremes = this.getExtremes(); // this - xAxis
                     //console.log(extremes.dataMin, extremes.dataMax);
-                    console.log( Highcharts.dateFormat('%d %b %H:%M', e.min), Highcharts.dateFormat('%d %b %H:%M', e.max) );
+                    //console.log( Highcharts.dateFormat('%d %b %H:%M', e.min), Highcharts.dateFormat('%d %b %H:%M', e.max) );
                 }
             }
         },
@@ -111,11 +126,15 @@ $(document).ready(function() {
                 type: 'week',
                 count: 1,
                 text: '1w'
+            } /*, {
+                type: 'week',
+                count: 2,
+                text: '2w'
             }, {
                 type: 'month',
                 count: 1,
                 text: '1m'
-            }],
+            }*/],
             selected : 1
         },
         plotOptions: {

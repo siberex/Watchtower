@@ -283,29 +283,38 @@ function sortFn(a, b) {
 
 /**
  * Loads HostQuery data for specified interval.
+ *
+ * Highcharts dynamic data loading:
+ * http://www.highcharts.com/stock/demo/lazy-loading
+ * http://jsfiddle.net/gh/get/jquery/1.7.2/highslide-software/highcharts.com/tree/master/samples/stock/demo/lazy-loading/
+ *
+ * @todo return or throw errors
  */
 function loadData(host, from, to) {
     var log = require("ringo/logging").getLogger(module.id);
     if (typeof host == "undefined")
         return [];
-    var from = ( (typeof from !== "undefined") && from )
-             ? ( new Date(from) )
-             : ( new Date((new Date())- 3 * 24*60*60*1000) ); // 3 days ago
-    var to = ( (typeof to !== "undefined") && to )
-           ? ( new Date(to) )
-           : ( new Date() ); // now
+
+    var from = from ? parseInt(from) : NaN;
+    var to   = to   ? parseInt(to)   : NaN;
+    from = (!isNaN(from) && from)
+         ? from
+         : (new Date()).getTime() - 3 * 24*60*60*1000; // 3 days ago
+    to   = (!isNaN(to) && to)
+         ? to
+         : (new Date()).getTime(); // now
 
     var {HostQuery} = require('models/hostquery');
     var stats = [];
     try {
         //var pq = HostQuery.all().ancestor(host).order("-executed").chunkSize(limit).limit(limit);
         var pq = HostQuery.all().ancestor(host).order("-executed");
-        pq.filter("executed >", from).filter("executed <", to);
+        pq.filter("executed >", new Date(from)).filter("executed <", new Date(to));
         //log.info("YARR: " + pq.count());
         // @todo ? Check if there is no results and, if so, load some without filters.
         pq.forEach(function(q) {
             stats.push({
-                x : q.executed.getTime(),
+                x : (q.executed instanceof Date) ? q.executed.getTime() : parseInt(q.executed),
                 y : parseInt(q.time), // ~~q.time
                 s : q.status
             });
@@ -314,9 +323,12 @@ function loadData(host, from, to) {
         /**
          * This is important because it seems order("-executed")
          * does not sort all data properly.
+         * Very expensive operation. Let’s do it on client :-)
          */
-        stats = stats.sort(sortFn);
+        //stats = stats.sort(sortFn);
+
     } catch(e) {
+        log.error("AAAAAAAAAAAAAA");
         log.error(e.message ? e.message : e);
     } finally {
         return stats;
@@ -338,7 +350,7 @@ function getdata(request, key) {
         return {
             status: 404,
             headers: {"Content-Type": "application/json; charset=utf-8"},
-            body: ['{ERROR: "Not Found"}']
+            body: ['{"ERROR": "Not Found"}']
         }
     }
 
@@ -352,17 +364,17 @@ function getdata(request, key) {
     } */
     //context.url = h.url;
 
-    var from = ((typeof request.params.from !== "undefined") && !isNaN(request.params.from))
+    /*var from = ((typeof request.params.from !== "undefined") && !isNaN(request.params.from))
              ? request.params.from : null;
     var to = ((typeof request.params.to !== "undefined") && !isNaN(request.params.to))
-           ? request.params.to : null;
-    var stats = loadData(h, from, to);
+           ? request.params.to : null;*/
+    var stats = loadData(h, request.params.from, request.params.to);
 
-    var json = uneval(stats).replace(/\s/g, '');
-
+    //var json = uneval(stats).replace(/\s/g, '');
+    var json = JSON.stringify (stats); // correct way
     return {
         status: 200,
-        headers: {"Content-Type": "text/javascript"}, // test "application/json"
+        headers: {"Content-Type": "application/json"}, // "text/javascript"
         body: ( callback ? ([callback + '(' + json + ');']) : [json] )
     };
 } // getdata
