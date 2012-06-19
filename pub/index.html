@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!--
+       .oooooo..o  o8o   .o8           oooo   o8o
+      d8P'    `Y8  `"'  "888           `888   `"'
+      Y88bo.      oooo   888oooo.       888  oooo
+       `"Y8888o.  `888   d88' `88b      888  `888
+           `"Y88b  888   888   888      888   888
+      oo     .d8P  888   888   888 .o.  888   888
+      8""88888P'  o888o  `Y8bod8P' Y8P o888o o888o
+-->
+<html xmlns="http://www.w3.org/1999/xhtml" lang="ru">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta charset="utf-8" />
+
+  <title>Мониторинг сайта — Добавление адреса</title>
+
+  <meta name="generator" content="Siberex" />
+  <meta name="keywords" content="Host monitoring service" />
+
+  
+
+    <script type="text/javascript">
+      WebFontConfig = {
+        google: { families: [ 'PT Sans:400,700,400italic', 'PT Sans Caption:400,700:cyrillic,latin' ] }
+      };
+      (function() {
+        var wf = document.createElement('script');
+        wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+            '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+        wf.type = 'text/javascript';
+        wf.async = 'true';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(wf, s);
+      })();
+    </script>
+
+  <script src="/js/hide-address-bar.js"></script>
+
+  <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
+  <link rel="icon" href="/favicon.png" type="image/png" />
+
+  <link rel="stylesheet" href="/css/base.css" type="text/css" />
+  <link rel="stylesheet" href="/css/page.css" type="text/css" />
+
+  <link rel="stylesheet" href="/css/addhost.css" />
+
+
+  <!-- Should be loaded AFTER jQuery -->
+  <!--[if lt IE 9]>
+    <script src="http://ie7-js.googlecode.com/svn/version/2.1(beta4)/IE9.js"></script>
+	<script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+</head>
+<body  >
+<div id="wrapper">
+<h1></h1>
+	<div id="form" class="form">
+	  <h1>Добавление сайта в систему мониторинга</h1>
+		
+		<form method="POST" action="/addhost" class="x-unselectable">
+			<input name="url" type="url" placeholder="Адрес сайта, например http://ya.ru" required="" autofocus="" value="" pattern="https?://.+" oninvalid="return checkUrl(this);" />
+			<button type="submit" title="Добавить">↵</button>
+		</form>
+	</div>
+</div>
+<script type="text/javascript">
+function checkUrl(input) {
+	if (!( /^https?:\/\/.+/i ).test(input.value))
+		input.value = "http://" + input.value;
+	input.form.submit();
+};
+</script>
+
+<div class="footer"><span class="left-arrow">←</span><a href="http://www.sib.li">Stephan Legachev</a><span class="right-arrow">→</span></div>
+<div class="powered">Powered by <img class="icon-gae" src="/ico/appengine.png" alt="App Engine icon" width="16" height="16"/> Google App Engine</div>
+</body>
+</html>

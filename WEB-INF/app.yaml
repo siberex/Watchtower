@@ -30,7 +30,7 @@ welcome_files:
 
 ## Sessions.
 ## Disable for backends!
-#sessions_enabled: true
+sessions_enabled: true
 ## Spawns a lot of /_ah/queue/__deferred__ as frontend
 #async_session_persistence:
 #   enabled: true
@@ -73,8 +73,8 @@ handlers:
 ## production:
       app: production
       production: true
-      optlevel: 9
-#      optlevel: -1
+#      optlevel: 9
+      optlevel: -1
   - url: /test
     login: admin
     name: WatchTower
