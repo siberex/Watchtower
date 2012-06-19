@@ -60,6 +60,9 @@ $(document).ready(function() {
             events: {
                 load: function(event) {
                     loadData( (new Date()).getTime() - 7 * 24*60*60*1000, false );
+
+                    // ↓ Bad way, last 3 days will be erased on chart.
+                    // loadData( (new Date()).getTime() - 7 * 24*60*60*1000, (new Date()).getTime() - 3 * 24*60*60*1000 );
                 },
                 redraw: function(event) {
                     if (chart.xAxis) {
