@@ -11,4 +11,4 @@ cron:
 - description: Monitoring system, query hosts task
   url: /pingtask
   timezone: Asia/Irkutsk
-  schedule: every 15 minutes from 00:00 to 14:59
+  schedule: every 10 minutes from 00:00 to 14:59
