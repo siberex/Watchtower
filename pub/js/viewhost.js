@@ -36,20 +36,27 @@ $(document).ready(function() {
         }
     });
 
-    function loadData(min, max) {
-        //chart.showLoading();
+    function loadData(min, max, showLoading) {
+        var showLoading = (typeof showLoading == "undefined")
+                        ? true
+                        : showLoading;
+        showLoading && chart.showLoading();
         $.get(dataUrl, {
             from : min ? Math.round(min) : null,
             to   : max ? Math.round(max) : null
         }, function(data, status) {
             if (status && status == "success" && data && data.length) {
-                var series = chart.get('dataseries'); // chart.series[0]
-                series.setData( dataPreFormat(data) );
+                var series = chart.series[0]; // chart.get('dataseries')
+                //console.debug(series);
+                //console.debug( dataPreFormat(data) );
+                //series.setData( dataPreFormat(data) );
             } else {
-                //chart.hideLoading();
+                console && console.debug && console.debug("ERROR 101!");
+                showLoading && chart.hideLoading();
             }
         }, 'json').error(function() {
-            //chart.hideLoading();
+            console && console.debug && console.debug("ERROR 202!");
+            showLoading && chart.hideLoading();
         });
     }
 
@@ -140,11 +147,13 @@ $(document).ready(function() {
             }*/],
             selected : 1
         },
+
         plotOptions: {
-            areaspline : {
+            /*areaspline : {
                 gapSize: 4
-            }
+            }*/
         },
+
         scrollbar : {
             enabled : false
         },
