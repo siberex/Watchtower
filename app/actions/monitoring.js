@@ -323,12 +323,12 @@ function loadData(host, from, to) {
         /**
          * This is important because it seems order("-executed")
          * does not sort all data properly.
-         * Very expensive operation. Let’s do it on client :-)
+         * Very expensive operation. Let’s do it in browser, client-side :-)
          */
         //stats = stats.sort(sortFn);
 
     } catch(e) {
-        log.error("AAAAAAAAAAAAAA");
+        log.error("Error occured while fetching data.");
         log.error(e.message ? e.message : e);
     } finally {
         return stats;
