@@ -5,7 +5,7 @@ cron:
 # Set backend name as a target:
   target: hostpinger
   timezone: Asia/Irkutsk
-  schedule: every 10 minutes from 15:00 to 23:59
+  schedule: every 5 minutes from 15:00 to 23:59
 
 # This will be served by frontend.
 - description: Monitoring system, query hosts task
