@@ -14,3 +14,9 @@ var Subscriber = exports.Subscriber = db.Model('Subscriber', {
   jabber    : new db.BooleanProperty({defaultValue: false})
   //options : new db.ListProperty({itemType: db.BooleanProperty})
 });
+
+
+function addSubscription(host) {
+
+
+} // addSubscription

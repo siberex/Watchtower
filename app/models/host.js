@@ -11,3 +11,9 @@ var Host = exports.Host = db.Model('Host', {
   views     : new db.IntegerProperty( {defaultValue: 0} ),
   useget    : new db.BooleanProperty( {defaultValue: false, indexed: false} ) // Use GET method instead of HEAD
 });
+
+
+function addSubscriber(subscriber) {
+
+
+} // addSubscriber
