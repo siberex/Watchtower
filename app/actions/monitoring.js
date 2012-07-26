@@ -299,7 +299,7 @@ function loadData(host, from, to) {
     var to   = to   ? parseInt(to)   : NaN;
     from = (!isNaN(from) && from)
          ? from
-         : (new Date()).getTime() - 3 * 24*60*60*1000; // 3 days ago
+         : (new Date()).getTime() - 1 * 24*60*60*1000; // 1 day ago
     to   = (!isNaN(to) && to)
          ? to
          : (new Date()).getTime(); // now
