@@ -78,7 +78,7 @@ public class PingerAsync {
      * Request options.
      * fetchOptions and uaHeader defined as final only to improve runtime performance.
      */
-    private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; ru) Presto/2.9.168 Version/11.52";
+    private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; en) Presto/2.10.229 Version/11.61";
     private static final double requestTimeout = 5.1; // Seconds
     public static final FetchOptions fetchOptions = FetchOptions.Builder.allowTruncate().followRedirects().doNotValidateCertificate().setDeadline(requestTimeout);
     public static final HTTPHeader uaHeader = new HTTPHeader("User-Agent", userAgent);
