@@ -56,11 +56,89 @@ public class Pinger {
     }
   } // main
 
+    /**
+     * @var User agent.
+     */
+    private static final String userAgent = "Opera/9.80 (Windows NT 6.1; U; en) Presto/2.10.229 Version/11.61";
+
+    /**
+     * Poll provided url and return results in HashMap properties:
+     *   - status
+     *   - responseTime
+     *   - statusText (optional)
+     *   - finalUrl (optional)
+     *   - useGet (optional)
+     * @param url
+     * @return
+     */
+    public static HashMap<String, Object> poll(String url)
+    throws MalformedURLException, IllegalArgumentException
+    {
+        HashMap<String, Object> result = null;
+        HttpURLConnection connection = null;
+        long startTime = System.nanoTime();
+
+        try {
+            URL u = new URL(url);
+            connection = (HttpURLConnection) u.openConnection();
+            connection.setRequestMethod("HEAD");
+            connection.setRequestProperty("HTTP_USER_AGENT", userAgent);
+
+            connection.setConnectTimeout(5100);
+            connection.setReadTimeout(5100);
+
+            int code = connection.getResponseCode();
+
+            if (code == 405) {
+                result.put("useGet", true);
+                connection.setRequestMethod("GET");
+            }
+
+            double time = ( System.nanoTime() - startTime ) / 1000000000.0;
+            connection.getOutputStream().close();
+
+            result.put("responseTime", time);
+            result.put("status", code);
+            result.put( "statusText", connection.getResponseMessage() );
+
+        } catch (MalformedURLException e) {
+            // Malformed URL
+            LOG.warning( e.getMessage() );
+            throw e;
+        } catch (IllegalArgumentException e) {
+            // URL is null
+            LOG.warning( e.getMessage() );
+            throw e;
+        } catch (SocketTimeoutException e) {
+            // Timeout
+            double time = ( System.nanoTime() - startTime ) / 1000000000.0;
+            result.put("responseTime", time);
+            result.put("status", 598);
+            result.put("statusText", "Network read timeout error");
+        } catch (IOException e) {
+            // Host unreachable
+            double time = ( System.nanoTime() - startTime ) / 1000000000.0;
+            result.put("responseTime", time);
+            result.put("status", 599);
+            result.put("statusText", "Network connect timeout error");
+        } finally {
+            if (connection != null) {
+                try {
+                    connection.getInputStream().close();
+                    connection.disconnect();
+                } catch (IOException e) {
+                    LOG.warning( e.getMessage() );
+                }
+            }
+            return result;
+        }
+
+    } // poll
 
 
   /**
    * Pings provided url and returns status code from response.
-   *
+   * @deprecated In favor of poll() method.
    */
   public static String ping(String url)
   {
