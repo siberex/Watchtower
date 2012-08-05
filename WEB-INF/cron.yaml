@@ -1,14 +1,25 @@
 cron:
+
+# Monitoring task (dayload).
 # Queries during MSK workday are served by backend to off-load frontend.
-- description: Monitoring system, query hosts task, dayload
+- description: Query hosts task, dayload
   url: /pingtask
 # Set backend name as a target:
   target: hostpinger
   timezone: Asia/Irkutsk
   schedule: every 5 minutes from 15:00 to 23:59
 
+# Monitoring task (night).
 # This will be served by frontend.
-- description: Monitoring system, query hosts task
+- description: Query hosts task, night
   url: /pingtask
   timezone: Asia/Irkutsk
   schedule: every 10 minutes from 00:00 to 14:59
+
+
+# CLean-up task.
+# Removes entities older than 6 weeks.
+- description: Cleanup, daily
+  url: /cleanup
+  timezone: Asia/Irkutsk
+  schedule: every 1 days
