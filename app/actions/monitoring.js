@@ -120,105 +120,110 @@ function addhostSuccess(urlKey, context, req) {
  * Adding host to queue, Wachtower main page action.
  */
 function addhost(request) {
-  var lang = getLang(request);
-  var context = {
-    head      : '<link rel="stylesheet" href="/css/addhost.css" />' + "\n" +
-                '', // <meta name="viewport" content="width=800, initial-scale=1.0" />
-    lang      : lang,
-    title     : (lang == "ru") ? "Мониторинг сайта — Добавление адреса"
-                               : "Site monitoring — Host add",
-    header    : (lang == "ru") ? "Добавление сайта в систему мониторинга"
-                               : "Add host for monitoring",
-    submit    : (lang == "ru") ? "Добавить"
-                               : "Add",
-    placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru"
-                                : "Enter URL, for example http://google.com",
-    baseUrl   : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
-  };
+    var lang = getLang(request);
+    var context = {
+        head      : '<link rel="stylesheet" href="/css/addhost.css" />' + "\n" +
+                    '', // <meta name="viewport" content="width=800, initial-scale=1.0" />
+        lang      : lang,
+        title     : (lang == "ru") ? "Мониторинг сайта — Добавление адреса"
+                                   : "Site monitoring — Host add",
+        header    : (lang == "ru") ? "Добавление сайта в систему мониторинга"
+                                   : "Add host for monitoring",
+        submit    : (lang == "ru") ? "Добавить"
+                                   : "Add",
+        placeholder: (lang == "ru") ? "Адрес сайта, например http://ya.ru"
+                                    : "Enter URL, for example http://google.com",
+        baseUrl   : request.headers.host ? "http://" + request.headers.host : config.general.baseUrl
+    };
 
-  
-  if (request.method == "POST") {
-    if (!request.params.url || !request.params.url.length) {
-      return addhostError(400, context, request);
+    if (request.method == "POST") {
+        if (!request.params.url || !request.params.url.length) {
+            return addhostError(400, context, request);
+        }
+        var host = request.params.url.trim();
+
+        // In case of error let’s save input value to display it back in form input.
+        context.value = host;
+
+        if (!request.session.data.init) {
+            // No session (e.g. direct POST from bot or browser not supporting session headers)
+            // or more than 30 minutes left since page load (session was destroyed).
+            request.session.data.init = (new Date()).toString();
+            // Use this behavior in case of DDoS or something like.
+            // return addhostError(100, context, request); // Conflict when using static index.
+        }
+        /**
+         * @todo: Check time difference between now and time saved in session on form render.
+         *        If time is too small, probably this is a crawler or bot.
+         */
+
+        request.session.data.init = (new Date()).toString();
+
+        // Check for "http(s)://" at the beginning and add if there is no "http://" in URL:
+        var href = (/^https?|ftp:\/\//).test(host) ? host : "http://" + host;
+
+        var parsedUrl = href.match(/^(?:(https?|ftp):\/\/)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)?(.*?)?(?:(\w+\.\w+)([^.]*))?$/);
+        if (!parsedUrl[0] || !parsedUrl[2]) {
+            return addhostError(200, context, request);
+        }
+        var domain = parsedUrl[2];
+
+        var {Host} = require('models/host');
+
+        /**
+         * We need to check host for existance in DB.
+         * We don’t want to create tons of hosts with identical URL.
+         * If host exists, let’s update its time updated.
+         */
+        var existingHost = Host.all().filter("url =", href).fetch(1);
+        if (existingHost && existingHost[0]) {
+            var key =  existingHost[0].key();
+            existingHost[0].updated = new Date();   // ...
+            existingHost[0].put();                  // Is this necessary?
+            context.existing = true;
+            return addhostSuccess(key, context, request);
+        }
+
+        // Ping host to check URL is correct and site available.
+        var Pinger = new Packages.sibli.Pinger();
+        var status = Pinger.ping(href);
+        // @todo: ? Add new status and timing saving for existing host too.
+        // @todo: ? Add timing and creation of first HostQuery entity for host.
+
+        if (status == "Malformed URL" || status == "URL is null") {
+            return addhostError(200, context, request);
+        }
+        if (status == "Timeout" || status == "Host unreachable") {
+            return addhostError(300, context, request);
+        }
+
+
+
+
+        var newHost = new Host({
+            //keyName : href,
+            url      : href,
+            domain   : domain,
+            finalurl : null,
+            status   : parseInt(status),
+            useget   : !!(~~status == 405)
+        });
+
+        newHost.put();
+        var key = newHost.key();
+        return addhostSuccess(key, context, request);
+
+    } else {
+        /**
+        * http://code.google.com/intl/en/appengine/docs/java/config/appconfig.html
+        * > Because App Engine stores session data in the datastore and memcache, all values
+        * > stored in the session must implement the java.io.Serializable interface.
+        * So we can not use Date directly and must convert such values to strings.
+        */
+        request.session.data.init = (new Date()).toString();
     }
-    var host = request.params.url.trim();
 
-    // In case of error let’s save input value to display it back in form input.
-    context.value = host;
-    
-    if (!request.session.data.init) {
-      // No session (e.g. direct POST from bot or browser not supporting session headers)
-      // or more than 30 minutes left since page load (session was destroyed).
-      request.session.data.init = (new Date()).toString();
-      // return addhostError(100, context, request); // Conflict when using static index.
-    }
-    /**
-     * @todo: Check time difference between now and time saved in session on form render.
-     *        If time is too small, probably this is a crawler or bot.
-     */
-
-    request.session.data.init = (new Date()).toString();
-
-    // Check for "http(s)://" at the beginning and add if there is no "http://" in URL:
-    var href = (/^https?|ftp:\/\//).test(host) ? host : "http://" + host;
-    
-    var parsedUrl = href.match(/^(?:(https?|ftp):\/\/)?([a-z0-9-]+(?:\.[a-z0-9-]+)+)?(.*?)?(?:(\w+\.\w+)([^.]*))?$/);
-    if (!parsedUrl[0] || !parsedUrl[2]) {
-      return addhostError(200, context, request);
-    }
-    var domain = parsedUrl[2];
-
-    var {Host} = require('models/host');
-
-    /**
-     * We need to check host for existance in DB.
-     * We don’t want to create tons of hosts with identical URL.
-     * If host exists, let’s update its time updated. 
-     */
-    var existingHost = Host.all().filter("url =", href).fetch(1);
-    if (existingHost && existingHost[0]) {
-      var key =  existingHost[0].key();
-      existingHost[0].updated = new Date();
-      existingHost[0].put();
-      context.existing = true;
-      return addhostSuccess(key, context, request);
-    }
-
-    // Ping host to check URL is correct and site available.
-    var Pinger = new Packages.sibli.Pinger();
-    var status = Pinger.ping(href);
-    // @todo: ? Add new status and timing saving for existing host too.
-    // @todo: ? Add timing and creation of first HostQuery entity for host.
-
-    if (status == "Malformed URL" || status == "URL is null") {
-      return addhostError(200, context, request);
-    }
-    if (status == "Timeout" || status == "Host unreachable") {
-      return addhostError(300, context, request);
-    }
-
-    var newHost = new Host({
-      //keyName : href,
-      url     : href,
-      domain  : domain,
-      finalurl : null,
-      status  : parseInt(status),
-      useget  : !!(~~status == 405)
-    });
-    newHost.put();
-    var key = newHost.key();
-    return addhostSuccess(key, context, request);
-  } else {
-    /**
-     * http://code.google.com/intl/en/appengine/docs/java/config/appconfig.html
-     * > Because App Engine stores session data in the datastore and memcache, all values
-     * > stored in the session must implement the java.io.Serializable interface.
-     * So we can not use Date directly and must convert such values to strings.
-     */
-    request.session.data.init = (new Date()).toString();
-  }
-
-  return app.render("addhost.html", context);
+    return app.render("addhost.html", context);
 } // addhost
 
 
@@ -275,6 +280,7 @@ function viewhost(request, key) {
 } // viewhost
 
 
+// @deprecated Not used anymore.
 function sortFn(a, b) {
     if (a.x > b.x) return  1;
     if (a.x < b.x) return -1;
