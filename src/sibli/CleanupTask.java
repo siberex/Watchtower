@@ -14,7 +14,8 @@ public class CleanupTask extends HttpServlet {
     throws IOException {
         LOG.info("Cleanup task started.");
 
-
+        // @todo Use map-reduce or something like.
+        // @todo Dump old data somewhere before removal.
 
 
     } // doGet
