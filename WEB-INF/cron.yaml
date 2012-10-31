@@ -22,4 +22,4 @@ cron:
 - description: Cleanup, daily
   url: /cleanup
   timezone: Asia/Irkutsk
-  schedule: every 1 days
+  schedule: every 24 hours
