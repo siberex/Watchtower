@@ -69,6 +69,7 @@ handlers:
     jsp: /getip.jsp
     secure: optional
   - url: /*
+    secure: always
     servlet: org.ringojs.jsgi.JsgiServlet
     name: WatchTower
     init_params:
