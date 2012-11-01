@@ -61,6 +61,13 @@ handlers:
     login: admin
     servlet: sibli.PingTask
     name: PingTask
+  - url: /cleanup
+    login: admin
+    servlet: sibli.CleanupTask
+    name: CleanupTask
+  - url: /getip
+    jsp: /getip.jsp
+    secure: optional
   - url: /*
     servlet: org.ringojs.jsgi.JsgiServlet
     name: WatchTower
