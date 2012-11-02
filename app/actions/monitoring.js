@@ -20,6 +20,8 @@ function index(request) {
             ? "Мониторинг"
             : "Monitoring";
 
+  return app.render("monitoring.html", context);
+
   var Pinger = new Packages.sibli.Pinger();
   // Let’s use reflection, just to play with Java:
   // var clsPinger = java.lang.Class.forName("sibli.Pinger");

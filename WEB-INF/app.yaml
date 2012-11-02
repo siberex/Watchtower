@@ -84,6 +84,7 @@ handlers:
 #      optlevel: 9
       optlevel: -1
   - url: /test
+    secure: always
     login: admin
     name: WatchTower
 
