@@ -47,6 +47,4 @@ Ask you questions, I will answer here :-)
 Credits
 =======
 
-Developed by Stepan Legachev <siberex@gmail.com>
-
-http://www.sib.li
+https://sib.li
